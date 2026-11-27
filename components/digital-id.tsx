@@ -19,7 +19,7 @@ export default function DigitalId({ user }: Props) {
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/identity", { cache: "no-store" });
+      const response = await fetch("/api/identity", { method: "POST", cache: "no-store" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Could not create your campus pass.");
       const nextPass = data as Pass;
