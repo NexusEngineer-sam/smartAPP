@@ -13,7 +13,8 @@ type DataCash = { periodDays:number; usage:{totalBytes:string;totalGiB:number;ev
 export default function AdminConsole(){
  const [tab,setTab]=useState<Tab>("announcements");
  const [announcements,setAnnouncements]=useState<Announcement[]>([]);
- const [events,setEvents]=useState<Event[]>([]);\n const [campusEvents,setCampusEvents]=useState<CampusEvent[]>([]);
+ const [events,setEvents]=useState<Event[]>([]);
+ const [campusEvents,setCampusEvents]=useState<CampusEvent[]>([]);
  const [students,setStudents]=useState<Student[]>([]);
  const [logs,setLogs]=useState<Log[]>([]);
  const [dataCash,setDataCash]=useState<DataCash|null>(null);
@@ -24,10 +25,10 @@ export default function AdminConsole(){
  async function load(){
   setError("");
   try{
-   const [a,t,l,d]=await Promise.all([fetch("/api/admin/announcements",{cache:"no-store"}),fetch("/api/admin/timetable",{cache:"no-store"}),fetch("/api/admin/audit",{cache:"no-store"}),fetch("/api/admin/data-to-cash",{cache:"no-store"})]);
-   const ad=await a.json(),td=await t.json(),ld=await l.json(),dd=await d.json();
-   if(!a.ok||!t.ok||!l.ok||!d.ok)throw new Error(ad.error||td.error||ld.error||dd.error||"Unable to load control center data.");
-   setAnnouncements(ad.announcements);setEvents(td.events);setStudents(td.students);setLogs(ld.logs);setDataCash(dd);
+   const [a,t,l,d,e]=await Promise.all([fetch("/api/admin/announcements",{cache:"no-store"}),fetch("/api/admin/timetable",{cache:"no-store"}),fetch("/api/admin/audit",{cache:"no-store"}),fetch("/api/admin/data-to-cash",{cache:"no-store"}),fetch("/api/admin/campus-events",{cache:"no-store"})]);
+   const ad=await a.json(),td=await t.json(),ld=await l.json(),dd=await d.json(),ed=await e.json();
+   if(!a.ok||!t.ok||!l.ok||!d.ok||!e.ok)throw new Error(ad.error||td.error||ld.error||dd.error||ed.error||"Unable to load control center data.");
+   setAnnouncements(ad.announcements);setEvents(td.events);setStudents(td.students);setLogs(ld.logs);setDataCash(dd);setCampusEvents(ed.events);
   }catch(e){setError(e instanceof Error?e.message:"Unable to load data.");}
  }
  useEffect(()=>{void load();},[]);
