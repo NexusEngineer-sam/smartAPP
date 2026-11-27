@@ -9,7 +9,7 @@ export async function GET() {
   const campaigns = await prisma.adCampaign.findMany({
     where: user.role === "ADMIN" ? {} : { OR: [{ status: "APPROVED" }, { advertiserId: user.id }] },
     orderBy: { createdAt: "desc" }, take: 50,
-    select: { id: true, businessName: true, title: true, description: true, contact: true, budgetTzs: true, status: true, createdAt: true, advertiserId: true }
+    select: { id: true, businessName: true, title: true, description: true, contact: true, budgetTzs: true, mediaUrl: true, status: true, createdAt: true, advertiserId: true, _count: { select: { likes: true, comments: true } }, comments: { take: 3, orderBy: { createdAt: "desc" }, select: { id: true, body: true, createdAt: true, user: { select: { id: true, name: true, avatarUrl: true } } } } }
   });
   return NextResponse.json({ campaigns });
 }
@@ -19,15 +19,16 @@ const createSchema = z.object({
   title: z.string().trim().min(3).max(120),
   description: z.string().trim().min(10).max(1000),
   contact: z.string().trim().min(5).max(100),
-  budgetTzs: z.number().int().min(5000).max(100000000)
+  mediaUrl: z.string().url().max(2000).optional().or(z.literal("")),
+  budgetTzs: z.number().int().min(0).max(0).default(0)
 });
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Sign in to submit an advert." }, { status: 401 });
   const parsed = createSchema.safeParse(await request.json());
-  if (!parsed.success) return NextResponse.json({ error: "Check all fields. Minimum advert budget is TSh 5,000." }, { status: 400 });
-  const campaign = await prisma.adCampaign.create({ data: { ...parsed.data, advertiserId: user.id } });
+  if (!parsed.success) return NextResponse.json({ error: "Angalia taarifa za tangazo." }, { status: 400 });
+  const campaign = await prisma.adCampaign.create({ data: { ...parsed.data, mediaUrl: parsed.data.mediaUrl || null, budgetTzs: 0, advertiserId: user.id } });
   return NextResponse.json({ campaign }, { status: 201 });
 }
 
