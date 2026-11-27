@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BriefcaseBusiness, Megaphone, Send, ShieldCheck } from "lucide-react";
 import SponsoredCampaignCard from "@/components/sponsored-campaign-card";
+import AdNetworkSlot from "@/components/ad-network-slot";
 
 type Campaign = { id:string; businessName:string; title:string; description:string; contact:string; budgetTzs:number; status:"PENDING"|"APPROVED"|"REJECTED"; createdAt:string; advertiserId?:string };
 const money=(n:number)=>new Intl.NumberFormat("en-TZ",{style:"currency",currency:"TZS",maximumFractionDigits:0}).format(n);
@@ -39,6 +40,7 @@ export default function BusinessCenter({ role }:{role:string}) {
     <div className="notice-list" style={{marginBottom:18}}>
       {items.length===0?<div className="empty-state compact"><Megaphone size={24}/><b>Hakuna matangazo bado</b><span>Matangazo yaliyoidhinishwa yataonekana hapa.</span></div>:items.map(x=><SponsoredCampaignCard key={x.id} campaign={x} admin={role==="ADMIN"} onModerate={moderate}/>)}
     </div>
+    <AdNetworkSlot/>
     <form onSubmit={submit} style={{display:"grid",gap:12}}>
       <div><span className="eyebrow">PROMOTE YOUR BUSINESS</span><h3 style={{margin:"5px 0 0"}}>Weka tangazo jipya</h3><p style={{margin:"5px 0 0",color:"var(--muted,#7b8496)",fontSize:13}}>Jaza taarifa; tangazo litakaguliwa kabla ya kuchapishwa.</p></div>
       <label>Jina la biashara<input required minLength={2} maxLength={100} value={form.businessName} onChange={e=>setForm({...form,businessName:e.target.value})} placeholder="Mf. Samwel Digital Services"/></label>
