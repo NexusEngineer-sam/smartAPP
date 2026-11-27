@@ -26,6 +26,7 @@ model User {
   sessions     Session[]
   expenses     Expense[]
   notifications Notification[]
+  eventRecipients EventRecipient[]
   auditEntries AuditLog[]  @relation("AuditActor")
 }
 
@@ -63,6 +64,7 @@ model TimetableEvent {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   notifications Notification[]
+  recipients EventRecipient[]
   @@index([startsAt, isActive])
 }
 
@@ -104,4 +106,16 @@ model AuditLog {
   actor      User     @relation("AuditActor", fields: [actorId], references: [id], onDelete: Restrict)
   @@index([actorId, createdAt])
   @@index([entityType, entityId])
+}
+
+
+model EventRecipient {
+  id        String @id @default(cuid())
+  userId    String
+  eventId   String
+  createdAt DateTime @default(now())
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     TimetableEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  @@unique([userId, eventId])
+  @@index([eventId])
 }
