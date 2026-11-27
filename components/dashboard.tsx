@@ -100,12 +100,7 @@ export default function Dashboard({user}:{user:User}) {
       </div>
     </section>
     <nav className="mobile-bottom-nav" aria-label="Primary navigation">
-      <a href="/" className="mobile-nav-item active"><LayoutDashboard size={18}/><span>Home</span></a>
-      <a href="#planner" className="mobile-nav-item"><CalendarDays size={18}/><span>Planner</span></a>
-      <a href="#finance" className="mobile-nav-item"><Wallet size={18}/><span>Finance</span></a>
-      <a href="#updates" className="mobile-nav-item"><Bell size={18}/><span>Updates</span></a>
-      {user.role==="ADMIN"&&<a href="/admin" className="mobile-nav-item"><Shield size={18}/><span>Admin</span></a>}
-      <button type="button" className="mobile-nav-item mobile-logout" onClick={logout}><LogOut size={18}/><span>Log out</span></button>
+      {[{id:"home",label:"Home",icon:LayoutDashboard},{id:"study",label:"Study",icon:BookOpen},{id:"social",label:"Social",icon:Users},{id:"videos",label:"Videos",icon:Video},{id:"ads",label:"Promote",icon:Megaphone},{id:"finance",label:"Finance",icon:Wallet}].map(item=><button type="button" key={item.id} className={`mobile-nav-item ${activeSection===item.id?"active":""}`} onClick={()=>{setActiveSection(item.id);window.scrollTo({top:0,behavior:"smooth"});}}><item.icon size={18}/><span>{item.label}</span></button>)}
     </nav>
     {modal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setModal(false)}}><form className="modal-card" onSubmit={addExpense}><div className="modal-heading"><div><span className="eyebrow">PERSONAL FINANCE</span><h2>Record an expense</h2></div><button type="button" className="icon-btn" onClick={()=>setModal(false)}><X/></button></div><label>Expense description<input required maxLength={100} value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. Lunch at cafeteria"/></label><label>Amount in TZS<input required type="number" min="1" max="100000000" step="1" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="5000"/></label><label>Category<select value={category} onChange={e=>setCategory(e.target.value)}>{["Food","Transport","Study","Shopping","Accommodation","Other"].map(c=><option key={c}>{c}</option>)}</select></label>{error&&<p className="form-error">{error}</p>}<button className="primary-btn" disabled={saving}>{saving?"Saving securely…":"Save transaction"}</button></form></div>}
   </main>;
