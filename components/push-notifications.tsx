@@ -18,8 +18,10 @@ export default function PushNotifications() {
     setBusy(true);
     setStatus("");
     try {
-      const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!key) throw new Error("Push service haijawekwa na msimamizi bado.");
+      const keyResponse = await fetch("/api/push/vapid-public-key");
+      const keyResult = await keyResponse.json();
+      const key = keyResult.publicKey as string | undefined;
+      if (!keyResponse.ok || !key) throw new Error("Push service haijawekwa na msimamizi bado.");
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) throw new Error("Simu au browser hii haitumii push notifications.");
       const permission = await Notification.requestPermission();
       if (permission !== "granted") throw new Error("Ruhusa ya notifications haijaruhusiwa kwenye simu.");
