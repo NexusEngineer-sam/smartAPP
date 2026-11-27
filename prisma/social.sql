@@ -1,10 +1,14 @@
 CREATE TABLE IF NOT EXISTS "SocialPost" (
   "id" TEXT PRIMARY KEY,
   "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
-  "content" VARCHAR(1200) NOT NULL,
+  "content" VARCHAR(1200) NOT NULL DEFAULT '',
+  "mediaUrl" TEXT,
+  "mediaType" VARCHAR(10),
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+ALTER TABLE "SocialPost" ADD COLUMN IF NOT EXISTS "mediaUrl" TEXT;
+ALTER TABLE "SocialPost" ADD COLUMN IF NOT EXISTS "mediaType" VARCHAR(10);
 CREATE INDEX IF NOT EXISTS "SocialPost_createdAt_idx" ON "SocialPost"("createdAt");
 CREATE INDEX IF NOT EXISTS "SocialPost_userId_createdAt_idx" ON "SocialPost"("userId","createdAt");
 CREATE TABLE IF NOT EXISTS "SocialPostLike" (
