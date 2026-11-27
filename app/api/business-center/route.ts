@@ -19,7 +19,7 @@ const createSchema = z.object({
   title: z.string().trim().min(3).max(120),
   description: z.string().trim().min(10).max(1000),
   contact: z.string().trim().min(5).max(100),
-  mediaUrl: z.string().url().max(2000).optional().or(z.literal("")),
+  mediaUrl: z.string().max(8_500_000).optional().refine(v => !v || v === "" || /^https:\/\//i.test(v) || /^data:(image\/(jpeg|png|webp|gif)|video\/(mp4|webm));base64,/i.test(v), "Invalid media file"),
   budgetTzs: z.number().int().min(0).max(0).default(0)
 });
 
