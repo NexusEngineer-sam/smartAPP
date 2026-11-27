@@ -499,3 +499,33 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 .campus-ad-compose input::selection,
 .campus-ad-compose textarea::selection{background:#dcd4ff;color:#17152b}
+
+
+/* Campus Spotlight: Android-safe comment composer contrast */
+.campus-ad-comments input,
+.campus-ad-comments input[type="text"],
+.campus-ad-comments textarea{
+  color:#17152b!important;
+  -webkit-text-fill-color:#17152b!important;
+  background:#fff!important;
+  opacity:1!important;
+  font-size:14px!important;
+  font-weight:600!important;
+  caret-color:#684ce0!important;
+}
+.campus-ad-comments input::placeholder,
+.campus-ad-comments textarea::placeholder{
+  color:#77748a!important;
+  -webkit-text-fill-color:#77748a!important;
+  opacity:1!important;
+  font-weight:400!important;
+}
+.campus-ad-comments input:focus,
+.campus-ad-comments textarea:focus{
+  color:#17152b!important;
+  -webkit-text-fill-color:#17152b!important;
+  background:#fff!important;
+  border-color:#7657f5!important;
+}
+.campus-ad-comments input::selection,
+.campus-ad-comments textarea::selection{background:#dcd4ff;color:#17152b}
