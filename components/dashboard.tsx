@@ -54,7 +54,7 @@ export default function Dashboard({user}:{user:User}) {
       {user.role==="ADMIN"&&<><span className="side-label">ADMINISTRATION</span><a className="nav-item" href="/admin"><Shield size={18}/> Control center</a></>}
       <div className="sidebar-bottom"><div className="support-link"><CircleHelp size={17}/> Help & support</div><div className="user-chip"><span className="avatar">{initials}</span><span className="user-meta"><b>{user.name}</b><small>{user.role.toLowerCase()}</small></span><button className="icon-btn" title="Sign out" onClick={logout}><LogOut size={17}/></button></div></div>
     </aside>
-    <section className="main-area"><header className="topbar"><div className="mobile-brand"><GraduationCap/> CAMPUS OS</div><div className="topbar-right"><span className="campus-pill"><i/> UDOM · CAMPUS</span><button className="icon-btn" aria-label="Notifications"><Bell size={18}/></button><span className="avatar">{initials}</span></div></header>
+    <section className="main-area"><header className="topbar"><div className="mobile-brand"><GraduationCap/> CAMPUS OS</div><div className="topbar-right"><span className="campus-pill"><i/> UDOM · CAMPUS</span><a className="icon-btn" href="#updates" aria-label="Go to campus announcements"><Bell size={18}/></a><span className="avatar">{initials}</span></div></header>
       <div className="page-content"><div className="welcome-row"><div><span className="eyebrow">YOUR CAMPUS, IN SYNC</span><h1>{greeting}, {user.name.split(" ")[0]} <span>✦</span></h1><p>Your academic life, organised in one intelligent workspace.</p></div><div className="today-pill"><CalendarDays size={16}/>{new Intl.DateTimeFormat("en",{weekday:"long",day:"numeric",month:"short"}).format(new Date())}</div></div>
         <section className="hero-grid"><div className="hero-card"><div className="hero-top"><span><Sparkles size={15}/> CAMPUS OVERVIEW</span><span className="live-dot">SYSTEM ONLINE</span></div><h2>Make every day<br/>count.</h2><p>Stay ahead of your classes, finances and campus updates.</p><div className="hero-stats"><div><b>{expenses.length}</b><small>Expenses tracked</small></div><div><b>{notices.length}</b><small>New announcements</small></div></div></div>
           <div className="metric-card"><div className="metric-icon purple"><Wallet/></div><span className="metric-label">TOTAL RECORDED SPENDING</span><strong>{loading?"—":money(spent)}</strong><small>Based on your saved transactions</small><button className="text-action" onClick={()=>setModal(true)}>Add transaction <ArrowUpRight size={15}/></button></div>
@@ -73,6 +73,13 @@ export default function Dashboard({user}:{user:User}) {
         <footer className="app-footer">© {new Date().getFullYear()} SAMWEL CAMPUS OS <span>ENGINEERED FOR BETTER CAMPUS LIFE</span></footer>
       </div>
     </section>
+    <nav className="mobile-bottom-nav" aria-label="Primary navigation">
+      <a href="/" className="mobile-nav-item active"><LayoutDashboard size={18}/><span>Home</span></a>
+      <a href="#planner" className="mobile-nav-item"><CalendarDays size={18}/><span>Planner</span></a>
+      <a href="#finance" className="mobile-nav-item"><Wallet size={18}/><span>Finance</span></a>
+      <a href="#updates" className="mobile-nav-item"><Bell size={18}/><span>Updates</span></a>
+      {user.role==="ADMIN"&&<a href="/admin" className="mobile-nav-item"><Shield size={18}/><span>Admin</span></a>}
+    </nav>
     {modal&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setModal(false)}}><form className="modal-card" onSubmit={addExpense}><div className="modal-heading"><div><span className="eyebrow">PERSONAL FINANCE</span><h2>Record an expense</h2></div><button type="button" className="icon-btn" onClick={()=>setModal(false)}><X/></button></div><label>Expense description<input required maxLength={100} value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. Lunch at cafeteria"/></label><label>Amount in TZS<input required type="number" min="1" max="100000000" step="1" value={amount} onChange={e=>setAmount(e.target.value)} placeholder="5000"/></label><label>Category<select value={category} onChange={e=>setCategory(e.target.value)}>{["Food","Transport","Study","Shopping","Accommodation","Other"].map(c=><option key={c}>{c}</option>)}</select></label>{error&&<p className="form-error">{error}</p>}<button className="primary-btn" disabled={saving}>{saving?"Saving securely…":"Save transaction"}</button></form></div>}
   </main>;
 }
