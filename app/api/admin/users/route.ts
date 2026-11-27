@@ -33,6 +33,6 @@ export async function PATCH(request: Request) {
   const { userId, ...changes } = parsed.data;
   const user = await prisma.user.update({ where: { id: userId }, data: changes, select: { id: true, name: true, email: true, role: true, isActive: true } });
   const action = changes.role ? "USER_ROLE_CHANGED" : changes.isActive ? "USER_ACTIVATED" : "USER_DEACTIVATED";
-  await prisma.auditLog.create({ data: { actorId: admin.id, action, entityType: "User", entityId: user.id, metadata: changes } });
+  await prisma.auditLog.create({ data: { actorId: admin.id, action, entityType: "User", entityId: user.id, metadata: { role: changes.role ?? null, isActive: changes.isActive ?? null } } });
   return NextResponse.json({ user });
 }
