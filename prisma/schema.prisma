@@ -44,6 +44,8 @@ model User {
   sponsoredAdViews SponsoredAdView[]
   dataUsageEvents DataUsageEvent[]
   campusVideos CampusVideo[]
+  campusEvents CampusEvent[]
+  eventRegistrations EventRegistration[]
   @@index([classGroupId])
 }
 
@@ -339,4 +341,43 @@ model RevenueLedgerEntry {
   confirmedAt       DateTime?
   @@index([status, createdAt])
   @@index([source, createdAt])
+}
+
+
+enum CampusEventStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model CampusEvent {
+  id            String   @id @default(cuid())
+  organizerId   String
+  title         String   @db.VarChar(140)
+  description   String   @db.VarChar(2000)
+  category      String   @default("Campus") @db.VarChar(40)
+  venue         String   @db.VarChar(160)
+  startsAt      DateTime
+  endsAt        DateTime
+  organizerName String   @db.VarChar(120)
+  contact       String?  @db.VarChar(120)
+  status        CampusEventStatus @default(PENDING)
+  approvedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  organizer     User     @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  attendees     EventRegistration[]
+  @@index([status, startsAt])
+  @@index([organizerId, createdAt])
+}
+
+model EventRegistration {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  createdAt DateTime @default(now())
+  event     CampusEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([eventId, userId])
+  @@index([userId, createdAt])
 }
