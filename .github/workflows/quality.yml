@@ -10,8 +10,8 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/campus_os?schema=public' }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/campus_os?schema=public' }}
       CRON_SECRET: ci-only-placeholder-secret
     steps:
       - name: Checkout
@@ -24,6 +24,12 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Generate Prisma client
         run: npm run db:generate
+      - name: Verify Supabase database connection
+        if: ${{ secrets.DATABASE_URL != '' }}
+        run: node -e 'const { PrismaClient } = require("@prisma/client"); const db = new PrismaClient(); db.$queryRaw\`SELECT 1\`.then(() => console.log("Supabase database connection: OK")).catch((error) => { console.error("Supabase database connection failed:", error.message); process.exitCode = 1; }).finally(() => db.$disconnect());'
+      - name: Note when Supabase secrets are not configured
+        if: ${{ secrets.DATABASE_URL == '' || secrets.DIRECT_URL == '' }}
+        run: echo "::notice::DATABASE_URL and/or DIRECT_URL are missing. Build checks can run, but Supabase connectivity has not been verified."
       - name: Type-check
         run: npm run lint
       - name: Production build
