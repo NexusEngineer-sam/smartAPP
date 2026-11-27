@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import PushNotifications from "@/components/push-notifications";
+import DigitalId from "@/components/digital-id";
 import { Activity, Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, GraduationCap, LayoutDashboard, LogOut, Plus, Shield, Wallet, X, ArrowUpRight, Clock3, Sparkles } from "lucide-react";
 
 type User = { name: string; email: string; role: string };
@@ -56,7 +57,7 @@ export default function Dashboard({user}:{user:User}) {
       <div className="sidebar-bottom"><div className="support-link"><CircleHelp size={17}/> Help & support</div><div className="user-chip"><span className="avatar">{initials}</span><span className="user-meta"><b>{user.name}</b><small>{user.role.toLowerCase()}</small></span><button className="icon-btn" title="Sign out" onClick={logout}><LogOut size={17}/></button></div></div>
     </aside>
     <section className="main-area"><header className="topbar"><div className="mobile-brand"><GraduationCap/> CAMPUS OS</div><div className="topbar-right"><span className="campus-pill"><i/> UDOM · CAMPUS</span><PushNotifications/><a className="icon-btn" href="#updates" aria-label="Go to campus announcements"><Bell size={18}/></a><span className="avatar">{initials}</span></div></header>
-      <div className="page-content"><div className="welcome-row"><div><span className="eyebrow">YOUR CAMPUS, IN SYNC</span><h1>{greeting}, {user.name.split(" ")[0]} <span>✦</span></h1><p>Your academic life, organised in one intelligent workspace.</p></div><div className="today-pill"><CalendarDays size={16}/>{new Intl.DateTimeFormat("en",{weekday:"long",day:"numeric",month:"short"}).format(new Date())}</div></div>
+      <div className="page-content"><div className="welcome-row"><div><span className="eyebrow">YOUR CAMPUS, IN SYNC</span><h1>{greeting}, {user.name.split(" ")[0]} <span>✦</span></h1><p>Your academic life, organised in one intelligent workspace.</p><DigitalId user={user}/></div><div className="today-pill"><CalendarDays size={16}/>{new Intl.DateTimeFormat("en",{weekday:"long",day:"numeric",month:"short"}).format(new Date())}</div></div>
         <section className="hero-grid"><div className="hero-card"><div className="hero-top"><span><Sparkles size={15}/> CAMPUS OVERVIEW</span><span className="live-dot">SYSTEM ONLINE</span></div><h2>Make every day<br/>count.</h2><p>Stay ahead of your classes, finances and campus updates.</p><div className="hero-stats"><div><b>{expenses.length}</b><small>Expenses tracked</small></div><div><b>{notices.length}</b><small>New announcements</small></div></div></div>
           <div className="metric-card"><div className="metric-icon purple"><Wallet/></div><span className="metric-label">TOTAL RECORDED SPENDING</span><strong>{loading?"—":money(spent)}</strong><small>Based on your saved transactions</small><button className="text-action" onClick={()=>setModal(true)}>Add transaction <ArrowUpRight size={15}/></button></div>
         </section>
