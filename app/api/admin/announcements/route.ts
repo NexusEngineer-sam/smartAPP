@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { sendPushToAll } from "@/lib/push";
 
 async function adminOnly() {
   const user = await getCurrentUser();
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Provide a title and announcement body." }, { status: 400 });
   const announcement = await prisma.announcement.create({ data: parsed.data });
+  if (announcement.published) await sendPushToAll(announcement.title, announcement.body, "/#updates");
   await prisma.auditLog.create({ data: { actorId: admin.id, action: "ANNOUNCEMENT_CREATED", entityType: "Announcement", entityId: announcement.id } });
   return NextResponse.json({ announcement }, { status: 201 });
 }
@@ -35,6 +37,7 @@ export async function PATCH(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid announcement update." }, { status: 400 });
   const { id, ...data } = parsed.data;
   const announcement = await prisma.announcement.update({ where: { id }, data });
+  if (data.published === true) await sendPushToAll(announcement.title, announcement.body, "/#updates");
   await prisma.auditLog.create({ data: { actorId: admin.id, action: "ANNOUNCEMENT_UPDATED", entityType: "Announcement", entityId: id } });
   return NextResponse.json({ announcement });
 }
