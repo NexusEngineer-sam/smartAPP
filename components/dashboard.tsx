@@ -6,14 +6,14 @@ import { Activity, Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, Gradu
 
 type User = { name: string; email: string; role: string };
 type Expense = { id: string; title: string; category: string; amount: number; createdAt: string };
-type Notice = { id: string; title: string; body: string; createdAt: string };
+type Notice = { id: string; title: string; body: string; createdAt: string };\ntype ClassEvent = { id:string; title:string; courseCode:string|null; location:string|null; startsAt:string; endsAt:string; reminderMins:number };
 
 const money = (n:number) => new Intl.NumberFormat("en-TZ",{style:"currency",currency:"TZS",maximumFractionDigits:0}).format(n);
 
 export default function Dashboard({user}:{user:User}) {
   const router=useRouter();
   const [expenses,setExpenses]=useState<Expense[]>([]);
-  const [notices,setNotices]=useState<Notice[]>([]);
+  const [notices,setNotices]=useState<Notice[]>([]);\n  const [classes,setClasses]=useState<ClassEvent[]>([]);
   const [loading,setLoading]=useState(true);
   const [modal,setModal]=useState(false);
   const [title,setTitle]=useState("");
@@ -25,10 +25,10 @@ export default function Dashboard({user}:{user:User}) {
   async function load() {
     setLoading(true);
     try {
-      const [e,n]=await Promise.all([fetch("/api/expenses",{cache:"no-store"}),fetch("/api/announcements",{cache:"no-store"})]);
+      const [e,n,t]=await Promise.all([fetch("/api/expenses",{cache:"no-store"}),fetch("/api/announcements",{cache:"no-store"}),fetch("/api/timetable",{cache:"no-store"})]);
       if(e.status===401){router.replace("/login");return;}
       if(e.ok){const d=await e.json();setExpenses(d.expenses);}
-      if(n.ok){const d=await n.json();setNotices(d.announcements);}
+      if(n.ok){const d=await n.json();setNotices(d.announcements);}\n      if(t.ok){const d=await t.json();setClasses(d.events);}
     } finally {setLoading(false);}
   }
   useEffect(()=>{void load();},[]);
@@ -63,7 +63,7 @@ export default function Dashboard({user}:{user:User}) {
         <section className="surface-card" id="updates"><div className="card-heading"><div><h3>Campus announcements</h3><p>Official updates from your campus.</p></div><span className="round-icon"><Bell size={17}/></span></div>
           {notices.length===0?<div className="empty-state compact"><Bell size={24}/><b>You're all caught up</b><span>Verified announcements will appear here.</span></div>:<div className="notice-list">{notices.map(n=><article className="notice" key={n.id}><span className="notice-mark"><BookOpen size={16}/></span><div><b>{n.title}</b><p>{n.body}</p><small>{new Date(n.createdAt).toLocaleDateString()}</small></div></article>)}</div>}
         </section></div>
-        <section className="section-title planner-title" id="planner"><div><span className="eyebrow">COMING NEXT</span><h2>Academic tools</h2></div></section>
+        <section className="section-title planner-title" id="planner"><div><span className="eyebrow">YOUR ACADEMIC SCHEDULE</span><h2>Upcoming classes</h2></div></section>\n        <section className="surface-card timetable-card">{classes.length===0?<div className="empty-state compact"><CalendarDays size={24}/><b>No upcoming classes assigned</b><span>Your lecturer or administrator will add your sessions here.</span></div>:classes.map(c=><article className="notice" key={c.id}><span className="notice-mark"><Clock3 size={16}/></span><div><b>{c.title}</b><p>{c.courseCode||"Class session"} · {c.location||"Venue to be announced"}</p><small>{new Date(c.startsAt).toLocaleString()} – {new Date(c.endsAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div></article>)}</section>\n        <section className="section-title planner-title"><div><span className="eyebrow">CAMPUS UTILITIES</span><h2>Academic tools</h2></div></section>
         <div className="tool-grid"><a className="tool-card" href="#planner"><span className="tool-icon"><CalendarDays/></span><b>Study planner</b><small>Organise your study schedule</small><ChevronRight/></a><a className="tool-card" href="#planner"><span className="tool-icon teal"><Clock3/></span><b>Class timetable</b><small>Keep track of your sessions</small><ChevronRight/></a><a className="tool-card" href="#updates"><span className="tool-icon amber"><Bell/></span><b>Smart reminders</b><small>Stay on top of important events</small><ChevronRight/></a></div>
         <footer className="app-footer">© {new Date().getFullYear()} SAMWEL CAMPUS OS <span>ENGINEERED FOR BETTER CAMPUS LIFE</span></footer>
       </div>
