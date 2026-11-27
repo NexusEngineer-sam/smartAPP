@@ -90,3 +90,22 @@ DO $$ BEGIN
   ALTER TABLE "CampusVideo" ADD CONSTRAINT "CampusVideo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+
+CREATE TABLE IF NOT EXISTS "StudentLifeItem" (
+  "id" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "section" VARCHAR(32) NOT NULL,
+  "title" VARCHAR(140) NOT NULL,
+  "detail" VARCHAR(500),
+  "amount" INTEGER,
+  "done" BOOLEAN NOT NULL DEFAULT false,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL,
+  CONSTRAINT "StudentLifeItem_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "StudentLifeItem_userId_section_createdAt_idx" ON "StudentLifeItem"("userId","section","createdAt");
+DO $$ BEGIN
+  ALTER TABLE "StudentLifeItem" ADD CONSTRAINT "StudentLifeItem_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
