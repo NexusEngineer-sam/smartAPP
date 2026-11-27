@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { notifySocialUser } from "@/lib/social-notifications";
 
 export const runtime = "nodejs";
 
@@ -39,11 +40,16 @@ export async function PATCH(request: Request) {
   if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const parsed = likeSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid post." }, { status: 400 });
+  const target = await prisma.$queryRaw<Array<{ id: string; userId: string }>> `SELECT "id","userId" FROM "SocialPost" WHERE "id"=${parsed.data.postId} LIMIT 1`;
+  if (!target.length) return NextResponse.json({ error: "Post not found." }, { status: 404 });
   const exists = await prisma.$queryRaw<Array<{ id: string }>> `SELECT "id" FROM "SocialPostLike" WHERE "postId"=${parsed.data.postId} AND "userId"=${user.id} LIMIT 1`;
   if (exists.length) {
     await prisma.$executeRaw `DELETE FROM "SocialPostLike" WHERE "postId"=${parsed.data.postId} AND "userId"=${user.id}`;
   } else {
-    await prisma.$executeRaw `INSERT INTO "SocialPostLike" ("id","postId","userId") VALUES (${randomUUID()},${parsed.data.postId},${user.id}) ON CONFLICT ("postId","userId") DO NOTHING`;
+    const inserted = await prisma.$executeRaw `INSERT INTO "SocialPostLike" ("id","postId","userId") VALUES (${randomUUID()},${parsed.data.postId},${user.id}) ON CONFLICT ("postId","userId") DO NOTHING`;
+    if (inserted > 0) {
+      await notifySocialUser({ recipientId: target[0].userId, actorId: user.id, actorName: user.name, kind: "like", postId: parsed.data.postId });
+    }
   }
   const count = await prisma.$queryRaw<Array<{ count: number }>> `SELECT COUNT(*)::int AS count FROM "SocialPostLike" WHERE "postId"=${parsed.data.postId}`;
   return NextResponse.json({ liked: !exists.length, likes: count[0]?.count ?? 0 });
