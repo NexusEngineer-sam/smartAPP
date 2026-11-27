@@ -8,6 +8,7 @@ import BusinessCenter from "@/components/business-center";
 import EngagementTracker from "@/components/engagement-tracker";
 import EngagementAnalytics from "@/components/engagement-analytics";
 import CampusVideoHub from "@/components/campus-video-hub";
+import SocialFeed from "@/components/social-feed";
 import DigitalId from "@/components/digital-id";
 import CampusGuide from "@/components/campus-guide";
 import ClassRepPanel from "@/components/class-rep-panel";
@@ -94,7 +95,7 @@ export default function Dashboard({user}:{user:User}) {
         <section className="section-title planner-title"><div><span className="eyebrow">CAMPUS UTILITIES</span><h2>Academic tools</h2></div></section>
         <div className="tool-grid"><button className="tool-card" onClick={()=>setActiveSection("study")}><span className="tool-icon"><CalendarDays/></span><b>Study planner</b><small>Organise your study schedule</small><ChevronRight/></button><button className="tool-card" onClick={()=>setActiveSection("study")}><span className="tool-icon teal"><Clock3/></span><b>Class timetable</b><small>Keep track of your sessions</small><ChevronRight/></button><button className="tool-card" onClick={()=>setActiveSection("updates")}><span className="tool-icon amber"><Bell/></span><b>Smart reminders</b><small>Stay on top of important events</small><ChevronRight/></button></div></>}
         {activeSection==="study"&&<><CampusGuide/><div className="section-title"><div><span className="eyebrow">ACADEMIC MANAGEMENT</span><h2>Study Zone</h2></div></div><section className="surface-card timetable-card">{classes.length===0?<div className="empty-state compact"><CalendarDays/><b>No upcoming classes assigned</b></div>:classes.map(c=><article className="notice" key={c.id}><span className="notice-mark"><Clock3/></span><div><b>{c.title}</b><p>{c.courseCode||"Class"} · {c.location||"Venue TBA"}</p><small>{new Date(c.startsAt).toLocaleString()}</small></div></article>)}</section></>}
-        {activeSection==="social"&&<>{user.role==="CLASS_REP"?<ClassRepPanel/>:<ClassMessages/>}</>}
+        {activeSection==="social"&&<><SocialFeed user={user}/>{user.role==="CLASS_REP"?<ClassRepPanel/>:<ClassMessages/>}</>}
         {activeSection==="life"&&<StudentLifeHub user={user}/>}
         {activeSection==="videos"&&<CampusVideoHub/>}
         {activeSection==="ads"&&<BusinessCenter role={user.role}/>}
