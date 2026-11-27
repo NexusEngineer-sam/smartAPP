@@ -21,7 +21,7 @@ export async function POST(request:Request){
  if(!user)return NextResponse.json({error:"Authentication required."},{status:401});
  const parsed=createSchema.safeParse(await request.json());
  if(!parsed.success)return NextResponse.json({error:"Invalid student life entry."},{status:400});
- const item=await prisma.studentLifeItem.create({data:{...parsed.data,userId:user.id,detail:parsed.data.detail||null,amount:parsed.data.amount??null}});
+ if(parsed.data.section==="settings")await prisma.studentLifeItem.deleteMany({where:{userId:user.id,section:"settings"}});\n const item=await prisma.studentLifeItem.create({data:{...parsed.data,userId:user.id,detail:parsed.data.detail||null,amount:parsed.data.amount??null}});
  return NextResponse.json({item},{status:201});
 }
 const patchSchema=z.object({id:z.string().min(1),done:z.boolean()});
