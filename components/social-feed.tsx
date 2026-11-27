@@ -25,7 +25,22 @@ export default function SocialFeed({user}:{user:{name:string;email:string;role:s
  const initials=user.name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
 
  async function load(){try{const r=await fetch("/api/social",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load the community feed.");setPosts(d.posts||[]);}catch(e){setError(e instanceof Error?e.message:"Feed unavailable.");}finally{setLoading(false);}}
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{
+  void load();
+  // Synchronize the shared student feed across signed-in app users.
+  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},5000);
+  const onVisibility=()=>{if(document.visibilityState==="visible")void load();};
+  document.addEventListener("visibilitychange",onVisibility);
+  return ()=>{window.clearInterval(timer);document.removeEventListener("visibilitychange",onVisibility);};
+ },[]);
+ useEffect(()=>{
+  if(!commentPost)return;
+  let active=true;
+  const refresh=async()=>{try{const r=await fetch("/api/social/comments?postId="+encodeURIComponent(commentPost),{cache:"no-store"});const d=await r.json();if(active&&r.ok)setComments(c=>({...c,[commentPost]:d.comments||[]}));}catch{}};
+  void refresh();
+  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh();},5000);
+  return ()=>{active=false;window.clearInterval(timer);};
+ },[commentPost]);
  useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview);},[preview]);
  function selectFile(next:File|null){setError("");if(preview)URL.revokeObjectURL(preview);setPreview("");setFile(null);if(!next)return;const isImage=next.type.startsWith("image/");const isVideo=next.type.startsWith("video/");if(!isImage&&!isVideo){setError("Chagua picha au video pekee.");return;}const limit=isVideo?100:12;if(next.size>limit*1024*1024){setError("Faili imezidi "+limit+" MB.");return;}setFile(next);setPreview(URL.createObjectURL(next));}
  function heartBurst(id:string){const item={id:++burstId.current,left:38+Math.round(Math.random()*24)};setBursts(v=>({...v,[id]:[...(v[id]||[]),item].slice(-4)}));window.setTimeout(()=>setBursts(v=>({...v,[id]:(v[id]||[]).filter(x=>x.id!==item.id)})),1050);}
