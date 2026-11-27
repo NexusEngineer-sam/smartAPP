@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { notifyDataCenterAdmins } from "@/lib/data-center-alerts";
 
 const schema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("like"), campaignId: z.string().cuid() }),
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
     await prisma.adLike.deleteMany({ where: { campaignId: campaign.id, userId: user.id } });
   } else {
     await prisma.adComment.create({ data: { campaignId: campaign.id, userId: user.id, body: parsed.data.body } });
+    await notifyDataCenterAdmins("New Spotlight comment", `${user.name} commented on a campus advert.`, "/");
   }
   const [likes, comments] = await Promise.all([
     prisma.adLike.count({ where: { campaignId: campaign.id } }),
