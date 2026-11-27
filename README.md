@@ -41,7 +41,7 @@ SAMWEL CAMPUS OS is being developed as a secure, modular university platform tha
 
 Open http://localhost:3000. Public registration creates STUDENT accounts only. Create the first ADMIN through the seed command; never promote a user by editing a browser request.
 
-## Environment and deployment
+## Automated quality checks\n\nGitHub Actions runs dependency installation, Prisma client generation, TypeScript checking and a production Next.js build for pushes and pull requests to `main`.\n\n## Environment and deployment
 
 Deploy on a Node.js-compatible host with managed PostgreSQL. Set all environment variables in the hosting provider's secret manager. Use HTTPS in production. Configure a scheduler to POST to `/api/jobs/reminders` with the header `Authorization: Bearer <CRON_SECRET>` at a suitable interval. The current job queues in-app reminders; SMS delivery requires an approved provider integration and credentials and is not enabled by default.
 
