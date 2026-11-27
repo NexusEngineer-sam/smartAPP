@@ -11,7 +11,7 @@ export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const posts = await prisma.$queryRaw<Array<Record<string, unknown>>> `
-    SELECT p."id", p."content", p."createdAt",
+    SELECT p."id", p."content", p."createdAt", p."mediaUrl", p."mediaType",
       u."id" AS "authorId", u."name" AS "authorName", u."avatarUrl" AS "authorAvatar",
       (SELECT COUNT(*)::int FROM "SocialPostLike" l WHERE l."postId"=p."id") AS "likes",
       EXISTS(SELECT 1 FROM "SocialPostLike" mine WHERE mine."postId"=p."id" AND mine."userId"=${user.id}) AS "likedByMe",
@@ -23,15 +23,17 @@ export async function GET() {
   return NextResponse.json({ posts });
 }
 
-const postSchema = z.object({ content: z.string().trim().min(1).max(1200) });
+const postSchema = z.object({ content: z.string().trim().max(1200).default(""), mediaUrl: z.string().url().max(2000).nullable().optional(), mediaType: z.enum(["image", "video"]).nullable().optional() }).refine(v => v.content.length > 0 || !!v.mediaUrl, { message: "Write something or attach media." });
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const parsed = postSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Post must contain 1–1200 characters." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Write up to 1200 characters or attach media." }, { status: 400 });
+  if (parsed.data.mediaUrl && !parsed.data.mediaUrl.startsWith("https://res.cloudinary.com/")) return NextResponse.json({ error: "Unsupported media URL." }, { status: 400 });
+  if (!!parsed.data.mediaUrl !== !!parsed.data.mediaType) return NextResponse.json({ error: "Media type is missing." }, { status: 400 });
   const id = randomUUID();
-  await prisma.$executeRaw `INSERT INTO "SocialPost" ("id","userId","content") VALUES (${id},${user.id},${parsed.data.content})`;
-  return NextResponse.json({ post: { id, content: parsed.data.content, authorName: user.name, authorAvatar: user.avatarUrl, likes: 0, comments: 0, likedByMe: false, createdAt: new Date().toISOString() } }, { status: 201 });
+  await prisma.$executeRaw `INSERT INTO "SocialPost" ("id","userId","content","mediaUrl","mediaType") VALUES (${id},${user.id},${parsed.data.content},${parsed.data.mediaUrl || null},${parsed.data.mediaType || null})`;
+  return NextResponse.json({ post: { id, content: parsed.data.content, mediaUrl: parsed.data.mediaUrl || null, mediaType: parsed.data.mediaType || null, authorName: user.name, authorAvatar: user.avatarUrl, likes: 0, comments: 0, likedByMe: false, createdAt: new Date().toISOString() } }, { status: 201 });
 }
 
 const likeSchema = z.object({ postId: z.string().uuid() });
