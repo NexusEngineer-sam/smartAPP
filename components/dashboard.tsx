@@ -15,6 +15,7 @@ import CampusGuide from "@/components/campus-guide";
 import ClassRepPanel from "@/components/class-rep-panel";
 import ClassMessages from "@/components/class-messages";
 import StudentLifeHub from "@/components/student-life-hub";
+import StudyPlanner from "@/components/study-planner";
 import CampusEventsHub from "@/components/campus-events-hub";
 import { Activity, Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, GraduationCap, LayoutDashboard, LogOut, Plus, Shield, Wallet, X, ArrowUpRight, Clock3, Sparkles, Megaphone, Video, Users, ChartNoAxesCombined, Settings } from "lucide-react";
 
@@ -96,7 +97,7 @@ export default function Dashboard({user}:{user:User}) {
         <section className="surface-card timetable-card">{classes.length===0?<div className="empty-state compact"><CalendarDays size={24}/><b>No upcoming classes assigned</b><span>Your lecturer or administrator will add your sessions here.</span></div>:classes.map(c=><article className="notice" key={c.id}><span className="notice-mark"><Clock3 size={16}/></span><div><b>{c.title}</b><p>{c.courseCode||"Class session"} · {c.location||"Venue to be announced"}</p><small>{new Date(c.startsAt).toLocaleString()} – {new Date(c.endsAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div></article>)}</section>
         <section className="section-title planner-title"><div><span className="eyebrow">CAMPUS UTILITIES</span><h2>Academic tools</h2></div></section>
         <div className="tool-grid"><button className="tool-card" onClick={()=>setActiveSection("study")}><span className="tool-icon"><CalendarDays/></span><b>Study planner</b><small>Organise your study schedule</small><ChevronRight/></button><button className="tool-card" onClick={()=>setActiveSection("study")}><span className="tool-icon teal"><Clock3/></span><b>Class timetable</b><small>Keep track of your sessions</small><ChevronRight/></button><button className="tool-card" onClick={()=>setActiveSection("updates")}><span className="tool-icon amber"><Bell/></span><b>Smart reminders</b><small>Stay on top of important events</small><ChevronRight/></button></div></>}
-        {activeSection==="study"&&<><CampusGuide/><div className="section-title"><div><span className="eyebrow">ACADEMIC MANAGEMENT</span><h2>Study Zone</h2></div></div><section className="surface-card timetable-card">{classes.length===0?<div className="empty-state compact"><CalendarDays/><b>No upcoming classes assigned</b></div>:classes.map(c=><article className="notice" key={c.id}><span className="notice-mark"><Clock3/></span><div><b>{c.title}</b><p>{c.courseCode||"Class"} · {c.location||"Venue TBA"}</p><small>{new Date(c.startsAt).toLocaleString()}</small></div></article>)}</section></>}
+        {activeSection==="study"&&<StudyPlanner/>}
         {activeSection==="social"&&<><SocialFeed user={user}/>{user.role==="CLASS_REP"?<ClassRepPanel/>:<ClassMessages/>}</>}
         {activeSection==="events"&&<CampusEventsHub user={user}/> }
         {activeSection==="life"&&<StudentLifeHub user={user}/>}
