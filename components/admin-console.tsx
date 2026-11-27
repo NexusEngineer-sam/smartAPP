@@ -53,6 +53,16 @@ export default function AdminConsole(){
   const r=await fetch("/api/admin/timetable",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:event.id,isActive:!event.isActive})});const d=await r.json();if(!r.ok){setError(d.error);return;}setEvents(x=>x.map(v=>v.id===event.id?{...v,isActive:d.event.isActive}:v));
  }
  function toggleStudent(id:string){setUserIds(x=>x.includes(id)?x.filter(v=>v!==id):[...x,id]);}
+ async function moderateCampusEvent(item:CampusEvent,status:"APPROVED"|"REJECTED"){
+  setBusy(true);setError("");setNotice("");
+  try{
+   const r=await fetch("/api/admin/campus-events",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:item.id,status})});
+   const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not update event.");
+   setCampusEvents(v=>v.map(x=>x.id===item.id?{...x,status}:x));
+   setNotice(status==="APPROVED"?"Event approved and published to students.":"Event rejected.");
+  }catch(e){setError(e instanceof Error?e.message:"Could not update event.");}
+  finally{setBusy(false);}
+ }
  return <section className="admin-console">
   <div className="admin-tabs">{([{id:"announcements",label:"Announcements",icon:<Megaphone size={15}/>},{id:"timetable",label:"Timetable",icon:<CalendarClock size={15}/>},{id:"events",label:"Campus Events",icon:<CalendarDays size={15}/>},{id:"audit",label:"Audit trail",icon:<ScrollText size={15}/>},{id:"data-to-cash",label:"Data-to-Cash",icon:<Wallet size={15}/>} ] as const).map(x=><button key={x.id} className={tab===x.id?"admin-tab active":"admin-tab"} onClick={()=>setTab(x.id)}>{x.icon}{x.label}</button>)}<button className="admin-refresh" onClick={()=>void load()}><RefreshCw size={14}/> Refresh</button></div>
   {error&&<p className="form-error">{error}</p>}{notice&&<p className="success-message">{notice}</p>}
