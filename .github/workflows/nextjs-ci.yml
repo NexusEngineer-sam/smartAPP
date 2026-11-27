@@ -1,0 +1,35 @@
+name: Next.js application validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/campus_os?schema=public
+      DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/campus_os?schema=public
+      CRON_SECRET: ci-only-placeholder-secret
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Generate Prisma client
+        run: npm run db:generate
+      - name: TypeScript validation
+        run: npm run lint
+      - name: Next.js production build
+        run: npm run build
