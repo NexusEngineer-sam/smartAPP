@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     create: { userId: user.id, endpoint, p256dh: keys.p256dh, auth: keys.auth },
     update: { userId: user.id, p256dh: keys.p256dh, auth: keys.auth },
   });
-  const configured = Boolean(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY && process.env.VAPID_SUBJECT);
+  const configured = Boolean(process.env.VAPID_KEYS && (() => { try { const keys = JSON.parse(process.env.VAPID_KEYS); return Boolean(keys.publicKey && keys.privateKey && keys.subject); } catch { return false; } })());
   if (configured) await sendPushToUser(user.id, "Phone alerts enabled", "SAMWEL CAMPUS OS is now connected to this device.", "/");
   return NextResponse.json({ ok: true, pushConfigured: configured });
 }
