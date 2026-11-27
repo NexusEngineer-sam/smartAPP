@@ -463,3 +463,39 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .campus-upload-button{display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;gap:9px;border:1.5px dashed #a99af1;border-radius:13px;padding:17px;background:#f7f5ff;color:#6046cf!important;cursor:pointer;margin:0!important}
 .campus-upload-button span{font-size:12px;font-weight:800}.campus-upload-hint{display:block;color:#77758f;font-size:10px;line-height:1.5;margin-top:8px}
 .campus-upload-preview{position:relative;margin-top:11px;border:1px solid #e8e5f1;border-radius:13px;overflow:hidden;background:#f4f2fa}.campus-upload-preview .campus-ad-media{max-height:220px;object-fit:contain}.campus-upload-preview button{display:flex;align-items:center;gap:5px;border:0;background:#fff;color:#b43b50;border-radius:8px;padding:8px 10px;margin:8px;font-size:11px;font-weight:700}
+
+
+/* Campus Spotlight: force high-contrast typed text across mobile browsers */
+.campus-ad-compose label,
+.campus-upload-field>label:first-child{color:#17152b!important}
+.campus-ad-compose input:not([type=file]),
+.campus-ad-compose textarea{
+  color:#17152b!important;
+  -webkit-text-fill-color:#17152b!important;
+  background-color:#fff!important;
+  opacity:1!important;
+  font-size:14px!important;
+  font-weight:600!important;
+}
+.campus-ad-compose input:not([type=file])::placeholder,
+.campus-ad-compose textarea::placeholder{
+  color:#77748a!important;
+  -webkit-text-fill-color:#77748a!important;
+  opacity:1!important;
+  font-weight:400!important;
+}
+.campus-ad-compose input:not([type=file]):focus,
+.campus-ad-compose textarea:focus{
+  color:#17152b!important;
+  -webkit-text-fill-color:#17152b!important;
+  background:#fff!important;
+}
+.campus-ad-compose input:-webkit-autofill,
+.campus-ad-compose input:-webkit-autofill:hover,
+.campus-ad-compose input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#17152b!important;
+  box-shadow:0 0 0 1000px #fff inset!important;
+  caret-color:#684ce0!important;
+}
+.campus-ad-compose input::selection,
+.campus-ad-compose textarea::selection{background:#dcd4ff;color:#17152b}
