@@ -529,3 +529,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 .campus-ad-comments input::selection,
 .campus-ad-comments textarea::selection{background:#dcd4ff;color:#17152b}
+
+
+/* Campus OS ambient background: gently shifts palette every 8 seconds */
+@keyframes campusAmbientBackground {
+  0%, 19.99% { background-color: #f5f7ff; }
+  20%, 39.99% { background-color: #f7f3ff; }
+  40%, 59.99% { background-color: #f0fbff; }
+  60%, 79.99% { background-color: #f2fff8; }
+  80%, 99.99% { background-color: #fff8f0; }
+  100% { background-color: #f5f7ff; }
+}
+body {
+  animation: campusAmbientBackground 40s steps(1, end) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; background-color: var(--paper); }
+}
