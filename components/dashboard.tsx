@@ -29,8 +29,8 @@ export default function Dashboard({user}:{user:User}) {
   const [error,setError]=useState("");
   const [saving,setSaving]=useState(false);
 
-  async function load() {
-    setLoading(true);
+  async function load(silent=false) {
+    if(!silent)setLoading(true);
     try {
       const [e,n,t]=await Promise.all([fetch("/api/expenses",{cache:"no-store"}),fetch("/api/announcements",{cache:"no-store"}),fetch("/api/timetable",{cache:"no-store"})]);
       if(e.status===401){router.replace("/login");return;}
@@ -39,7 +39,14 @@ export default function Dashboard({user}:{user:User}) {
       if(t.ok){const d=await t.json();setClasses(d.events);}
     } finally {setLoading(false);}
   }
-  useEffect(()=>{void load();},[]);
+  useEffect(()=>{
+    void load();
+    const refresh=()=>{if(document.visibilityState==="visible")void load(true);};
+    const timer=window.setInterval(()=>void load(true),20000);
+    window.addEventListener("focus",refresh);
+    document.addEventListener("visibilitychange",refresh);
+    return ()=>{window.clearInterval(timer);window.removeEventListener("focus",refresh);document.removeEventListener("visibilitychange",refresh);};
+  },[]);
   const spent=useMemo(()=>expenses.reduce((s,x)=>s+x.amount,0),[expenses]);
   const greeting=new Date().getHours()<12?"Good morning":new Date().getHours()<17?"Good afternoon":"Good evening";
   async function addExpense(e:React.FormEvent){
@@ -69,7 +76,7 @@ export default function Dashboard({user}:{user:User}) {
           {loading?<div className="empty-state">Loading your transactions…</div>:expenses.length===0?<div className="empty-state"><Wallet size={25}/><b>No expenses yet</b><span>Your saved transactions will appear here.</span><button className="text-action" onClick={()=>setModal(true)}>Add your first expense <ChevronRight size={15}/></button></div>:<div className="transaction-list">{expenses.slice(0,7).map(x=><div className="transaction" key={x.id}><span className="transaction-icon"><Wallet size={17}/></span><span className="transaction-name"><b>{x.title}</b><small>{x.category} · {new Date(x.createdAt).toLocaleDateString()}</small></span><strong>−{money(x.amount)}</strong></div>)}</div>}
         </section>
         <section className="surface-card" id="updates"><div className="card-heading"><div><h3>Campus announcements</h3><p>Official updates from your campus.</p></div><span className="round-icon"><Bell size={17}/></span></div>
-          {notices.length===0?<div className="empty-state compact"><Bell size={24}/><b>You're all caught up</b><span>Verified announcements will appear here.</span></div>:<div className="notice-list">{notices.map(n=><article className="notice" key={n.id}><span className="notice-mark"><BookOpen size={16}/></span><div><b>{n.title}</b><p>{n.body}</p><small>{new Date(n.createdAt).toLocaleDateString()}</small></div></article>)}</div>}
+          {notices.length===0?<div className="empty-state compact"><Bell size={24}/><b>You're all caught up</b><span>Verified announcements will appear here.</span></div>:<div className="notice-list">{notices.map(n=><article className="notice" key={n.id}><span className="notice-mark"><BookOpen size={16}/></span><div><b>{n.title}</b><p>{n.body}</p><small>Campus Administration · {new Date(n.createdAt).toLocaleString()}</small></div></article>)}</div>}
         </section></div>
         <section className="section-title planner-title" id="planner"><div><span className="eyebrow">YOUR ACADEMIC SCHEDULE</span><h2>Upcoming classes</h2></div></section>
         <section className="surface-card timetable-card">{classes.length===0?<div className="empty-state compact"><CalendarDays size={24}/><b>No upcoming classes assigned</b><span>Your lecturer or administrator will add your sessions here.</span></div>:classes.map(c=><article className="notice" key={c.id}><span className="notice-mark"><Clock3 size={16}/></span><div><b>{c.title}</b><p>{c.courseCode||"Class session"} · {c.location||"Venue to be announced"}</p><small>{new Date(c.startsAt).toLocaleString()} – {new Date(c.endsAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small></div></article>)}</section>
