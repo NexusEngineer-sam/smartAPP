@@ -23,6 +23,9 @@ SAMWEL CAMPUS OS is being developed as a secure, modular university platform tha
 - Published campus announcement feed
 - Admin-only account directory
 - Admin activation/suspension of accounts with audit records
+- Admin announcement publishing, draft creation and deletion
+- Admin timetable scheduling with explicit student assignment and cancellation
+- Admin audit trail for governance actions
 - Timetable reminder notification job endpoint (protected by CRON_SECRET)
 - Responsive student workspace and admin control center
 
@@ -54,7 +57,7 @@ Deploy on a Node.js-compatible host with managed PostgreSQL. Set all environment
 ## Product roadmap
 
 1. Foundation and identity (current)
-2. Admin governance, academic structure, courses and departments
+2. Admin governance, academic structure, courses and departments (announcement and timetable administration foundation now added)
 3. Student timetable, planner, lecturer and class representative workspaces
 4. Push notifications, SMS provider integration and device alarms
 5. AI study assistant, analytics, multi-campus tenancy and production observability
