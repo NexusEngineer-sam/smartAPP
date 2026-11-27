@@ -9,7 +9,9 @@
     "lint": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -31,4 +33,4 @@
     "tsx": "^4.20.0",
     "typescript": "^5.7.0"
   }
-}
+}\n
