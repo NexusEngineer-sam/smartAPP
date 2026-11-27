@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { sendPushToUser } from "@/lib/push";
 
 export async function POST(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
           },
         });
         created++;
+        await sendPushToUser(recipient.userId, "Upcoming class", `${event.title} starts soon at ${event.startsAt.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}.`, "/#planner");
       } catch (error) {
         if (!(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "P2002")) throw error;
       }
