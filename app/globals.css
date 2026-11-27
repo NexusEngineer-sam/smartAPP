@@ -25,3 +25,6 @@ html{scroll-padding-top:84px}
   .modal-card{max-height:calc(100dvh - 20px);overflow:auto;border-radius:20px 20px 14px 14px;padding:20px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* Phone push notification setup */
+.push-setup{display:flex;flex-direction:column;align-items:flex-start;gap:4px;max-width:240px}.push-setup .text-action{white-space:nowrap}.push-setup small{font-size:10px;line-height:1.4;color:#77758b;max-width:240px}
