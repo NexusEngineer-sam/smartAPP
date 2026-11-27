@@ -145,3 +145,35 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN
   ALTER TABLE "AdComment" ADD CONSTRAINT "AdComment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+
+-- SAMWEL DATA-TO-CASH: usage analytics and auditable revenue records.
+CREATE TABLE IF NOT EXISTS "DataUsageEvent" (
+  "id" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "bytes" BIGINT NOT NULL,
+  "source" TEXT NOT NULL DEFAULT 'CLIENT_ESTIMATE',
+  "recordedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "DataUsageEvent_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "DataUsageEvent_recordedAt_idx" ON "DataUsageEvent"("recordedAt");
+CREATE INDEX IF NOT EXISTS "DataUsageEvent_userId_recordedAt_idx" ON "DataUsageEvent"("userId","recordedAt");
+CREATE INDEX IF NOT EXISTS "DataUsageEvent_source_recordedAt_idx" ON "DataUsageEvent"("source","recordedAt");
+DO $$ BEGIN
+  ALTER TABLE "DataUsageEvent" ADD CONSTRAINT "DataUsageEvent_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE TABLE IF NOT EXISTS "RevenueLedgerEntry" (
+  "id" TEXT NOT NULL,
+  "source" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
+  "amountTzs" INTEGER NOT NULL,
+  "status" TEXT NOT NULL DEFAULT 'PENDING',
+  "providerReference" TEXT,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "confirmedAt" TIMESTAMP(3),
+  CONSTRAINT "RevenueLedgerEntry_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "RevenueLedgerEntry_providerReference_key" ON "RevenueLedgerEntry"("providerReference");
+CREATE INDEX IF NOT EXISTS "RevenueLedgerEntry_status_createdAt_idx" ON "RevenueLedgerEntry"("status","createdAt");
+CREATE INDEX IF NOT EXISTS "RevenueLedgerEntry_source_createdAt_idx" ON "RevenueLedgerEntry"("source","createdAt");
