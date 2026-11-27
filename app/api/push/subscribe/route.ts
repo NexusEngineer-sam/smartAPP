@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { sendPushToUser } from "@/lib/push";
 
 const schema = z.object({
   endpoint: z.string().url().max(3000),
@@ -19,7 +20,9 @@ export async function POST(request: Request) {
     create: { userId: user.id, endpoint, p256dh: keys.p256dh, auth: keys.auth },
     update: { userId: user.id, p256dh: keys.p256dh, auth: keys.auth },
   });
-  return NextResponse.json({ ok: true });
+  const configured = Boolean(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY && process.env.VAPID_SUBJECT);
+  if (configured) await sendPushToUser(user.id, "Phone alerts enabled", "SAMWEL CAMPUS OS is now connected to this device.", "/");
+  return NextResponse.json({ ok: true, pushConfigured: configured });
 }
 
 export async function DELETE(request: Request) {
