@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LaunchSplash from "@/components/launch-splash";
 
 export const metadata: Metadata = {
   title: { default: "SAMWEL CAMPUS OS", template: "%s | SAMWEL CAMPUS OS" },
@@ -10,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body><LaunchSplash />{children}</body></html>;
 }
