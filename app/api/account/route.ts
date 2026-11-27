@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { compare, hash } from "bcryptjs";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hashToken, SESSION_COOKIE } from "@/lib/auth";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 
 const profileSchema = z.object({
@@ -57,6 +58,6 @@ export async function PUT(request: Request) {
   const valid = await compare(parsed.data.currentPassword, user.passwordHash);
   if (!valid) return NextResponse.json({ error: "Password ya sasa si sahihi." }, { status: 400 });
   await prisma.user.update({ where: { id: user.id }, data: { passwordHash: await hash(parsed.data.newPassword, 12) } });
-  await prisma.session.deleteMany({ where: { userId: user.id, tokenHash: { not: (await import("@/lib/auth")).hashToken((await (await import("next/headers")).cookies()).get("campus_session")?.value || "") } } });
+  const jar = await cookies();\n  const currentToken = jar.get(SESSION_COOKIE)?.value;\n  if (currentToken) await prisma.session.deleteMany({ where: { userId: user.id, tokenHash: { not: hashToken(currentToken) } } });
   return NextResponse.json({ success: true, message: "Password imebadilishwa. Vifaa vingine vimeondolewa kwenye account." });
 }
