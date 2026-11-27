@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BriefcaseBusiness, Megaphone, Send, ShieldCheck, Clock3 } from "lucide-react";
+import { BriefcaseBusiness, Megaphone, Send, ShieldCheck } from "lucide-react";
+import SponsoredCampaignCard from "@/components/sponsored-campaign-card";
 
 type Campaign = { id:string; businessName:string; title:string; description:string; contact:string; budgetTzs:number; status:"PENDING"|"APPROVED"|"REJECTED"; createdAt:string; advertiserId?:string };
 const money=(n:number)=>new Intl.NumberFormat("en-TZ",{style:"currency",currency:"TZS",maximumFractionDigits:0}).format(n);
@@ -36,9 +37,7 @@ export default function BusinessCenter({ role }:{role:string}) {
   return <section className="surface-card" id="business-center" style={{marginTop:24}}>
     <div className="card-heading"><div><span className="eyebrow">CAMPUS COMMERCE</span><h3><BriefcaseBusiness size={19} style={{display:"inline",verticalAlign:"-4px",marginRight:8}}/>Business Center</h3><p>Matangazo ya biashara na huduma zinazohudumia jamii ya chuo.</p></div><span className="secure-tag"><ShieldCheck size={14}/> Reviewed adverts</span></div>
     <div className="notice-list" style={{marginBottom:18}}>
-      {items.filter(x=>x.status==="APPROVED" || role==="ADMIN" || x.status!=="APPROVED").length===0?<div className="empty-state compact"><Megaphone size={24}/><b>Hakuna matangazo bado</b><span>Matangazo yaliyoidhinishwa yataonekana hapa.</span></div>:items.map(x=><article className="notice" key={x.id}>
-        <span className="notice-mark"><Megaphone size={16}/></span><div style={{flex:1,minWidth:0}}><b>{x.title}</b><p>{x.description}</p><small>{x.businessName} · {x.contact} · Bajeti: {money(x.budgetTzs)}</small><div style={{marginTop:7,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><small><Clock3 size={12} style={{display:"inline",verticalAlign:"-2px"}}/> {x.status==="APPROVED"?"Imeidhinishwa":x.status==="REJECTED"?"Imekataliwa":"Inasubiri ukaguzi"}</small>{role==="ADMIN"&&x.status!=="APPROVED"&&<button className="text-action" onClick={()=>void moderate(x.id,"APPROVED")}>Approve</button>}{role==="ADMIN"&&x.status!=="REJECTED"&&<button className="text-action" onClick={()=>void moderate(x.id,"REJECTED")}>Reject</button>}</div></div>
-      </article>)}
+      {items.length===0?<div className="empty-state compact"><Megaphone size={24}/><b>Hakuna matangazo bado</b><span>Matangazo yaliyoidhinishwa yataonekana hapa.</span></div>:items.map(x=><SponsoredCampaignCard key={x.id} campaign={x} admin={role==="ADMIN"} onModerate={moderate}/>)}
     </div>
     <form onSubmit={submit} style={{display:"grid",gap:12}}>
       <div><span className="eyebrow">PROMOTE YOUR BUSINESS</span><h3 style={{margin:"5px 0 0"}}>Weka tangazo jipya</h3><p style={{margin:"5px 0 0",color:"var(--muted,#7b8496)",fontSize:13}}>Jaza taarifa; tangazo litakaguliwa kabla ya kuchapishwa.</p></div>
