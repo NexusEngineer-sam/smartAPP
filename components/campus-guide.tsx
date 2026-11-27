@@ -28,14 +28,42 @@ function answerQuestion(question: string): Message {
 export default function CampusGuide() {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
-  const [messages, setMessages] = useState<Message[]>([{ role: "guide", text: "Karibu! I’m SAM Campus Guide. Ask me how to use your campus dashboard, or choose a quick topic below." }]);
+  const [messages, setMessages] = useState<Message[]>([{ role: "guide", text: "Karibu! I’m SAM AI Campus Assistant. Ask me about campus life, study skills or how to use this dashboard." }]);
+  const [isThinking, setIsThinking] = useState(false);
   const canSend = useMemo(() => draft.trim().length > 0, [draft]);
 
-  function send(value = draft) {
+  async function send(value = draft) {
     const question = value.trim();
-    if (!question) return;
-    setMessages((current) => [...current, { role: "student", text: question }, answerQuestion(question)]);
+    if (!question || isThinking) return;
+    const history = [...messages, { role: "student" as const, text: question }];
+    setMessages(history);
     setDraft("");
+    setIsThinking(true);
+    try {
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: history.slice(-10).map((message) => ({
+            role: message.role === "student" ? "user" : "assistant",
+            content: message.text,
+          })),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        const message = response.status === 503
+          ? "SAM AI bado haijaunganishwa na AI provider. Admin anahitaji kuweka GROQ_API_KEY kwenye Render Environment."
+          : data.error || "Samahani, huduma ya AI haipatikani kwa sasa. Jaribu tena baadaye.";
+        setMessages((current) => [...current, { role: "guide", text: message }]);
+      } else {
+        setMessages((current) => [...current, { role: "guide", text: data.reply }]);
+      }
+    } catch {
+      setMessages((current) => [...current, { role: "guide", text: "Imeshindikana kuwasiliana na SAM AI. Hakikisha mtandao upo kisha jaribu tena." }]);
+    } finally {
+      setIsThinking(false);
+    }
   }
 
   return <>
@@ -48,7 +76,7 @@ export default function CampusGuide() {
       <section className="campus-guide-panel" role="dialog" aria-modal="true" aria-label="SAM Campus Guide">
         <header className="campus-guide-head">
           <span className="campus-guide-avatar"><Bot size={20}/></span>
-          <div><b>SAM Campus Guide</b><small><i/> Campus help · Preview</small></div>
+          <div><b>SAM Campus Guide</b><small><i/> AI campus assistant</small></div>
           <button type="button" className="icon-btn" onClick={() => setOpen(false)} aria-label="Close guide"><X size={19}/></button>
         </header>
         <div className="campus-guide-messages" aria-live="polite">
@@ -58,11 +86,12 @@ export default function CampusGuide() {
           </article>)}
         </div>
         {messages.length === 1 && <div className="campus-guide-suggestions">{suggestions.map(({ label, icon: Icon, prompt }) => <button type="button" key={label} onClick={() => send(prompt)}><Icon size={14}/>{label}</button>)}</div>}
-        <form className="campus-guide-compose" onSubmit={(event) => { event.preventDefault(); send(); }}>
+        {isThinking && <article className="campus-guide-message guide"><p>SAM AI is thinking…</p></article>}
+        <form className="campus-guide-compose" onSubmit={(event) => { event.preventDefault(); void send(); }}>
           <input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ask about your campus…" maxLength={400} aria-label="Ask SAM Campus Guide"/>
-          <button type="submit" disabled={!canSend} aria-label="Send question"><Send size={17}/></button>
+          <button type="submit" disabled={!canSend || isThinking} aria-label="Send question"><Send size={17}/></button>
         </form>
-        <small className="campus-guide-disclaimer">Guided help preview. It does not access or change official student records.</small>
+        <small className="campus-guide-disclaimer">AI assistant. It does not access or change official student records; verify important campus information with administration.</small>
       </section>
     </div>}
   </>;
