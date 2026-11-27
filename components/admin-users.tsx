@@ -1,0 +1,11 @@
+"use client";
+import { useEffect,useState } from "react";
+import { Shield,Users,UserCheck,UserX } from "lucide-react";
+type User={id:string;name:string;email:string;role:string;isActive:boolean;createdAt:string};
+export default function AdminUsers(){
+ const [users,setUsers]=useState<User[]>([]);const [metrics,setMetrics]=useState({totalUsers:0,totalStudents:0,totalAdmins:0});const [error,setError]=useState("");const [busy,setBusy]=useState("");
+ async function load(){const r=await fetch("/api/admin/users",{cache:"no-store"});const d=await r.json();if(!r.ok){setError(d.error||"Could not load users.");return;}setUsers(d.users);setMetrics(d.metrics);}
+ useEffect(()=>{void load();},[]);
+ async function toggle(user:User){setBusy(user.id);setError("");try{const r=await fetch("/api/admin/users",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({userId:user.id,isActive:!user.isActive})});const d=await r.json();if(!r.ok)throw new Error(d.error);setUsers(list=>list.map(x=>x.id===user.id?{...x,isActive:d.user.isActive}:x));}catch(e){setError(e instanceof Error?e.message:"Update failed.");}finally{setBusy("");}}
+ return <><div className="admin-metrics"><div><Users/><span>Total accounts</span><b>{metrics.totalUsers}</b></div><div><UserCheck/><span>Students</span><b>{metrics.totalStudents}</b></div><div><Shield/><span>Administrators</span><b>{metrics.totalAdmins}</b></div></div><section className="admin-table-card"><div className="card-heading"><div><h3>Account directory</h3><p>Activate or suspend platform access.</p></div></div>{error&&<p className="form-error">{error}</p>}<div className="table-scroll"><table><thead><tr><th>USER</th><th>ROLE</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody>{users.map(u=><tr key={u.id}><td><b>{u.name}</b><small>{u.email}</small></td><td>{u.role}</td><td><span className={u.isActive?"status-active":"status-inactive"}>{u.isActive?"Active":"Suspended"}</span></td><td><button className="table-action" disabled={busy===u.id} onClick={()=>toggle(u)}>{u.isActive?<><UserX size={14}/> Suspend</>:<><UserCheck size={14}/> Activate</>}</button></td></tr>)}</tbody></table>{users.length===0&&<div className="empty-state">No accounts found.</div>}</div></section></>;
+}
