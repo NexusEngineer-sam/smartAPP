@@ -22,10 +22,10 @@ export default function AdminConsole(){
  async function load(){
   setError("");
   try{
-   const [a,t,l]=await Promise.all([fetch("/api/admin/announcements",{cache:"no-store"}),fetch("/api/admin/timetable",{cache:"no-store"}),fetch("/api/admin/audit",{cache:"no-store"})]);
-   const ad=await a.json(),td=await t.json(),ld=await l.json();
-   if(!a.ok||!t.ok||!l.ok)throw new Error(ad.error||td.error||ld.error||"Unable to load control center data.");
-   setAnnouncements(ad.announcements);setEvents(td.events);setStudents(td.students);setLogs(ld.logs);
+   const [a,t,l,d]=await Promise.all([fetch("/api/admin/announcements",{cache:"no-store"}),fetch("/api/admin/timetable",{cache:"no-store"}),fetch("/api/admin/audit",{cache:"no-store"}),fetch("/api/admin/data-to-cash",{cache:"no-store"})]);
+   const ad=await a.json(),td=await t.json(),ld=await l.json(),dd=await d.json();
+   if(!a.ok||!t.ok||!l.ok||!d.ok)throw new Error(ad.error||td.error||ld.error||dd.error||"Unable to load control center data.");
+   setAnnouncements(ad.announcements);setEvents(td.events);setStudents(td.students);setLogs(ld.logs);setDataCash(dd);
   }catch(e){setError(e instanceof Error?e.message:"Unable to load data.");}
  }
  useEffect(()=>{void load();},[]);
