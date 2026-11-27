@@ -75,3 +75,26 @@ The reminder job is available at `POST /api/jobs/reminders` and requires `Author
 - Keep credentials private, enable backups, review access policies and monitor database health before using real student records.
 
 **Status:** Active development. Database credentials must be configured and a successful build/runtime test completed before deployment.
+
+
+## Secure digital campus identity
+
+The student dashboard now includes a digital campus ID with a short-lived, one-time QR pass.
+
+- Authenticated students can issue a QR pass that expires after 90 seconds.
+- QR tokens are random, stored only as SHA-256 hashes, and invalidated when a newer pass is issued.
+- A successful verification consumes the token atomically, so the same QR cannot be reused.
+- The public verification screen reveals only the account name and role; it does not expose email, account IDs, or other student records.
+- The QR feature requires the database schema update before use.
+
+### Apply the identity database migration
+
+For an existing deployment, apply the SQL in `prisma/migrations/20261127000000_digital_identity/migration.sql` to the connected PostgreSQL database once (for Supabase, use **SQL Editor**). Alternatively, from a trusted project terminal with the correct `DATABASE_URL` and `DIRECT_URL`, run:
+
+```bash
+npm install
+npx prisma migrate deploy
+npx prisma generate
+```
+
+Do not paste database passwords or connection strings into GitHub files, screenshots, or chat messages.
