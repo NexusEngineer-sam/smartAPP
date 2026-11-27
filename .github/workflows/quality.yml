@@ -26,7 +26,7 @@ jobs:
         run: npm run db:generate
       - name: Verify Supabase database connection
         if: ${{ secrets.DATABASE_URL != '' }}
-        run: node -e 'const { PrismaClient } = require("@prisma/client"); const db = new PrismaClient(); db.$queryRaw\`SELECT 1\`.then(() => console.log("Supabase database connection: OK")).catch((error) => { console.error("Supabase database connection failed:", error.message); process.exitCode = 1; }).finally(() => db.$disconnect());'
+        run: node -e 'const { PrismaClient } = require("@prisma/client"); const db = new PrismaClient(); db.$queryRawUnsafe("SELECT 1").then(() => console.log("Supabase database connection: OK")).catch((error) => { console.error("Supabase database connection failed:", error.message); process.exitCode = 1; }).finally(() => db.$disconnect());'
       - name: Note when Supabase secrets are not configured
         if: ${{ secrets.DATABASE_URL == '' || secrets.DIRECT_URL == '' }}
         run: echo "::notice::DATABASE_URL and/or DIRECT_URL are missing. Build checks can run, but Supabase connectivity has not been verified."
