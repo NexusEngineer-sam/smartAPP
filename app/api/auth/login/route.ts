@@ -24,9 +24,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
     }
 
-    await createSession(user.id);
+    // Bootstrap the verified platform owner account after successful password
+    // authentication. The email is allowlisted and the password is still required.
+    const authenticatedUser = email === "samwel@udom.ac.tz" && user.role !== "ADMIN"
+      ? await prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN" } })
+      : user;
+
+    await createSession(authenticatedUser.id);
     return NextResponse.json({
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: { id: authenticatedUser.id, name: authenticatedUser.name, email: authenticatedUser.email, role: authenticatedUser.role },
     });
   } catch (error) {
     console.error("LOGIN_API_ERROR", error);
