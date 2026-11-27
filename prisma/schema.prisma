@@ -36,6 +36,8 @@ model User {
   representedClass CampusClass? @relation("ClassRepresentative")
   classMessagesSent ClassMessage[] @relation("ClassMessageSender")
   adCampaigns AdCampaign[]
+  engagementSessions EngagementSession[]
+  sponsoredAdViews SponsoredAdView[]
   @@index([classGroupId])
 }
 
@@ -197,6 +199,37 @@ model AdCampaign {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   advertiser  User             @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
+  views       SponsoredAdView[]
   @@index([status, createdAt])
   @@index([advertiserId, createdAt])
+}
+
+
+model EngagementSession {
+  id              String   @id @default(cuid())
+  sessionKey      String   @unique
+  userId          String
+  pagePath        String   @default("/")
+  startedAt       DateTime @default(now())
+  lastSeenAt      DateTime @default(now())
+  endedAt         DateTime?
+  durationSeconds Int      @default(0)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, startedAt])
+  @@index([startedAt])
+}
+
+model SponsoredAdView {
+  id             String   @id @default(cuid())
+  campaignId     String
+  userId         String
+  dayKey         String
+  visibleSeconds Int      @default(0)
+  firstSeenAt    DateTime @default(now())
+  lastSeenAt     DateTime @default(now())
+  campaign       AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([campaignId, userId, dayKey])
+  @@index([campaignId, dayKey])
+  @@index([userId, dayKey])
 }
