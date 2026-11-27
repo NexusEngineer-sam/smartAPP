@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { notifyDataCenterAdmins } from "@/lib/data-center-alerts";
 
 export const runtime = "nodejs";
 
@@ -46,5 +47,6 @@ export async function POST(request: Request) {
     },
     select: { id: true, videoUrl: true, thumbnailUrl: true, caption: true, category: true, durationSeconds: true, views: true, createdAt: true, user: { select: { id: true, name: true, role: true, avatarUrl: true } } },
   });
+  await notifyDataCenterAdmins("New campus video", `${user.name} posted a campus video.`, "/");
   return NextResponse.json({ video }, { status: 201 });
 }
