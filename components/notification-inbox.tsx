@@ -43,8 +43,17 @@ export default function NotificationInbox() {
       if (Array.isArray(saved)) setReadIds(saved.filter((x): x is string => typeof x === "string"));
     } catch {}
     void load();
-    const timer = window.setInterval(() => void load(), 30000);
-    return () => window.clearInterval(timer);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    const timer = window.setInterval(refreshWhenVisible, 15000);
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [load]);
 
   const unread = useMemo(() => items.filter(item => !readIds.includes(item.id)).length, [items, readIds]);
