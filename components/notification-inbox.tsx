@@ -104,11 +104,11 @@ export default function NotificationInbox() {
       .notification-inbox-wrap{position:relative;display:inline-flex}
       .notification-inbox-trigger{position:relative;width:40px;height:40px;border:1px solid var(--border,rgba(255,255,255,.12));border-radius:13px;background:var(--surface,rgba(255,255,255,.04));color:inherit;display:grid;place-items:center;cursor:pointer}
       .notification-inbox-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#e34d68;color:white;font:700 10px/18px system-ui;text-align:center;border:2px solid var(--background,#10121a)}
-      .notification-inbox-panel{position:absolute;right:0;top:48px;width:min(370px,calc(100vw - 28px));z-index:80;background:var(--card,#151824);border:1px solid var(--border,rgba(255,255,255,.12));border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.35);overflow:hidden;color:var(--foreground,inherit)}
+      .notification-inbox-panel{position:fixed;left:50%;right:auto;top:76px;transform:translateX(-50%);width:min(420px,calc(100vw - 24px));max-height:calc(100dvh - 96px);z-index:120;background:var(--card,#151824);border:1px solid var(--border,rgba(255,255,255,.12));border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.35);overflow:hidden;color:var(--foreground,inherit)}
       .notification-inbox-header{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid var(--border,rgba(255,255,255,.1))}
       .notification-inbox-header b{display:block;font-size:14px}.notification-inbox-header small{display:block;margin-top:4px;opacity:.65;font-size:11px}
       .notification-inbox-actions{display:flex;gap:5px}.notification-inbox-actions button{display:grid;place-items:center;width:29px;height:29px;border:0;border-radius:8px;background:rgba(255,255,255,.06);color:inherit;cursor:pointer}
-      .notification-inbox-list{max-height:min(420px,60vh);overflow:auto}
+      .notification-inbox-list{max-height:min(420px,calc(100dvh - 210px));overflow:auto}
       .notification-inbox-item{width:100%;display:flex;gap:10px;text-align:left;padding:13px 15px;border:0;border-bottom:1px solid var(--border,rgba(255,255,255,.07));background:transparent;color:inherit;cursor:pointer}
       .notification-inbox-item:hover{background:rgba(255,255,255,.04)}.notification-inbox-item.is-unread{background:rgba(100,120,255,.07)}
       .notification-inbox-dot{width:7px;height:7px;flex:0 0 7px;margin-top:5px;border-radius:50%;background:#8a75ff}.is-read .notification-inbox-dot{background:transparent;border:1px solid rgba(255,255,255,.25)}
