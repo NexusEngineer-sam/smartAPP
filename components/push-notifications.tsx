@@ -24,7 +24,7 @@ export default function PushNotifications() {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") throw new Error("Ruhusa ya notifications haijaruhusiwa kwenye simu.");
       const registration = await navigator.serviceWorker.register("/sw.js");
-      const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64ToBytes(key) });
+      const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64ToBytes(key) as BufferSource });
       const response = await fetch("/api/push/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(subscription.toJSON()) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Imeshindikana kuhifadhi simu hii.");
