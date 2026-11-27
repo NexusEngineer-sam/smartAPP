@@ -40,5 +40,40 @@ export async function POST(request: Request) {
       }
     }
   }
-  return NextResponse.json({ ok: true, eventsChecked: events.length, notificationsCreated: created });
+
+  // Personal schedules created by students (lectures, study sessions, deadlines and exams).
+  const personal = await prisma.personalSchedule.findMany({
+    where: { done: false, reminderMins: { gt: 0 }, OR: [{ startsAt: { gt: now, lte: horizon } }, { repeatWeekly: true }] },
+    include: { user: { select: { isActive: true } } },
+    take: 1000,
+  });
+  for (const item of personal) {
+    if (!item.user.isActive) continue;
+    let occurrence = item.startsAt;
+    if (item.repeatWeekly) {
+      const day = item.startsAt.getUTCDay();
+      occurrence = new Date(now);
+      occurrence.setUTCHours(item.startsAt.getUTCHours(), item.startsAt.getUTCMinutes(), 0, 0);
+      const delta = (day - occurrence.getUTCDay() + 7) % 7;
+      occurrence.setUTCDate(occurrence.getUTCDate() + delta);
+      if (occurrence.getTime() <= now.getTime()) occurrence.setUTCDate(occurrence.getUTCDate() + 7);
+    }
+    const remaining = occurrence.getTime() - now.getTime();
+    if (remaining < 0 || remaining > item.reminderMins * 60_000) continue;
+    const dayKey = occurrence.toISOString().slice(0, 10);
+    const dedupeKey = `personal-reminder:${item.id}:${dayKey}`;
+    const kindLabel: Record<string,string> = { CLASS: "Lecture inaanza", STUDY: "Muda wa kusoma", ASSIGNMENT: "Assignment deadline", EXAM: "Mtihani unakaribia" };
+    const time = occurrence.toLocaleTimeString("sw-TZ", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Dar_es_Salaam" });
+    const title = kindLabel[item.kind] || "Ukumbusho wa masomo";
+    const body = `${item.title} · ${time}${item.location ? " · " + item.location : ""}`;
+    try {
+      await prisma.notification.create({ data: { userId: item.userId, dedupeKey, title, body } });
+      created++;
+      await sendPushToUser(item.userId, title, body, "/#planner");
+    } catch (error) {
+      if (!(error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "P2002")) throw error;
+    }
+  }
+
+  return NextResponse.json({ ok: true, eventsChecked: events.length, personalSchedulesChecked: personal.length, notificationsCreated: created });
 }
