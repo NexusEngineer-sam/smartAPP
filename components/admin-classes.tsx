@@ -1,0 +1,18 @@
+"use client";
+import { useEffect, useState } from "react";
+import { Plus, Users, RefreshCw } from "lucide-react";
+type Person={id:string;name:string;email:string;classGroupId?:string|null};
+type CampusClass={id:string;name:string;representative:Person|null;members:Person[]};
+export default function AdminClasses(){
+ const [classes,setClasses]=useState<CampusClass[]>([]);const [students,setStudents]=useState<Person[]>([]);const [reps,setReps]=useState<Person[]>([]);
+ const [name,setName]=useState("");const [repId,setRepId]=useState("");const [memberIds,setMemberIds]=useState<string[]>([]);
+ const [error,setError]=useState("");const [notice,setNotice]=useState("");const [busy,setBusy]=useState(false);
+ async function load(){setError("");try{const r=await fetch("/api/admin/classes",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error);setClasses(d.classes);setStudents(d.students);setReps(d.reps);}catch(e){setError(e instanceof Error?e.message:"Could not load classes.");}}
+ useEffect(()=>{void load();},[]);
+ function toggle(id:string){setMemberIds(x=>x.includes(id)?x.filter(v=>v!==id):[...x,id]);}
+ async function create(e:React.FormEvent){e.preventDefault();setBusy(true);setError("");setNotice("");try{const r=await fetch("/api/admin/classes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,representativeId:repId,memberIds})});const d=await r.json();if(!r.ok)throw new Error(d.error);setClasses(x=>[d.campusClass,...x]);setName("");setRepId("");setMemberIds([]);setNotice("Class created and members assigned successfully.");await load();}catch(e){setError(e instanceof Error?e.message:"Could not create class.");}finally{setBusy(false);}}
+ return <section className="admin-classes"><div className="section-title"><div><span className="eyebrow">CLASS STRUCTURE</span><h2>Classes & representatives</h2></div><button className="admin-refresh" onClick={()=>void load()}><RefreshCw size={14}/> Refresh</button></div>
+ <div className="admin-work-grid"><form className="admin-form-card" onSubmit={create}><span className="eyebrow">MEMBERSHIP MANAGEMENT</span><h3>Create class group</h3><label>Class name<input required minLength={3} maxLength={120} value={name} onChange={e=>setName(e.target.value)} placeholder="Software Engineering — Year 1"/></label><label>Assign class representative<select required value={repId} onChange={e=>setRepId(e.target.value)}><option value="">Choose a CR</option>{reps.map(p=><option key={p.id} value={p.id}>{p.name} · {p.email}</option>)}</select></label><label>Choose active students ({memberIds.length} selected)</label><div className="student-picker">{students.map(p=><label className="student-option" key={p.id}><input type="checkbox" checked={memberIds.includes(p.id)} onChange={()=>toggle(p.id)}/><span><b>{p.name}</b><small>{p.email}{p.classGroupId?" · Will move from current class":""}</small></span></label>)}</div>{error&&<p className="form-error">{error}</p>}{notice&&<p className="success-message">{notice}</p>}<button className="primary-btn" disabled={busy||!repId}><Plus size={15}/>{busy?"Creating…":"Create class & assign members"}</button></form>
+ <section className="admin-table-card"><div className="card-heading"><div><h3>Registered classes</h3><p>{classes.length} class groups</p></div></div>{classes.map(c=><article className="admin-record" key={c.id}><div><b>{c.name}</b><p>CR: {c.representative?.name||"Not assigned"}</p><small><Users size={12}/> {c.members.length} assigned students</small><small>{c.members.slice(0,5).map(m=>m.name).join(", ")}{c.members.length>5?"…":""}</small></div></article>)}{!classes.length&&<div className="empty-state">No class groups created yet.</div>}</section></div>
+ </section>;
+}
