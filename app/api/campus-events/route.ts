@@ -20,7 +20,7 @@ export async function GET() {
   });
   return NextResponse.json({ events: events.map(({ attendees, _count, ...event }) => ({
     ...event, attendeeCount: _count.attendees, joined: attendees.length > 0,
-    verified: event.organizer.role === "ADMIN" || event.status === "APPROVED",
+    verified: event.organizer.role === "ADMIN",
   })) });
 }
 
