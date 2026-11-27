@@ -5,7 +5,7 @@ import { getCurrentUser, hashToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function POST() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   if (!user.isActive) return NextResponse.json({ error: "Account is inactive." }, { status: 403 });
