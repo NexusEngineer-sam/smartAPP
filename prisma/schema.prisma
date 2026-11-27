@@ -38,6 +38,8 @@ model User {
   representedClass CampusClass? @relation("ClassRepresentative")
   classMessagesSent ClassMessage[] @relation("ClassMessageSender")
   adCampaigns AdCampaign[]
+  adLikes AdLike[]
+  adComments AdComment[]
   engagementSessions EngagementSession[]
   sponsoredAdViews SponsoredAdView[]
   campusVideos CampusVideo[]
@@ -195,7 +197,8 @@ model AdCampaign {
   title       String
   description String
   contact     String
-  budgetTzs   Int
+  budgetTzs   Int              @default(0)
+  mediaUrl    String?          @db.Text
   status      AdCampaignStatus @default(PENDING)
   startsAt    DateTime?
   endsAt      DateTime?
@@ -203,6 +206,8 @@ model AdCampaign {
   updatedAt   DateTime         @updatedAt
   advertiser  User             @relation(fields: [advertiserId], references: [id], onDelete: Cascade)
   views       SponsoredAdView[]
+  likes       AdLike[]
+  comments    AdComment[]
   @@index([status, createdAt])
   @@index([advertiserId, createdAt])
 }
@@ -284,4 +289,27 @@ model PasswordResetToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([userId, createdAt])
   @@index([expiresAt])
+}
+
+
+model AdLike {
+  id         String     @id @default(cuid())
+  campaignId String
+  userId     String
+  createdAt  DateTime   @default(now())
+  campaign   AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([campaignId, userId])
+  @@index([campaignId, createdAt])
+}
+
+model AdComment {
+  id         String     @id @default(cuid())
+  campaignId String
+  userId     String
+  body       String     @db.VarChar(1000)
+  createdAt  DateTime   @default(now())
+  campaign   AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([campaignId, createdAt])
 }
