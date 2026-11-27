@@ -33,7 +33,10 @@ export default function AdminConsole(){
   try{const r=await fetch("/api/admin/announcements",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,body,published})});const d=await r.json();if(!r.ok)throw new Error(d.error);setAnnouncements(x=>[d.announcement,...x]);setTitle("");setBody("");setNotice("Announcement published to the platform.");}
   catch(e){setError(e instanceof Error?e.message:"Could not save announcement.");}finally{setBusy(false);}
  }
- async function toggleAnnouncement(a:Announcement){\n  const r=await fetch("/api/admin/announcements",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:a.id,published:!a.published})});const d=await r.json();if(!r.ok){setError(d.error);return;}setAnnouncements(x=>x.map(v=>v.id===a.id?d.announcement:v));setNotice(d.announcement.published?"Announcement published.":"Announcement moved to drafts.");\n }\n async function removeAnnouncement(id:string){
+ async function toggleAnnouncement(a:Announcement){
+  const r=await fetch("/api/admin/announcements",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:a.id,published:!a.published})});const d=await r.json();if(!r.ok){setError(d.error);return;}setAnnouncements(x=>x.map(v=>v.id===a.id?d.announcement:v));setNotice(d.announcement.published?"Announcement published.":"Announcement moved to drafts.");
+ }
+ async function removeAnnouncement(id:string){
   if(!window.confirm("Delete this announcement permanently?"))return;
   const r=await fetch("/api/admin/announcements",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});const d=await r.json();if(!r.ok){setError(d.error);return;}setAnnouncements(x=>x.filter(a=>a.id!==id));setNotice("Announcement deleted.");
  }
