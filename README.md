@@ -4,62 +4,74 @@
 Founder: **Samwel Jastin Mduli**  
 Vision: *Engineering Digital Solutions. Building the Future of Campus Life.*
 
-SAMWEL CAMPUS OS is being developed as a secure, modular university platform that can serve UDOM first and expand to other institutions.
+SAMWEL CAMPUS OS is a modular university platform being developed for UDOM first, with a path to support multiple institutions.
 
 ## Technology
 
 - Next.js 16 App Router, React 19 and TypeScript
-- PostgreSQL with Prisma ORM
-- Secure database-backed sessions (HttpOnly cookies, hashed session tokens)
+- Supabase-hosted PostgreSQL with Prisma ORM 6
+- Database-backed sessions, HttpOnly cookies and hashed session tokens
 - Zod request validation and bcrypt password hashing
-- Custom responsive design system and PWA manifest
-- Lucide icons
+- Custom responsive design system and PWA foundation
 
-## Current working foundation
+## Supabase setup (first database connection)
 
-- Student registration and sign-in
-- Secure logout and session validation
-- Personal expense creation and listing (persisted in PostgreSQL)
+1. Create a project at [Supabase](https://supabase.com/dashboard). Choose a strong database password and save it in a password manager.
+2. Wait until the database is ready. Open the project and select **Connect**.
+3. Choose **Session pooler** and copy its URI (port **5432**). Do not type the host manually: copy the exact host and username shown by Supabase.
+4. In your local project, copy `.env.example` to `.env`. Put the Session pooler URI into `DATABASE_URL`.
+5. For `DIRECT_URL`, use the Session pooler URI (port 5432) as well. This is compatible with IPv4-only environments. If your deployment supports IPv6, you can instead use the direct database URI copied from Supabase.
+6. Replace the placeholders in both connection strings with the real project reference, host, username and database password. If the password contains reserved URL characters (such as `@`, `#`, `?`, `/` or spaces), URL-encode those characters.
+7. Set a unique `CRON_SECRET`, plus `ADMIN_NAME`, `ADMIN_EMAIL` and a strong `ADMIN_PASSWORD` (at least 12 characters).
+8. Run the commands below from the repository root.
+
+```bash
+npm install
+npm run db:generate
+npm run db:push
+npm run db:seed
+npm run lint
+npm run dev
+```
+
+Open `http://localhost:3000`. Sign in using the administrator email and password you configured. Public registration creates student accounts only. Never put real credentials in GitHub, screenshots, chat messages or source code. Keep `.env` local; it is ignored by Git.
+
+### Connection mode for deployment
+
+- A persistent Node.js server or IPv4-only network: use Supabase **Session pooler** (port 5432) for the runtime connection.
+- A serverless deployment: use Supabase **Transaction pooler** (port 6543) for `DATABASE_URL` and append `?pgbouncer=true`; keep `DIRECT_URL` on Session pooler (port 5432) or a supported direct connection for Prisma CLI operations.
+- The Prisma schema uses `directUrl` so CLI schema operations can use `DIRECT_URL`, while Prisma Client uses `DATABASE_URL`.
+
+After the first schema push, use reviewed Prisma migrations for ongoing production schema changes. Do not use `db push` as a substitute for a controlled production migration process.
+
+## Current foundation
+
+- Student registration, sign-in and secure logout
+- Student expense tracking
 - Published campus announcement feed
-- Admin-only account directory
-- Admin activation/suspension of accounts with audit records
-- Admin announcement publishing, draft creation and deletion
+- Admin account directory, role management and account activation/suspension
+- Admin announcement creation, publishing, unpublishing and deletion
 - Admin timetable scheduling with explicit student assignment and cancellation
-- Admin audit trail for governance actions
-- Timetable reminder notification job endpoint (protected by CRON_SECRET)
-- Responsive student workspace and admin control center
+- Admin audit trail
+- Authenticated student timetable view
+- Protected timetable reminder job that queues in-app notifications
+- Automated GitHub Actions quality checks
 
-## Local setup
+## Environment variables
 
-1. Install Node.js 20.9+ and PostgreSQL.
-2. Copy `.env.example` to `.env` and configure `DATABASE_URL`, `CRON_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
-3. Install packages: `npm install`.
-4. Generate Prisma Client: `npm run db:generate`.
-5. Apply the schema: `npm run db:push`.
-6. Create the first administrator: `npm run db:seed`.
-7. Start development: `npm run dev`.
+See `.env.example` for the required names. The real `.env` file must never be committed. Configure the same values in your deployment host's secret manager.
 
-Open http://localhost:3000. Public registration creates STUDENT accounts only. Create the first ADMIN through the seed command; never promote a user by editing a browser request.
+## Notifications
 
-## Automated quality checks\n\nGitHub Actions runs dependency installation, Prisma client generation, TypeScript checking and a production Next.js build for pushes and pull requests to `main`.\n\n## Environment and deployment
+The reminder job is available at `POST /api/jobs/reminders` and requires `Authorization: Bearer <CRON_SECRET>`. Configure a scheduler to call it regularly. It currently queues in-app notifications only. SMS delivery requires a separate SMS provider, credentials and delivery worker; phone alarms require device notification integration and permissions.
 
-Deploy on a Node.js-compatible host with managed PostgreSQL. Set all environment variables in the hosting provider's secret manager. Use HTTPS in production. Configure a scheduler to POST to `/api/jobs/reminders` with the header `Authorization: Bearer <CRON_SECRET>` at a suitable interval. The current job queues in-app reminders; SMS delivery requires an approved provider integration and credentials and is not enabled by default.
+## Security and operational readiness
 
-## Security notes
-
-- Passwords are stored as bcrypt hashes, never plaintext.
-- Session tokens are random, stored hashed in the database and sent only in HttpOnly cookies.
+- Passwords are stored as bcrypt hashes.
+- Session tokens are random, hashed in the database and sent in HttpOnly cookies.
 - Public sign-up cannot create privileged roles.
 - Admin APIs enforce server-side role checks.
 - User data is scoped to the authenticated account.
-- Validate all untrusted request data and keep secrets out of source control.
+- Keep credentials private, enable backups, review access policies and monitor database health before using real student records.
 
-## Product roadmap
-
-1. Foundation and identity (current)
-2. Admin governance, academic structure, courses and departments (announcement and timetable administration foundation now added)
-3. Student timetable, planner, lecturer and class representative workspaces
-4. Push notifications, SMS provider integration and device alarms
-5. AI study assistant, analytics, multi-campus tenancy and production observability
-
-**Status:** Active development. Configure the database and run the setup steps before deployment. Do not use this development foundation for real student records until production security review, backups, privacy policy and operational monitoring are complete.
+**Status:** Active development. Database credentials must be configured and a successful build/runtime test completed before deployment.
