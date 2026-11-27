@@ -7,7 +7,7 @@ import DigitalId from "@/components/digital-id";
 import CampusGuide from "@/components/campus-guide";
 import { Activity, Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, GraduationCap, LayoutDashboard, LogOut, Plus, Shield, Wallet, X, ArrowUpRight, Clock3, Sparkles } from "lucide-react";
 
-type User = { name: string; email: string; role: string };
+type User = { name: string; email: string; role: string; avatarUrl?: string | null };
 type Expense = { id: string; title: string; category: string; amount: number; createdAt: string };
 type Notice = { id: string; title: string; body: string; createdAt: string };
 type ClassEvent = { id:string; title:string; courseCode:string|null; location:string|null; startsAt:string; endsAt:string; reminderMins:number };
@@ -55,7 +55,7 @@ export default function Dashboard({user}:{user:User}) {
     <aside className="sidebar"><div className="brand side-brand"><span className="brand-mark"><GraduationCap size={22}/></span><span>SAMWEL <b>CAMPUS OS</b></span></div>
       <span className="side-label">WORKSPACE</span><a className="nav-item active" href="/"><LayoutDashboard size={18}/> Overview</a><a className="nav-item" href="#planner"><CalendarDays size={18}/> Study planner</a><a className="nav-item" href="#finance"><Wallet size={18}/> My finances</a><a className="nav-item" href="#updates"><Bell size={18}/> Campus updates</a>
       {user.role==="ADMIN"&&<><span className="side-label">ADMINISTRATION</span><a className="nav-item" href="/admin"><Shield size={18}/> Control center</a></>}
-      <div className="sidebar-bottom"><div className="support-link"><CircleHelp size={17}/> Help & support</div><div className="user-chip"><span className="avatar">{initials}</span><span className="user-meta"><b>{user.name}</b><small>{user.role.toLowerCase()}</small></span><button className="icon-btn" title="Sign out" onClick={logout}><LogOut size={17}/></button></div></div>
+      <div className="sidebar-bottom"><div className="support-link"><CircleHelp size={17}/> Help & support</div><div className="user-chip"><span className="avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="" /> : initials}</span><span className="user-meta"><b>{user.name}</b><small>{user.role.toLowerCase()}</small></span><button className="icon-btn" title="Sign out" onClick={logout}><LogOut size={17}/></button></div></div>
     </aside>
     <section className="main-area"><header className="topbar"><div className="mobile-brand"><GraduationCap/> CAMPUS OS</div><div className="topbar-right"><span className="campus-pill"><i/> UDOM · CAMPUS</span><PushNotifications/><a className="icon-btn" href="#updates" aria-label="Go to campus announcements"><Bell size={18}/></a><span className="avatar">{initials}</span></div></header>
       <div className="page-content"><div className="welcome-row"><div><span className="eyebrow">YOUR CAMPUS, IN SYNC</span><h1>{greeting}, {user.name.split(" ")[0]} <span>✦</span></h1><p>Your academic life, organised in one intelligent workspace.</p><DigitalId user={user}/></div><div className="today-pill"><CalendarDays size={16}/>{new Intl.DateTimeFormat("en",{weekday:"long",day:"numeric",month:"short"}).format(new Date())}</div></div>
