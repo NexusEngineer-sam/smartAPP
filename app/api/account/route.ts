@@ -59,6 +59,7 @@ export async function PUT(request: Request) {
   if (!valid) return NextResponse.json({ error: "Password ya sasa si sahihi." }, { status: 400 });
   await prisma.user.update({ where: { id: user.id }, data: { passwordHash: await hash(parsed.data.newPassword, 12) } });
   const jar = await cookies();
-  const currentToken = jar.get(SESSION_COOKIE)?.value;\n  if (currentToken) await prisma.session.deleteMany({ where: { userId: user.id, tokenHash: { not: hashToken(currentToken) } } });
+  const currentToken = jar.get(SESSION_COOKIE)?.value;
+  if (currentToken) await prisma.session.deleteMany({ where: { userId: user.id, tokenHash: { not: hashToken(currentToken) } } });
   return NextResponse.json({ success: true, message: "Password imebadilishwa. Vifaa vingine vimeondolewa kwenye account." });
 }
