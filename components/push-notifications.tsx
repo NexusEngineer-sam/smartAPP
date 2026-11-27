@@ -28,7 +28,7 @@ export default function PushNotifications() {
       const response = await fetch("/api/push/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(subscription.toJSON()) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Imeshindikana kuhifadhi simu hii.");
-      setStatus("Simu hii sasa imeunganishwa kupokea alerts za CAMPUS OS.");
+      setStatus(result.pushConfigured ? "Imeunganishwa! Angalia simu yako kwa alert ya majaribio." : "Usajili umehifadhiwa, lakini msimamizi bado hajaweka VAPID keys kwenye server.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Kuna hitilafu. Jaribu tena.");
     } finally {
