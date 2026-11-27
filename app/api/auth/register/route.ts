@@ -10,6 +10,7 @@ const schema = z.object({
   name: z.string().trim().min(2).max(80),
   email: z.string().trim().email().max(190),
   password: z.string().min(10).max(72),
+  avatarUrl: z.string().max(700_000).regex(/^data:image\/(jpeg|png|webp);base64,/).optional().or(z.literal("")),
 });
 
 export async function POST(request: Request) {
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, password } = parsed.data;
+  const { name, password, avatarUrl } = parsed.data;
   const email = parsed.data.email.toLowerCase();
   const token = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
     // an account that appears registered but cannot sign in.
     const user = await prisma.$transaction(async (tx) => {
       const created = await tx.user.create({
-        data: { name, email, passwordHash: await hash(password, 12), role: "STUDENT" },
+        data: { name, email, passwordHash: await hash(password, 12), role: "STUDENT", avatarUrl: avatarUrl || null },
       });
 
       await tx.session.create({
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { user: { id: user.id, name: user.name, email: user.email, role: user.role } },
+      { user: { id: user.id, name: user.name, email: user.email, role: user.role, avatarUrl: user.avatarUrl } },
       { status: 201 }
     );
   } catch (error) {
