@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ShieldCheck, ShieldAlert, LoaderCircle } from "lucide-react";
 
@@ -8,10 +8,13 @@ type Result = { valid: boolean; error?: string; identity?: { name: string; role:
 
 function VerifyContent() {
   const params = useSearchParams();
+  const started = useRef(false);
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (started.current) return;
+    started.current = true;
     const token = params.get("token");
     if (!token) {
       setResult({ valid: false, error: "No campus pass was provided." });
