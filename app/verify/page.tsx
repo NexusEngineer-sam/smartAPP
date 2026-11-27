@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ShieldCheck, ShieldAlert, LoaderCircle } from "lucide-react";
 
 type Result = { valid: boolean; error?: string; identity?: { name: string; role: string }; verifiedAt?: string };
 
-export default function VerifyPage() {
+function VerifyContent() {
   const params = useSearchParams();
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,4 +44,8 @@ export default function VerifyPage() {
       <small>Secure one-time verification · SAMWEL CAMPUS OS</small>
     </section>
   </main>;
+}
+
+export default function VerifyPage() {
+  return <Suspense fallback={<main className="verify-shell"><section className="verify-card"><LoaderCircle className="verify-loader" size={42}/><h1>Loading secure verification</h1></section></main>}><VerifyContent /></Suspense>;
 }
