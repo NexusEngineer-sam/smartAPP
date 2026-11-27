@@ -65,3 +65,28 @@ DO $$ BEGIN
   ALTER TABLE "SponsoredAdView" ADD CONSTRAINT "SponsoredAdView_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+CREATE TABLE IF NOT EXISTS "CampusVideo" (
+  "id" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "publicId" TEXT NOT NULL,
+  "videoUrl" TEXT NOT NULL,
+  "thumbnailUrl" TEXT,
+  "caption" VARCHAR(500) NOT NULL,
+  "category" TEXT NOT NULL DEFAULT 'Campus',
+  "durationSeconds" INTEGER NOT NULL DEFAULT 0,
+  "bytes" INTEGER NOT NULL DEFAULT 0,
+  "status" TEXT NOT NULL DEFAULT 'PUBLISHED',
+  "views" INTEGER NOT NULL DEFAULT 0,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL,
+  CONSTRAINT "CampusVideo_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "CampusVideo_publicId_key" ON "CampusVideo"("publicId");
+CREATE INDEX IF NOT EXISTS "CampusVideo_createdAt_idx" ON "CampusVideo"("createdAt");
+CREATE INDEX IF NOT EXISTS "CampusVideo_userId_createdAt_idx" ON "CampusVideo"("userId","createdAt");
+CREATE INDEX IF NOT EXISTS "CampusVideo_status_createdAt_idx" ON "CampusVideo"("status","createdAt");
+DO $$ BEGIN
+  ALTER TABLE "CampusVideo" ADD CONSTRAINT "CampusVideo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
