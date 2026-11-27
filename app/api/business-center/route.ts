@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { notifyDataCenterAdmins } from "@/lib/data-center-alerts";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
   const parsed = createSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Angalia taarifa za tangazo." }, { status: 400 });
   const campaign = await prisma.adCampaign.create({ data: { ...parsed.data, mediaUrl: parsed.data.mediaUrl || null, budgetTzs: 0, advertiserId: user.id } });
+  await notifyDataCenterAdmins("New advert submitted", `${campaign.businessName}: ${campaign.title}`, "/");
   return NextResponse.json({ campaign }, { status: 201 });
 }
 
