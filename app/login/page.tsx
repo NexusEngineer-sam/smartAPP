@@ -21,7 +21,10 @@ export default function LoginPage() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name: mode === "register" ? name.trim() : email.split("@")[0] }),
       });
-      const data = await response.json();
+      const responseText = await response.text();
+      let data: { error?: string } = {};
+      try { data = responseText ? JSON.parse(responseText) as { error?: string } : {}; }
+      catch { throw new Error("Server returned an invalid response. Please try again later."); }
       if (!response.ok) throw new Error(data.error || "Unable to continue.");
       router.replace("/"); router.refresh();
     } catch (e) { setError(e instanceof Error ? e.message : "Something went wrong."); }
