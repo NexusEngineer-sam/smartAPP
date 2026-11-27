@@ -8,17 +8,18 @@ export async function POST(request: Request) {
   }
 
   const now = new Date();
-  const horizon = new Date(now.getTime() + 35 * 60 * 1000);
+  const horizon = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const events = await prisma.timetableEvent.findMany({
-    where: { isActive: true, startsAt: { gt: now, lte: horizon } },
-    include: { recipients: { select: { userId: true } } },
-    take: 200,
+    where: { isActive: true, startsAt: { gt: now, lte: horizon }, reminderMins: { gt: 0 } },
+    include: { recipients: { where: { user: { isActive: true } }, select: { userId: true } } },
+    take: 500,
   });
 
   let created = 0;
   for (const event of events) {
-    // Only notify students explicitly enrolled for this event. Never broadcast a
-    // class reminder to every account by accident.
+    // Respect each event's configured reminder lead time, rather than using
+    // one global window for every class.
+    if (event.startsAt.getTime() - now.getTime() > event.reminderMins * 60_000) continue;
     for (const recipient of event.recipients) {
       const dedupeKey = `class-reminder:${event.id}:${recipient.userId}`;
       try {
