@@ -5,6 +5,7 @@ import { z } from "zod";
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { hashToken, SESSION_COOKIE } from "@/lib/auth";
+import { notifyDataCenterAdmins } from "@/lib/data-center-alerts";
 
 const schema = z.object({
   name: z.string().trim().min(2).max(80),
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
       return created;
     });
 
+    await notifyDataCenterAdmins("New campus account", `${user.name} registered on Campus OS.`, "/");
     const cookieStore = await cookies();
     cookieStore.set(SESSION_COOKIE, token, {
       httpOnly: true,
