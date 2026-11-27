@@ -244,3 +244,31 @@ td:first-child small,.admin-metrics span{color:#93a1c0}
  .hero-card{animation:heroFloat 9s ease-in-out infinite alternate}
  @keyframes heroFloat{from{background-position:0 0,0 0}to{background-position:8px -10px,0 0}}
 }
+
+/* Student profile photos and device notification preferences */
+.register-photo-row{display:flex;align-items:center;gap:14px;padding:13px;border:1px solid rgba(153,170,220,.16);border-radius:13px;background:rgba(255,255,255,.035);margin:14px 0 18px}
+.register-photo-preview{width:64px;height:64px;flex:0 0 64px;border-radius:18px;display:grid;place-items:center;overflow:hidden;background:rgba(137,119,255,.14);color:#b9adff;border:1px solid rgba(153,139,255,.25)}
+.register-photo-preview img,.avatar img,.digital-id-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.register-photo-copy{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}
+.register-photo-copy>b{font-size:11px;color:#e9edff}
+.register-photo-copy>b small{font-size:8px;letter-spacing:.8px;color:#a99cff;margin-left:5px}
+.register-photo-copy>span{font-size:9px;line-height:1.5;color:#96a4c3}
+.photo-upload-btn{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:7px!important;margin:5px 0 0!important;padding:8px 11px;border-radius:8px;background:rgba(132,112,255,.16);color:#c8bdff!important;font-size:9px!important;cursor:pointer}
+.photo-upload-btn input{display:none}
+.avatar{overflow:hidden}
+.digital-id-avatar{overflow:hidden}
+.notification-settings-trigger{color:#aeb9d3}
+.notification-device{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--line);margin:8px 0 14px}
+.notification-device-icon{width:42px;height:42px;border-radius:12px;background:rgba(132,112,255,.14);color:#b9adff;display:grid;place-items:center}
+.notification-device>div{display:flex;flex-direction:column;gap:4px;flex:1}
+.notification-device b{font-size:11px;color:#edf1ff}
+.notification-device small{font-size:9px;color:#929fbd}
+.notification-state{font-size:8px;font-weight:800;letter-spacing:.6px;padding:6px 8px;border-radius:20px;background:rgba(242,181,76,.12);color:#f0c16e}
+.notification-state.on{background:rgba(43,205,166,.12);color:#73dfc1}
+.notification-info{display:flex;align-items:flex-start;gap:9px;padding:12px;border-radius:10px;background:rgba(132,112,255,.09);color:#aebbe0;font-size:10px;line-height:1.6;margin-bottom:15px}
+.notification-info svg{flex:0 0 auto;color:#b5a8ff}
+.notification-permission{display:flex;justify-content:space-between;gap:10px;padding:5px 0 16px;font-size:10px;color:#9aa7c6}
+.notification-permission b{color:#e1e8ff}
+.notification-disable{background:linear-gradient(105deg,#9c425e,#c05269)}
+.notification-footnote{display:block;margin-top:13px;color:#8795b5;font-size:9px;line-height:1.6}
+@media(max-width:650px){.register-photo-row{align-items:flex-start}.notification-settings{padding:19px}}
