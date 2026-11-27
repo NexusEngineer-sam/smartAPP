@@ -36,8 +36,10 @@ export async function PATCH(request: Request) {
   const parsed = z.object({ id: z.string().cuid(), ...schema.partial().shape }).safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid announcement update." }, { status: 400 });
   const { id, ...data } = parsed.data;
+  const previous = await prisma.announcement.findUnique({ where: { id } });
+  if (!previous) return NextResponse.json({ error: "Announcement not found." }, { status: 404 });
   const announcement = await prisma.announcement.update({ where: { id }, data });
-  if (data.published === true) await sendPushToAll(announcement.title, announcement.body, "/#updates");
+  if (!previous.published && announcement.published) await sendPushToAll(announcement.title, announcement.body, "/#updates");
   await prisma.auditLog.create({ data: { actorId: admin.id, action: "ANNOUNCEMENT_UPDATED", entityType: "Announcement", entityId: id } });
   return NextResponse.json({ announcement });
 }
