@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { sendPushToUser } from "@/lib/push";
+import { notifyDataCenterAdmins } from "@/lib/data-center-alerts";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -39,5 +40,6 @@ export async function POST(request: Request) {
   await prisma.notification.createMany({ data: members.map(member => ({ userId: member.id, title: parsed.data.title, body: parsed.data.body, channel: "CLASS", status: "SENT", dedupeKey: randomUUID(), sentAt: now })) });
   const pushResults = await Promise.all(members.map(member => sendPushToUser(member.id, parsed.data.title, parsed.data.body, "/#updates")));
   await prisma.auditLog.create({ data: { actorId: rep.id, action: "CLASS_NOTIFICATION_SENT", entityType: "ClassMessage", entityId: message.id, metadata: { classId: rep.representedClass.id, recipientCount: members.length } } });
+  await notifyDataCenterAdmins("Class notification sent", `${rep.name} sent an update to ${rep.representedClass.name}.`, "/");
   return NextResponse.json({ message, recipientCount: members.length, pushSent: pushResults.reduce((sum, result) => sum + result.sent, 0) }, { status: 201 });
 }
