@@ -1,1 +1,18 @@
-{"name":"SAMWEL CAMPUS OS","short_name":"Campus OS","description":"Your intelligent university workspace.","start_url":"/","display":"standalone","background_color":"#f6f7fb","theme_color":"#171629","icons":[]}
+{
+  "name": "SAMWEL CAMPUS OS",
+  "short_name": "Campus OS",
+  "description": "Your intelligent university workspace.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f7fb",
+  "theme_color": "#171629",
+  "icons": [
+    {
+      "src": "/icons/campus-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
