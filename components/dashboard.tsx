@@ -6,6 +6,7 @@ import PushNotifications from "@/components/push-notifications";
 import NotificationInbox from "@/components/notification-inbox";
 import BusinessCenter from "@/components/business-center";
 import EngagementTracker from "@/components/engagement-tracker";
+import DataUsageTracker from "@/components/data-usage-tracker";
 import EngagementAnalytics from "@/components/engagement-analytics";
 import CampusVideoHub from "@/components/campus-video-hub";
 import SocialFeed from "@/components/social-feed";
@@ -71,7 +72,7 @@ export default function Dashboard({user}:{user:User}) {
   const sectionLabels:Record<string,string>={home:"Overview",study:"Study Zone",social:"Campus Social",videos:"Video Hub",ads:"Ads & Promotions",finance:"My Finance",updates:"Notifications",analytics:"Analytics",life:"Student Life"};
   function navigateTo(id:string){setActiveSection(id);setMoreOpen(false);window.scrollTo({top:0,behavior:"smooth"});}
 
-  return <main className="app-shell"><EngagementTracker/>
+  return <main className="app-shell"><EngagementTracker/><DataUsageTracker/>
     <aside className="sidebar"><div className="brand side-brand"><span className="brand-mark"><GraduationCap size={22}/></span><span>SAMWEL <b>CAMPUS OS</b></span></div>
       <span className="side-label">WORKSPACE</span>{[{id:"home",label:"Overview",icon:LayoutDashboard},{id:"study",label:"Study Zone",icon:BookOpen},{id:"social",label:"Campus Social",icon:Users},{id:"videos",label:"Video Hub",icon:Video},{id:"ads",label:"Ads & Promotions",icon:Megaphone},{id:"finance",label:"My Finance",icon:Wallet},{id:"life",label:"Student Life",icon:Sparkles},{id:"updates",label:"Notifications",icon:Bell},{id:"analytics",label:"Analytics",icon:ChartNoAxesCombined}].map(item=><button key={item.id} type="button" className={`nav-item ${activeSection===item.id?"active":""}`} onClick={()=>{setActiveSection(item.id);window.scrollTo({top:0,behavior:"smooth"});}}><item.icon size={18}/>{item.label}</button>)}
       {user.role==="CLASS_REP"&&<><span className="side-label">CLASS LEADERSHIP</span><a className="nav-item" href="#class-rep"><Bell size={18}/> CR notifications</a></>}{user.role==="ADMIN"&&<><span className="side-label">ADMINISTRATION</span><a className="nav-item" href="/admin"><Shield size={18}/> Control center</a></>}
