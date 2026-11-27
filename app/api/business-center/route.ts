@@ -9,7 +9,7 @@ export async function GET() {
   const campaigns = await prisma.adCampaign.findMany({
     where: user.role === "ADMIN" ? {} : { OR: [{ status: "APPROVED" }, { advertiserId: user.id }] },
     orderBy: { createdAt: "desc" }, take: 50,
-    select: { id: true, businessName: true, title: true, description: true, contact: true, budgetTzs: true, mediaUrl: true, status: true, createdAt: true, advertiserId: true, _count: { select: { likes: true, comments: true } }, comments: { take: 3, orderBy: { createdAt: "desc" }, select: { id: true, body: true, createdAt: true, user: { select: { id: true, name: true, avatarUrl: true } } } } }
+    select: { id: true, businessName: true, title: true, description: true, contact: true, budgetTzs: true, mediaUrl: true, status: true, createdAt: true, advertiserId: true, _count: { select: { likes: true, comments: true } }, likes: { where: { userId: user.id }, select: { id: true } }, comments: { take: 3, orderBy: { createdAt: "desc" }, select: { id: true, body: true, createdAt: true, user: { select: { id: true, name: true, avatarUrl: true } } } } }
   });
   return NextResponse.json({ campaigns });
 }
