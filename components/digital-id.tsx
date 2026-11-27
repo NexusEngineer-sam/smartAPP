@@ -52,7 +52,7 @@ export default function DigitalId({ user }: Props) {
       <section className="digital-id-modal" role="dialog" aria-modal="true" aria-labelledby="digital-id-title">
         <div className="digital-id-heading"><div><span className="eyebrow">SECURE CAMPUS IDENTITY</span><h2 id="digital-id-title">Digital campus ID</h2></div><button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close"><X size={19}/></button></div>
         <div className="digital-id-card">
-          <div className="digital-id-card-top"><span className="digital-id-emblem"><CreditCard size={19}/></span><span>SAMWEL CAMPUS OS<small>OFFICIAL DIGITAL ID</small></span></div>
+          <div className="digital-id-card-top"><span className="digital-id-emblem"><CreditCard size={19}/></span><span>SAMWEL CAMPUS OS<small>CAMPUS DIGITAL ID</small></span></div>
           <div className="digital-id-person"><div className="digital-id-avatar">{user.name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase()}</div><div><b>{user.name}</b><small>{user.role.replaceAll("_", " ")}</small></div></div>
           <div className="digital-id-email">{user.email}</div>
           <div className="digital-id-footer"><span><ShieldCheck size={13}/> Protected identity</span><span>LIVE QR PASS</span></div>
