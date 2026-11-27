@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma db execute --file prisma/auth-token-tables.sql --schema prisma/schema.prisma && prisma db execute --file prisma/monetization.sql --schema prisma/schema.prisma && prisma db execute --file prisma/push-subscriptions.sql --schema prisma/schema.prisma && prisma generate && next build",
+    "build": "prisma db execute --file prisma/auth-token-tables.sql --schema prisma/schema.prisma && prisma db execute --file prisma/monetization.sql --schema prisma/schema.prisma && prisma db execute --file prisma/push-subscriptions.sql --schema prisma/schema.prisma && prisma db execute --file prisma/social.sql --schema prisma/schema.prisma && prisma generate && next build",
     "start": "next start",
     "lint": "tsc --noEmit",
     "db:generate": "prisma generate",
