@@ -32,6 +32,7 @@ model User {
   sessions     Session[]
   expenses     Expense[]
   studentLifeItems StudentLifeItem[]
+  personalSchedules PersonalSchedule[]
   notifications Notification[]
   pushSubscriptions PushSubscription[]
   eventRecipients EventRecipient[]
@@ -285,6 +286,26 @@ model StudentLifeItem {
   @@index([userId, section, createdAt])
 }
 
+
+
+model PersonalSchedule {
+  id           String   @id @default(cuid())
+  userId       String
+  kind         String   @db.VarChar(20)
+  title        String   @db.VarChar(140)
+  courseCode   String?  @db.VarChar(40)
+  location     String?  @db.VarChar(140)
+  startsAt     DateTime
+  endsAt       DateTime?
+  reminderMins Int      @default(15)
+  repeatWeekly Boolean  @default(false)
+  done         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, startsAt])
+  @@index([repeatWeekly, startsAt])
+}
 
 model PasswordResetToken {
   id        String   @id @default(cuid())
