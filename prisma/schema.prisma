@@ -42,6 +42,7 @@ model User {
   adComments AdComment[]
   engagementSessions EngagementSession[]
   sponsoredAdViews SponsoredAdView[]
+  dataUsageEvents DataUsageEvent[]
   campusVideos CampusVideo[]
   @@index([classGroupId])
 }
@@ -312,4 +313,30 @@ model AdComment {
   campaign   AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@index([campaignId, createdAt])
+}
+
+
+model DataUsageEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  bytes      BigInt
+  source     String   @default("CLIENT_ESTIMATE")
+  recordedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([recordedAt])
+  @@index([userId, recordedAt])
+  @@index([source, recordedAt])
+}
+
+model RevenueLedgerEntry {
+  id                String   @id @default(cuid())
+  source            String
+  description       String
+  amountTzs         Int
+  status            String   @default("PENDING")
+  providerReference String?  @unique
+  createdAt         DateTime @default(now())
+  confirmedAt       DateTime?
+  @@index([status, createdAt])
+  @@index([source, createdAt])
 }
