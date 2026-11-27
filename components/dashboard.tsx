@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import PushNotifications from "@/components/push-notifications";
 import NotificationInbox from "@/components/notification-inbox";
 import BusinessCenter from "@/components/business-center";
+import EngagementTracker from "@/components/engagement-tracker";
+import EngagementAnalytics from "@/components/engagement-analytics";
 import DigitalId from "@/components/digital-id";
 import CampusGuide from "@/components/campus-guide";
 import ClassRepPanel from "@/components/class-rep-panel";
@@ -62,7 +64,7 @@ export default function Dashboard({user}:{user:User}) {
   async function logout(){await fetch("/api/auth/logout",{method:"POST"});router.replace("/login");router.refresh();}
   const initials=user.name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
 
-  return <main className="app-shell">
+  return <main className="app-shell"><EngagementTracker/>
     <aside className="sidebar"><div className="brand side-brand"><span className="brand-mark"><GraduationCap size={22}/></span><span>SAMWEL <b>CAMPUS OS</b></span></div>
       <span className="side-label">WORKSPACE</span><a className="nav-item active" href="/"><LayoutDashboard size={18}/> Overview</a><a className="nav-item" href="#planner"><CalendarDays size={18}/> Study planner</a><a className="nav-item" href="#finance"><Wallet size={18}/> My finances</a><a className="nav-item" href="#updates"><Bell size={18}/> Campus updates</a>
       {user.role==="CLASS_REP"&&<><span className="side-label">CLASS LEADERSHIP</span><a className="nav-item" href="#class-rep"><Bell size={18}/> CR notifications</a></>}{user.role==="ADMIN"&&<><span className="side-label">ADMINISTRATION</span><a className="nav-item" href="/admin"><Shield size={18}/> Control center</a></>}
@@ -70,7 +72,7 @@ export default function Dashboard({user}:{user:User}) {
     </aside>
     <section className="main-area"><header className="topbar"><div className="mobile-brand"><GraduationCap/> CAMPUS OS</div><div className="topbar-right"><span className="campus-pill"><i/> UDOM · CAMPUS</span><NotificationInbox/><PushNotifications/><span className="avatar">{initials}</span></div></header>
       <div className="page-content"><div className="welcome-row"><div><span className="eyebrow">YOUR CAMPUS, IN SYNC</span><h1>{greeting}, {user.name.split(" ")[0]} <span>✦</span></h1><p>Your academic life, organised in one intelligent workspace.</p><DigitalId user={user}/></div><div className="today-pill"><CalendarDays size={16}/>{new Intl.DateTimeFormat("en",{weekday:"long",day:"numeric",month:"short"}).format(new Date())}</div></div>
-        <CampusGuide/><BusinessCenter role={user.role}/>{user.role==="CLASS_REP"&&<ClassRepPanel/>}{user.role==="STUDENT"&&<ClassMessages/>}<section className="hero-grid"><div className="hero-card"><div className="hero-top"><span><Sparkles size={15}/> CAMPUS OVERVIEW</span><span className="live-dot">SYSTEM ONLINE</span></div><h2>Make every day<br/>count.</h2><p>Stay ahead of your classes, finances and campus updates.</p><div className="hero-stats"><div><b>{expenses.length}</b><small>Expenses tracked</small></div><div><b>{notices.length}</b><small>New announcements</small></div></div></div>
+        <CampusGuide/><EngagementAnalytics role={user.role}/><BusinessCenter role={user.role}/>{user.role==="CLASS_REP"&&<ClassRepPanel/>}{user.role==="STUDENT"&&<ClassMessages/>}<section className="hero-grid"><div className="hero-card"><div className="hero-top"><span><Sparkles size={15}/> CAMPUS OVERVIEW</span><span className="live-dot">SYSTEM ONLINE</span></div><h2>Make every day<br/>count.</h2><p>Stay ahead of your classes, finances and campus updates.</p><div className="hero-stats"><div><b>{expenses.length}</b><small>Expenses tracked</small></div><div><b>{notices.length}</b><small>New announcements</small></div></div></div>
           <div className="metric-card"><div className="metric-icon purple"><Wallet/></div><span className="metric-label">TOTAL RECORDED SPENDING</span><strong>{loading?"—":money(spent)}</strong><small>Based on your saved transactions</small><button className="text-action" onClick={()=>setModal(true)}>Add transaction <ArrowUpRight size={15}/></button></div>
         </section>
         <div className="section-title" id="finance"><div><span className="eyebrow">PERSONAL MANAGEMENT</span><h2>Your workspace</h2></div><span className="secure-tag"><Activity size={14}/> Live data</span></div>
