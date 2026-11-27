@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { CreditCard, RefreshCw, ShieldCheck, X } from "lucide-react";
 
-type Props = { user: { name: string; email: string; role: string } };
+type Props = { user: { name: string; email: string; role: string; avatarUrl?: string | null } };
 type Pass = { token: string; expiresAt: string; identity: { name: string; role: string } };
 
 export default function DigitalId({ user }: Props) {
@@ -53,7 +53,7 @@ export default function DigitalId({ user }: Props) {
         <div className="digital-id-heading"><div><span className="eyebrow">SECURE CAMPUS IDENTITY</span><h2 id="digital-id-title">Digital campus ID</h2></div><button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close"><X size={19}/></button></div>
         <div className="digital-id-card">
           <div className="digital-id-card-top"><span className="digital-id-emblem"><CreditCard size={19}/></span><span>SAMWEL CAMPUS OS<small>CAMPUS DIGITAL ID</small></span></div>
-          <div className="digital-id-person"><div className="digital-id-avatar">{user.name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase()}</div><div><b>{user.name}</b><small>{user.role.replaceAll("_", " ")}</small></div></div>
+          <div className="digital-id-person"><div className="digital-id-avatar">{user.avatarUrl ? <img src={user.avatarUrl} alt="" /> : user.name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase()}</div><div><b>{user.name}</b><small>{user.role.replaceAll("_", " ")}</small></div></div>
           <div className="digital-id-email">{user.email}</div>
           <div className="digital-id-footer"><span><ShieldCheck size={13}/> Protected identity</span><span>LIVE QR PASS</span></div>
         </div>
