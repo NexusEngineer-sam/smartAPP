@@ -164,3 +164,83 @@ html{scroll-padding-top:84px}
  .auth-art .brand-mark{animation:campusGlow 5s ease-in-out infinite alternate}
  @keyframes campusGlow{from{box-shadow:0 8px 24px #6355ff44}to{box-shadow:0 12px 42px #36b9ff55}}
 }
+
+
+/* SAMWEL CAMPUS OS — Enterprise dark workspace */
+:root{
+  --ink:#eef2ff;--muted:#8994b2;--line:rgba(153,170,220,.14);
+  --paper:#080d1b;--purple:#8b7cff;--navy:#090f20;
+  color-scheme:dark;
+}
+body{background:#080d1b;color:#eef2ff}
+.app-shell{background:radial-gradient(ellipse at 72% -12%,rgba(89,76,190,.19),transparent 38%),#080d1b}
+.sidebar{background:linear-gradient(180deg,#0c1428 0%,#090f20 100%);border-right:1px solid rgba(151,169,220,.12);box-shadow:12px 0 38px rgba(0,0,0,.14)}
+.side-label{color:#687697}
+.nav-item{color:#9aa7c6;transition:background .2s,color .2s,transform .2s}
+.nav-item:hover{background:rgba(129,111,255,.11);color:#fff;transform:translateX(2px)}
+.nav-item.active{background:linear-gradient(100deg,rgba(124,103,255,.22),rgba(72,135,255,.09));color:#c7c0ff;border:1px solid rgba(151,133,255,.18)}
+.support-link{border-color:rgba(153,170,220,.12);color:#9aa7c6}
+.main-area{background:transparent}
+.topbar{background:rgba(10,16,32,.82);border-bottom:1px solid var(--line);backdrop-filter:blur(18px);color:#aab5d0}
+.campus-pill{background:rgba(52,211,153,.1);color:#7de4c0;border:1px solid rgba(52,211,153,.16)}
+.campus-pill i{background:#43d6a6;box-shadow:0 0 12px #43d6a6}
+.page-content{max-width:1540px}
+.welcome-row h1,.admin-intro h1{color:#f4f6ff}
+.welcome-row h1 span{color:#9a8bff}
+.welcome-row p,.admin-intro p{color:#91a0bf}
+.today-pill{background:rgba(17,27,49,.82);border-color:var(--line);color:#aab5d0}
+.hero-card{border:1px solid rgba(178,164,255,.2);box-shadow:0 18px 50px rgba(44,35,117,.2);background:radial-gradient(circle at 90% 0%,rgba(137,119,255,.36),transparent 34%),linear-gradient(112deg,#171c3d,#342b78 70%,#3d55a5)}
+.hero-card h2{color:#fff}
+.metric-card,.surface-card,.admin-table-card,.tool-card,.admin-form-card,.admin-metrics>div{background:linear-gradient(145deg,rgba(19,29,52,.94),rgba(13,21,40,.96));border:1px solid var(--line);box-shadow:0 14px 36px rgba(0,0,0,.13)}
+.metric-card>strong,.card-heading h3,.section-title h2,.tool-card b,.admin-form-card h3{color:#f0f3ff}
+.metric-label,.metric-card>small,.card-heading p,.tool-card small{color:#8e9bb9}
+.metric-icon.purple,.transaction-icon,.notice-mark,.round-action,.round-icon,.tool-icon{background:rgba(133,113,255,.14);color:#b5a8ff}
+.tool-icon.teal{background:rgba(43,205,166,.12);color:#6fe2c2}
+.tool-icon.amber{background:rgba(242,181,76,.12);color:#f3c36f}
+.secure-tag{background:rgba(41,190,145,.1);color:#6fe0bd}
+.transaction,.notice{border-color:rgba(153,170,220,.11)}
+.transaction-name b,.notice b{color:#e9edff}
+.transaction-name small,.notice small,.notice p{color:#98a5c2}
+.transaction>strong{color:#dbe3ff}
+.empty-state{color:#8794b2}
+.empty-state b{color:#e4eaff}
+.text-action{color:#a99bff}
+.text-action:hover{color:#c7beff}
+.tool-card{transition:transform .2s,border-color .2s,box-shadow .2s}
+.tool-card:hover{transform:translateY(-3px);border-color:rgba(143,126,255,.38);box-shadow:0 18px 38px rgba(0,0,0,.2)}
+.app-footer{color:#6e7b99}
+.modal-card,.digital-id-modal{background:#101a30;color:#edf1ff;border:1px solid var(--line)}
+.modal-heading h2,.digital-id-heading h2{color:#f2f4ff}
+.modal-card label{color:#b9c4df}
+.modal-card input,.modal-card select{background:#0a1224;color:#edf1ff;border-color:rgba(153,170,220,.2)}
+.admin-header{border-color:var(--line);color:#dce4ff}
+.admin-tabs{border-color:var(--line)}
+.admin-tab{color:#a1adca}
+.admin-tab.active{background:rgba(132,112,255,.16);color:#c6bbff;border-color:rgba(151,133,255,.2)}
+.admin-refresh,.table-action,.role-select{background:#111d34;color:#cbd5ef;border-color:var(--line)}
+th{color:#8997b7;border-color:var(--line)}
+td{color:#d9e1f8;border-color:rgba(153,170,220,.1)}
+td:first-child small,.admin-metrics span{color:#93a1c0}
+.admin-form-card label{color:#b8c4df}
+.admin-form-card input:not([type=checkbox]),.admin-form-card textarea,.admin-form-card select{background:#0a1224;color:#edf1ff;border-color:rgba(153,170,220,.2)}
+.student-picker{border-color:var(--line)}
+.student-option{border-color:rgba(153,170,220,.1)}
+.student-option b{color:#e4eaff}
+.student-option small{color:#91a0bf}
+.mobile-bottom-nav{background:rgba(12,20,39,.94);border-color:var(--line);box-shadow:0 10px 35px rgba(0,0,0,.42)}
+.mobile-nav-item{color:#9ba8c7}
+.mobile-nav-item.active,.mobile-nav-item:focus-visible{background:rgba(132,112,255,.17);color:#c9c0ff}
+.mobile-brand{color:#e1e7ff}
+.icon-btn{color:#aeb9d3}
+.icon-btn:hover{background:rgba(145,129,255,.13);color:#fff}
+:where(a,button,input,select,textarea):focus-visible{outline-color:#9d8cff}
+@media(max-width:650px){
+ .topbar{background:rgba(10,16,32,.94)}
+ .page-content{padding-top:23px}
+ .hero-card{border-radius:17px}
+ .metric-card,.surface-card,.tool-card{border-radius:14px}
+}
+@media(prefers-reduced-motion:no-preference){
+ .hero-card{animation:heroFloat 9s ease-in-out infinite alternate}
+ @keyframes heroFloat{from{background-position:0 0,0 0}to{background-position:8px -10px,0 0}}
+}
