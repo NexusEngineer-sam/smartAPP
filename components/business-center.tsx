@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Heart, MessageCircle, Send, Megaphone, ShieldCheck, Eye, Image as ImageIcon, ExternalLink, Sparkles, BadgeCheck } from "lucide-react";
+import { Heart, MessageCircle, Send, Megaphone, ShieldCheck, Eye, Image as ImageIcon, ExternalLink, Sparkles, BadgeCheck, Upload, X } from "lucide-react";
 
 type Comment = { id:string; body:string; createdAt:string; user:{id:string;name:string;avatarUrl:string|null} };
 type Campaign = { id:string; businessName:string; title:string; description:string; contact:string; budgetTzs:number; mediaUrl:string|null; status:"PENDING"|"APPROVED"|"REJECTED"; createdAt:string; advertiserId?:string; _count:{likes:number;comments:number}; likes:{id:string}[]; comments:Comment[] };
 export default function BusinessCenter({role}:{role:string}) {
  const [items,setItems]=useState<Campaign[]>([]);
  const [form,setForm]=useState({businessName:"",title:"",description:"",contact:"",mediaUrl:""});
- const [busy,setBusy]=useState(false); const [message,setMessage]=useState(""); const [error,setError]=useState("");
+ const [busy,setBusy]=useState(false); const [uploading,setUploading]=useState(false); const [message,setMessage]=useState(""); const [error,setError]=useState("");
  const [commentDrafts,setCommentDrafts]=useState<Record<string,string>>({});
  const [commentOpen,setCommentOpen]=useState<string|null>(null);
  async function load(){const r=await fetch("/api/business-center",{cache:"no-store"});if(r.ok){const d=await r.json();setItems(d.campaigns||[]);}}
@@ -25,7 +25,7 @@ export default function BusinessCenter({role}:{role:string}) {
  }
  async function moderate(id:string,status:"APPROVED"|"REJECTED"){const r=await fetch("/api/business-center",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,status})});if(r.ok)await load();else setError("Imeshindikana kubadili hali ya tangazo.");}
  function media(url:string|null){if(!url)return <div className="campus-ad-placeholder"><Sparkles size={34}/><span>SUPPORT CAMPUS CREATORS</span></div>;
-  const video=/\.(mp4|webm|mov)(\?|$)/i.test(url);return video?<video className="campus-ad-media" src={url} controls playsInline preload="metadata"/>:<img className="campus-ad-media" src={url} alt="Picha ya tangazo" loading="lazy"/>;}
+  const video=/\.(mp4|webm|mov)(\?|$)/i.test(url)||url.startsWith("data:video/");return video?<video className="campus-ad-media" src={url} controls playsInline preload="metadata"/>:<img className="campus-ad-media" src={url} alt="Picha ya tangazo" loading="lazy"/>;}
  const visible=items.filter(x=>x.status==="APPROVED"||x.advertiserId&&x.status==="PENDING"||role==="ADMIN");
  return <section className="campus-ads-page">
   <header className="campus-ads-hero"><div><span className="eyebrow">CAMPUS COMMUNITY • CREATOR ECONOMY</span><h2>Campus <em>Spotlight</em></h2><p>Biashara, huduma na vipaji vya wanafunzi — sehemu moja yenye nguvu.</p></div><div className="campus-free-pill"><Sparkles size={15}/> 100% BURE KWA SASA</div></header>
@@ -50,10 +50,10 @@ export default function BusinessCenter({role}:{role:string}) {
     <form onSubmit={submit}><label>Jina la biashara / huduma<input required minLength={2} maxLength={100} value={form.businessName} onChange={e=>setForm({...form,businessName:e.target.value})} placeholder="Mf. Sam Digital Services"/></label>
      <label>Kichwa cha tangazo<input required minLength={3} maxLength={120} value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="Unatangaza nini?"/></label>
      <label>Maelezo<textarea required minLength={10} maxLength={1000} rows={4} value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Eleza bidhaa au huduma yako..."/></label>
-     <label>Kiungo cha picha/video (si lazima)<input type="url" value={form.mediaUrl} onChange={e=>setForm({...form,mediaUrl:e.target.value})} placeholder="https://..."/></label>
+     <div className="campus-upload-field"><label htmlFor="campus-ad-file">Picha au video ya tangazo <span>(si lazima)</span></label><label className="campus-upload-button" htmlFor="campus-ad-file"><Upload size={18}/><span>{form.mediaUrl?"Badilisha picha/video":"Chagua kutoka kwenye simu"}</span></label><input id="campus-ad-file" className="campus-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;const allowed=["image/jpeg","image/png","image/webp","image/gif","video/mp4","video/webm"];if(!allowed.includes(file.type)){setError("Chagua picha JPG, PNG, WEBP, GIF au video MP4/WEBM.");e.target.value="";return;}if(file.size>6*1024*1024){setError("Faili lisizidi MB 6. Tafadhali punguza ukubwa wa video/picha.");e.target.value="";return;}setUploading(true);setError("");try{const data=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>typeof reader.result==="string"?resolve(reader.result):reject(new Error("Imeshindikana kusoma faili."));reader.onerror=()=>reject(new Error("Imeshindikana kusoma faili."));reader.readAsDataURL(file);});setForm(old=>({...old,mediaUrl:data}));}catch(err){setError(err instanceof Error?err.message:"Imeshindikana kusoma faili.");}finally{setUploading(false);}}}/>{form.mediaUrl&&<div className="campus-upload-preview">{media(form.mediaUrl)}<button type="button" onClick={()=>{setForm(old=>({...old,mediaUrl:""}));const el=document.getElementById("campus-ad-file") as HTMLInputElement|null;if(el)el.value="";}} aria-label="Ondoa faili"><X size={16}/> Ondoa</button></div>}<small className="campus-upload-hint">Picha au video hadi MB 6. Faili linapakiwa moja kwa moja kutoka kwenye kifaa chako.</small></div>
      <label>Mawasiliano<input required maxLength={100} value={form.contact} onChange={e=>setForm({...form,contact:e.target.value})} placeholder="+255... au email"/></label>
      {error&&<p className="form-error">{error}</p>}{message&&<p className="campus-ad-feedback">{message}</p>}
-     <button className="campus-ad-submit" disabled={busy}><Send size={16}/>{busy?"Inatuma...":"Chapisha tangazo bure"}</button>
+     <button className="campus-ad-submit" disabled={busy||uploading}><Send size={16}/>{uploading?"Inasoma faili...":busy?"Inatuma...":"Chapisha tangazo bure"}</button>
     </form><div className="campus-ad-free-note"><ShieldCheck size={16}/><span><b>Hakuna gharama.</b> Hakuna budget, hakuna malipo. Tangazo hupitia ukaguzi mfupi kabla ya kuonekana kwa wote.</span></div>
    </section>
    <div className="campus-ad-side-tip"><ImageIcon size={18}/><b>Kidokezo cha matangazo bora</b><p>Tumia picha au video safi, kichwa kifupi na maelezo yanayoeleweka ili kuvutia wanafunzi.</p></div>
