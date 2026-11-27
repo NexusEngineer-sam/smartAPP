@@ -33,6 +33,7 @@ model User {
   eventRecipients EventRecipient[]
   auditEntries AuditLog[]  @relation("AuditActor")
   identityTokens IdentityToken[]
+  passwordResetTokens PasswordResetToken[]
   classGroup   CampusClass? @relation("ClassMembers", fields: [classGroupId], references: [id], onDelete: SetNull)
   representedClass CampusClass? @relation("ClassRepresentative")
   classMessagesSent ClassMessage[] @relation("ClassMessageSender")
