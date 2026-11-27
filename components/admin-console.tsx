@@ -14,7 +14,8 @@ export default function AdminConsole(){
  const [announcements,setAnnouncements]=useState<Announcement[]>([]);
  const [events,setEvents]=useState<Event[]>([]);
  const [students,setStudents]=useState<Student[]>([]);
- const [logs,setLogs]=useState<Log[]>([]);\n const [dataCash,setDataCash]=useState<DataCash|null>(null);
+ const [logs,setLogs]=useState<Log[]>([]);
+ const [dataCash,setDataCash]=useState<DataCash|null>(null);
  const [title,setTitle]=useState("");const [body,setBody]=useState("");const [published,setPublished]=useState(true);
  const [eventTitle,setEventTitle]=useState("");const [courseCode,setCourseCode]=useState("");const [location,setLocation]=useState("");
  const [startsAt,setStartsAt]=useState("");const [endsAt,setEndsAt]=useState("");const [reminderMins,setReminderMins]=useState(15);const [userIds,setUserIds]=useState<string[]>([]);
