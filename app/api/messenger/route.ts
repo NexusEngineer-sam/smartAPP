@@ -47,15 +47,25 @@ async function createMessengerRequest(request:Request) {
  const parsed=createSchema.safeParse(body);if(!parsed.success||parsed.data.recipientId===user.id)return NextResponse.json({error:"Choose another student."},{status:400});
  const recipient=await prisma.user.findFirst({where:{id:parsed.data.recipientId,isActive:true},select:{id:true}});
  if(!recipient)return NextResponse.json({error:"Student not found."},{status:404});
- const existing=await prisma.chatConversation.findFirst({where:{isGroup:false,AND:[{participants:{some:{userId:user.id}}},{participants:{some:{userId:recipient.id}}}],participants:{every:{userId:{in:[user.id,recipient.id]}}}},select:{id:true}});
+ const existing=await prisma.chatConversation.findFirst({
+  where:{isGroup:false,AND:[{participants:{some:{userId:user.id}}},{participants:{some:{userId:recipient.id}}}],participants:{every:{userId:{in:[user.id,recipient.id]}}}},
+  select:{id:true}
+ });
  if(existing){
   const conversation=await prisma.chatConversation.findUnique({where:{id:existing.id},select:{id:true,requestStatus:true,createdById:true}});
-  if(conversation?.requestStatus==="DECLINED")return NextResponse.json({error:"This student declined your previous request."},{status:403});
-  if(conversation?.requestStatus==="PENDING") await prisma.chatConversation.update({where:{id:existing.id},data:{requestStatus:"ACCEPTED",updatedAt:new Date()}});
-  return NextResponse.json({conversationId:existing.id,requestStatus:"ACCEPTED",pending:false});
+  if(!conversation)return NextResponse.json({error:"Conversation not found."},{status:404});
+  if(conversation.requestStatus==="DECLINED")return NextResponse.json({error:"This student declined your previous request."},{status:403});
+  if(conversation.requestStatus==="PENDING")return NextResponse.json({
+   conversationId:conversation.id,requestStatus:"PENDING",pending:true,
+   direction:conversation.createdById===user.id?"outgoing":"incoming"
+  });
+  return NextResponse.json({conversationId:conversation.id,requestStatus:"ACCEPTED",pending:false});
  }
- const conversation=await prisma.chatConversation.create({data:{createdById:user.id,requestStatus:"ACCEPTED",participants:{create:[{userId:user.id},{userId:recipient.id}]}},select:{id:true}});
- return NextResponse.json({conversationId:conversation.id,requestStatus:"ACCEPTED",pending:false},{status:201});
+ const conversation=await prisma.chatConversation.create({
+  data:{createdById:user.id,requestStatus:"PENDING",participants:{create:[{userId:user.id},{userId:recipient.id}]}},
+  select:{id:true}
+ });
+ return NextResponse.json({conversationId:conversation.id,requestStatus:"PENDING",pending:true,direction:"outgoing"},{status:201});
 }
 export async function GET(request:Request){try{return await getMessenger(request)}catch(error){console.error("[messenger:GET]",error);return NextResponse.json({error:"Messenger imeshindwa kupakia mazungumzo. Jaribu tena."},{status:500})}}
 export async function POST(request:Request){try{return await createMessengerRequest(request)}catch(error){console.error("[messenger:POST]",error);return NextResponse.json({error:"Ombi la ujumbe halijafanikiwa. Jaribu tena."},{status:500})}}
