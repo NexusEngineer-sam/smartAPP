@@ -1,25 +1,28 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import PushNotifications from "@/components/push-notifications";
 import NotificationInbox from "@/components/notification-inbox";
-import BusinessCenter from "@/components/business-center";
 import EngagementTracker from "@/components/engagement-tracker";
 import DataUsageTracker from "@/components/data-usage-tracker";
-import EngagementAnalytics from "@/components/engagement-analytics";
-import CampusVideoHub from "@/components/campus-video-hub";
-import CampusDiscoveryHub from "@/components/campus-discovery-hub";
-import SocialFeed from "@/components/social-feed";
-import DigitalId from "@/components/digital-id";
-import CampusGuide from "@/components/campus-guide";
-import ClassRepPanel from "@/components/class-rep-panel";
-import ClassMessages from "@/components/class-messages";
-import StudentLifeHub from "@/components/student-life-hub";
-import StudyPlanner from "@/components/study-planner";
-import CampusEventsHub from "@/components/campus-events-hub";
-import GlobalCampusNetwork from "@/components/global-campus-network";
-import CampusMessenger from "@/components/campus-messenger";
+
+const SectionLoading = () => <div className="section-loading" role="status">Loading workspace…</div>;
+const BusinessCenter = dynamic(() => import("@/components/business-center"), { loading: SectionLoading });
+const EngagementAnalytics = dynamic(() => import("@/components/engagement-analytics"), { loading: SectionLoading });
+const CampusVideoHub = dynamic(() => import("@/components/campus-video-hub"), { loading: SectionLoading });
+const CampusDiscoveryHub = dynamic(() => import("@/components/campus-discovery-hub"), { loading: SectionLoading });
+const SocialFeed = dynamic(() => import("@/components/social-feed"), { loading: SectionLoading });
+const DigitalId = dynamic(() => import("@/components/digital-id"), { loading: SectionLoading });
+const CampusGuide = dynamic(() => import("@/components/campus-guide"), { loading: SectionLoading });
+const ClassRepPanel = dynamic(() => import("@/components/class-rep-panel"), { loading: SectionLoading });
+const ClassMessages = dynamic(() => import("@/components/class-messages"), { loading: SectionLoading });
+const StudentLifeHub = dynamic(() => import("@/components/student-life-hub"), { loading: SectionLoading });
+const StudyPlanner = dynamic(() => import("@/components/study-planner"), { loading: SectionLoading });
+const CampusEventsHub = dynamic(() => import("@/components/campus-events-hub"), { loading: SectionLoading });
+const GlobalCampusNetwork = dynamic(() => import("@/components/global-campus-network"), { loading: SectionLoading });
+const CampusMessenger = dynamic(() => import("@/components/campus-messenger"), { loading: SectionLoading });
 import { Activity, Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, GraduationCap, LayoutDashboard, LogOut, Plus, Shield, Wallet, X, ArrowUpRight, Clock3, Sparkles, Megaphone, Video, Users, ChartNoAxesCombined, Settings, Globe2, MessageCircle } from "lucide-react";
 
 type User = { id: string; name: string; email: string; role: string; avatarUrl?: string | null };
