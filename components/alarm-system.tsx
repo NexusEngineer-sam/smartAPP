@@ -27,7 +27,7 @@ async function syncNativeAlarms(alarms:Alarm[]){
    if(changed.exact_alarm!=="granted")return {native:true as const,message:"Washa ruhusa ya Alarms & reminders kwenye Android Settings ili alarm iweze kufika kwa muda sahihi."};
   }
   await LocalNotifications.createChannel({id:"nexus-alarm",name:"NEXUS Alarms",description:"Scheduled NEXUS alarm alerts",importance:5,vibration:true,visibility:1});
-  const weekdays=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  const weekdays=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"] as const;
   const scheduled:any[]=[];
   for(const alarm of alarms){
    if(!alarm.enabled)continue;
@@ -65,7 +65,7 @@ export default function AlarmSystem(){
  const firedRef=useRef<string>("");
  useEffect(()=>{try{const raw=localStorage.getItem(STORE);if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed))setAlarms(parsed);}}catch{}setReady(true);},[]);
  useEffect(()=>{if(ready)try{localStorage.setItem(STORE,JSON.stringify(alarms));}catch{}},[alarms,ready]);
- useEffect(()=>{if(!ready)return;let active=true;void syncNativeAlarms(alarms).then(result=>{if(active&&result.native&&result.message)setNotice(result.message);});return()=>{active=false;};},[alarms,ready]);
+ useEffect(()=>{if(!ready)return;let active=true;const sync=()=>{void syncNativeAlarms(alarms).then(result=>{if(active&&result.native&&result.message)setNotice(result.message);});};sync();const onVisible=()=>{if(document.visibilityState==="visible")sync();};document.addEventListener("visibilitychange",onVisible);return()=>{active=false;document.removeEventListener("visibilitychange",onVisible);};},[alarms,ready]);
  const stopSound=useCallback(()=>{const ctx=audioRef.current;if(ctx){if(ctx.__alarmTimer)window.clearInterval(ctx.__alarmTimer);if(ctx.__vibeTimer)window.clearInterval(ctx.__vibeTimer);void ctx.close().catch(()=>{});audioRef.current=null;}if(typeof navigator!=="undefined"&&"vibrate"in navigator)navigator.vibrate(0);},[]);
  const startSound=useCallback(async()=>{
   try{
