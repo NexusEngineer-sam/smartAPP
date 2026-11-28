@@ -21,7 +21,8 @@ const BusinessCenter = dynamic(() => import("@/components/business-center"), { l
 const EngagementAnalytics = dynamic(() => import("@/components/engagement-analytics"), { loading: () => null });
 const CampusVideoHub = dynamic(() => import("@/components/campus-video-hub"), { loading: () => null });
 const CampusDiscoveryHub = dynamic(() => import("@/components/campus-discovery-hub"), { loading: () => null });
-const SocialFeed = dynamic(() => import("@/components/social-feed"), { loading: () => null });\nconst CampusStories = dynamic(() => import("@/components/campus-stories"), { loading: () => null });
+const SocialFeed = dynamic(() => import("@/components/social-feed"), { loading: () => null });
+const CampusStories = dynamic(() => import("@/components/campus-stories"), { loading: () => null });
 const DigitalId = dynamic(() => import("@/components/digital-id"), { loading: () => null });
 const CampusGuide = dynamic(() => import("@/components/campus-guide"), { loading: () => null });
 const ClassRepPanel = dynamic(() => import("@/components/class-rep-panel"), { loading: () => null });
@@ -110,7 +111,8 @@ export default function Dashboard({user}:{user:User}) {
         {activeSection==="study"&&<StudyPlanner/>}
         {activeSection==="alarm"&&<AlarmSystem/>}
         {activeSection==="discover"&&<CampusDiscoveryHub user={user} notices={notices}/> }
-        {activeSection==="social"&&<><SocialFeed user={user}/>{user.role==="CLASS_REP"?<ClassRepPanel/>:<ClassMessages/>}</>}\n        {activeSection==="status"&&<CampusStories user={user} fullPage onExit={()=>navigateTo("social")}/>}
+        {activeSection==="social"&&<><SocialFeed user={user}/>{user.role==="CLASS_REP"?<ClassRepPanel/>:<ClassMessages/>}</>}
+        {activeSection==="status"&&<CampusStories user={user} fullPage onExit={()=>navigateTo("social")}/>}
         {activeSection==="global"&&<GlobalCampusNetwork/>}
         {activeSection==="messages"&&<CampusMessenger currentUser={{id:user.id,name:user.name}}/>}
         {activeSection==="events"&&<CampusEventsHub user={user}/> }
