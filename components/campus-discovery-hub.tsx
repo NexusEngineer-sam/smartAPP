@@ -24,7 +24,7 @@ const filters:{id:Filter;label:string;icon:typeof Layers3}[] = [
 ];
 
 export default function CampusDiscoveryHub({user,notices}:{user:User;notices:Notice[]}) {
-  const [active,setActive]=useState<Filter>("students");
+  const [active,setActive]=useState<Filter>("all");
   const show=(filter:Filter)=>active==="all"||active===filter;
   return <section className="discovery-hub discovery-facebook-layout">
     <nav className="discovery-filters" aria-label="Chuja maudhui ya campus">
