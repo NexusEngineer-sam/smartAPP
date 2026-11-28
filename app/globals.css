@@ -1622,3 +1622,30 @@ table td{color:#1c1e21!important;border-color:#e4e6eb!important}
 .search-spin{animation:campus-search-spin 1s linear infinite}
 @keyframes campus-search-spin{to{transform:rotate(360deg)}}
 @media(max-width:760px){.campus-global-search{width:min(48vw,230px)}.campus-search-field{height:38px;padding:0 10px;gap:7px}.campus-search-field kbd{display:none}.campus-search-results{position:fixed;top:65px;left:12px;right:12px;max-height:65vh}}
+
+
+/* Feed-first social surface: editorial timeline, not a stack of dashboard cards */
+.page-content:has(.social-feed){max-width:1080px}
+.social-feed{width:min(100%,820px);margin:0 auto;gap:0}
+.social-feed .social-composer{margin:2px 0 18px;border:1px solid rgba(153,170,220,.16);border-radius:16px;box-shadow:0 12px 34px rgba(0,0,0,.12)}
+.social-feed .social-post{border:0;border-bottom:1px solid rgba(153,170,220,.16);border-radius:0;background:transparent;padding:23px 5px;color:#eef2ff;box-shadow:none}
+.social-feed .social-post:first-of-type{border-top:1px solid rgba(153,170,220,.12)}
+.social-feed .social-post-author{gap:12px}
+.social-feed .social-post-author b{font-size:13px;letter-spacing:-.15px}
+.social-feed .social-post-author small{font-size:10px}
+.social-feed .social-post-content{font-size:14px;line-height:1.75;letter-spacing:.02px;color:#e6ebf7}
+.social-feed .social-post-media{margin:12px 0 2px;border-radius:13px;overflow:hidden;background:#050a14}
+.social-feed .social-post-stats{font-size:10px;color:#98a7c3}
+.social-feed .social-post-actions{gap:5px}
+.social-feed .social-post-actions button{flex:1;justify-content:center;padding:10px 8px;border-radius:10px;font-size:11px}
+.social-feed .social-feed-heading{margin:18px 0 12px}
+.social-feed .social-feed-heading h3{font-size:22px;letter-spacing:-.7px}
+.social-feed .social-feed-modes{margin-bottom:4px}
+@media(max-width:650px){
+ .page-content:has(.social-feed){padding-left:13px;padding-right:13px}
+ .social-feed{width:100%}
+ .social-feed .social-composer{border-radius:14px;margin-bottom:14px}
+ .social-feed .social-post{padding:19px 2px}
+ .social-feed .social-post-content{font-size:14px;line-height:1.7}
+ .social-feed .social-post-media{margin-left:-2px;margin-right:-2px;border-radius:10px}
+}
