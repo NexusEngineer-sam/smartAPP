@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS "GlobalStudentProfile" (
+"id" TEXT PRIMARY KEY,
+"userId" TEXT NOT NULL UNIQUE REFERENCES "User"("id") ON DELETE CASCADE,
+"country" VARCHAR(80) NOT NULL DEFAULT 'Not specified',
+"bio" VARCHAR(500) NOT NULL DEFAULT '',
+"skills" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+"interests" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+"lookingFor" VARCHAR(80) NOT NULL DEFAULT 'Study partner',
+"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+"updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS "GlobalStudentProfile_country_idx" ON "GlobalStudentProfile"("country");
