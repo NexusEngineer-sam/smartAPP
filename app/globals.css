@@ -1380,3 +1380,110 @@ table th,table td{color:#0866ff!important;border-color:#d7e6ff!important}
  .mobile-nav-item.active{background:#0866ff!important;color:#fff!important}
  .topbar{background:#fff!important}
 }
+
+
+/* Accessibility and visual hierarchy pass — Facebook-inspired white/blue */
+:root{
+  color-scheme:light;
+  --ink:#1c1e21;
+  --muted:#65676b;
+  --line:#e4e6eb;
+  --paper:#f0f2f5;
+  --purple:#0866ff;
+  --navy:#ffffff;
+  --campus-blue:#0866ff;
+  --campus-blue-hover:#0757d8;
+  --campus-surface:#ffffff;
+  --campus-bg:#f0f2f5;
+  --campus-text:#1c1e21;
+  --campus-muted:#65676b;
+  --campus-border:#e4e6eb;
+}
+html,body{background:#f0f2f5!important;color:#1c1e21!important}
+.app-shell,.main-area{background:#f0f2f5!important;color:#1c1e21!important}
+.page-content{color:#1c1e21!important}
+.sidebar,.topbar,.mobile-bottom-nav{background:#fff!important;color:#1c1e21!important;border-color:#e4e6eb!important}
+.sidebar{border-right:1px solid #e4e6eb!important}
+.brand,.brand b,.side-brand,.mobile-brand,.welcome-row h1,.welcome-row h1 span,
+.welcome-row p,.section-title h2,.card-heading h3,.social-feed-heading h3,
+.user-meta b,.page-content,.admin-intro h1,.admin-intro p{color:#1c1e21!important}
+.nav-item,.mobile-nav-item,.topbar-right,.side-label,.user-meta small,.app-footer{color:#65676b!important}
+.nav-item.active,.nav-item:hover,.mobile-nav-item.active{background:#e7f3ff!important;color:#0866ff!important}
+.brand-mark,.avatar,.social-avatar,.campus-story-avatar{background:#0866ff!important;color:#fff!important}
+.campus-pill,.today-pill{background:#fff!important;color:#65676b!important;border:1px solid #e4e6eb!important}
+.eyebrow,.text-action,.switch-auth button{color:#0866ff!important}
+.hero-card,.discovery-hero,.messenger-hero,.global-network-space-head,.digital-id-card{background:#0866ff!important;color:#fff!important}
+.hero-card h2,.hero-card>p,.hero-top,.hero-stats small,.messenger-hero h2,.messenger-hero p,
+.messenger-hero>div>small,.messenger-hero>b{color:#fff!important}
+.surface-card,.metric-card,.admin-table-card,.tool-card,.admin-form-card,.modal-card,
+.digital-id-modal,.global-community-card,.global-space-post,.global-match-panel,
+.campus-stories,.social-composer,.social-post,.social-empty,.discovery-news,
+.messenger-layout,.messenger-sidebar,.messenger-chat,.messenger-chat-head,
+.messenger-search,.messenger-search-results,.messenger-compose,.messenger-encryption-note,
+.messenger-bubble,.messenger-conversation,.campus-story-compose{
+  background:#fff!important;color:#1c1e21!important;border-color:#e4e6eb!important;box-shadow:none!important
+}
+.surface-card,.metric-card,.admin-table-card,.tool-card,.admin-form-card,.modal-card{border-radius:12px!important}
+.social-feed,.discovery-facebook-layout,.discovery-facebook-layout>.social-feed{background:transparent!important}
+.social-post-author b,.social-post-content,.social-comment b,.social-post-author small,
+.social-post-stats,.social-doubletap-hint,.social-compose-shortcuts button,
+.social-compose-tools button,.social-post-actions button,.campus-stories-heading h3,
+.campus-stories-heading>span,.campus-story-tile,.campus-story-tile small{color:#1c1e21!important}
+.social-whats-on-mind,.social-comment,.messenger-search,.messenger-search-results,
+.messenger-compose,.messenger-encryption-note,.campus-story-compose textarea{
+  background:#f0f2f5!important;color:#1c1e21!important;border:1px solid #e4e6eb!important
+}
+.primary-btn,.global-community-join,.global-network-create,.global-network-submit,
+.messenger-compose button,.social-compose-bottom button,.campus-story-publish,.global-match-save{
+  background:#0866ff!important;color:#fff!important;border:0!important;box-shadow:none!important
+}
+.primary-btn:hover,.global-community-join:hover,.global-network-create:hover,
+.global-network-submit:hover,.messenger-compose button:hover{background:#0757d8!important}
+.auth-shell,.auth-form-wrap{background:#fff!important}
+.auth-art{background:#0866ff!important;color:#fff!important}
+.auth-art *,.auth-art .eyebrow,.auth-art .brand b,.art-copy p,.art-foot{color:#fff!important}
+.auth-card,.auth-card h2,.auth-card label,.modal-card label,.muted,.fine-print{color:#1c1e21!important}
+.auth-card input,.modal-card input,.modal-card select,.admin-form-card input:not([type=checkbox]),
+.admin-form-card textarea,.admin-form-card select,.role-select,.social-comments form input{
+  background:#fff!important;color:#1c1e21!important;border:1px solid #ccd0d5!important;box-shadow:none!important
+}
+.form-error,.social-error,.messenger-error{background:#fff0f0!important;color:#b42318!important;border-color:#ffd6d6!important}
+.success-message,.status-active{background:#e7f8ef!important;color:#16834a!important;border-color:#c8efd9!important}
+.status-inactive{background:#fff4e5!important;color:#9a6700!important;border-color:#ffe1b3!important}
+.discovery-facebook-layout>.discovery-filters{background:#fff!important;color:#1c1e21!important}
+.discovery-facebook-layout>.discovery-filters button{color:#65676b!important}
+.discovery-facebook-layout>.discovery-filters button:hover,
+.discovery-facebook-layout>.discovery-filters button.selected{background:#e7f3ff!important;color:#0866ff!important}
+.messenger-layout{border-radius:12px!important;background:#fff!important}
+.messenger-sidebar{border-right:1px solid #e4e6eb!important}
+.messenger-conversation{color:#1c1e21!important}
+.messenger-conversation:hover,.messenger-conversation.active{background:#e7f3ff!important}
+.messenger-conversation:hover *,.messenger-conversation.active *{color:#0866ff!important}
+.messenger-avatar{background:#e7f3ff!important;color:#0866ff!important}
+.messenger-avatar>i{background:#9aa0a6!important;border-color:#fff!important}
+.messenger-avatar>i.is-online{background:#31a24c!important;box-shadow:0 0 0 2px #31a24c22!important}
+.messenger-status-dot{background:#9aa0a6!important}
+.messenger-status-dot.online{background:#31a24c!important;box-shadow:0 0 0 3px #31a24c22!important}
+.messenger-head-copy>b,.messenger-head-copy>small,.messenger-conversation-copy b,
+.messenger-conversation-copy small,.messenger-list-heading,.messenger-empty-chat,
+.messenger-empty-chat>b,.messenger-empty-chat>span,.messenger-search input,
+.messenger-compose textarea,.messenger-bubble p,.messenger-bubble small,.messenger-empty{color:#1c1e21!important}
+.messenger-search input::placeholder,.messenger-compose textarea::placeholder{color:#65676b!important}
+.messenger-bubble{background:#f0f2f5!important;color:#1c1e21!important;border:0!important}
+.messenger-bubble-row.mine .messenger-bubble{background:#0866ff!important;color:#fff!important;border:0!important}
+.messenger-bubble-row.mine .messenger-bubble *{color:#fff!important}
+.messenger-chat-head{border-bottom:1px solid #e4e6eb!important}
+.messenger-back{background:#e7f3ff!important;color:#0866ff!important}
+.messenger-chat{background:#fff!important}
+.messenger-compose{border-radius:26px!important;background:#f0f2f5!important}
+.messenger-compose button{background:#0866ff!important;color:#fff!important}
+.messenger-encryption-note{background:#f0f2f5!important;color:#65676b!important}
+table th{color:#65676b!important}
+table td{color:#1c1e21!important;border-color:#e4e6eb!important}
+:where(a,button,input,select,textarea):focus-visible{outline:2px solid #0866ff!important;outline-offset:2px}
+@media(max-width:650px){
+ .mobile-bottom-nav{background:#fff!important;border:1px solid #e4e6eb!important}
+ .mobile-nav-item{color:#65676b!important}
+ .mobile-nav-item.active{background:#e7f3ff!important;color:#0866ff!important}
+ .topbar{background:#fff!important}
+}
