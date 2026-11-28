@@ -51,6 +51,7 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
       const r = await fetch(`/api/messenger/${conversationId}/calls`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, offer }) });
       const d = await r.json(); if (!r.ok) throw new Error(d.error || "Could not start call");
       callIdRef.current = d.callId;
+      for (const candidate of pendingLocalCandidates.current.splice(0)) await sendUpdate({ action: "candidate", candidate });
       setCall({ id: d.callId, callerId: currentUserId || "", calleeId: "", kind, status: "RINGING", offer, answer: null, callerCandidates: [], calleeCandidates: [] });
     } catch (e) { closeMedia(); setError(e instanceof Error ? e.message : "Call failed"); }
     finally { setBusy(false); }
@@ -58,11 +59,13 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
   const accept = async (incoming: CallRow) => {
     setBusy(true); setError("");
     try {
-      callIdRef.current = incoming.id;\n      const pc = await makePeer(incoming.kind);
+      callIdRef.current = incoming.id;
+      const pc = await makePeer(incoming.kind);
       await pc.setRemoteDescription(incoming.offer!);
       const answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
       await sendUpdate({ action: "accept", answer });
-      callIdRef.current = incoming.id;\n      const queued = pendingLocalCandidates.current.splice(0);\n      for (const candidate of queued) await sendUpdate({ action: "candidate", candidate });\n      setCall({ ...incoming, status: "ACCEPTED" });
+      for (const candidate of pendingLocalCandidates.current.splice(0)) await sendUpdate({ action: "candidate", candidate });
+      setCall({ ...incoming, status: "ACCEPTED" });
     } catch (e) { closeMedia(); setError(e instanceof Error ? e.message : "Could not answer call"); }
     finally { setBusy(false); }
   };
@@ -107,7 +110,8 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
     {!active && <><button type="button" title="Voice call" disabled={busy} onClick={() => void start("AUDIO")}><Phone size={17}/></button><button type="button" title="Video call" disabled={busy} onClick={() => void start("VIDEO")}><Video size={18}/></button></>}
     {active && <div className="nexus-call-panel">
       <strong>{incoming ? "Incoming call" : call.status === "RINGING" ? "Calling…" : "Call connected"}</strong>
-      <audio ref={remoteAudio} autoPlay/>\n      {call.kind === "VIDEO" && <div className="nexus-call-videos"><video ref={remoteVideo} autoPlay playsInline/><video ref={localVideo} autoPlay muted playsInline/></div>}
+      <audio ref={remoteAudio} autoPlay/>
+      {call.kind === "VIDEO" && <div className="nexus-call-videos"><video ref={remoteVideo} autoPlay playsInline/><video ref={localVideo} autoPlay muted playsInline/></div>}
       {incoming ? <><button type="button" disabled={busy} onClick={() => void accept(call)}><Phone size={17}/> Answer</button><button type="button" onClick={() => void finish("reject")}><PhoneOff size={17}/> Decline</button></> :
         <><button type="button" onClick={() => { localRef.current?.getAudioTracks().forEach(t => t.enabled = muted); setMuted(!muted); }}>{muted ? <MicOff size={17}/> : <Mic size={17}/>}</button>{call.kind === "VIDEO" && <button type="button" onClick={() => { localRef.current?.getVideoTracks().forEach(t => t.enabled = cameraOff); setCameraOff(!cameraOff); }}><Video size={17}/></button>}<button type="button" onClick={() => void finish()}><PhoneOff size={17}/> End</button></>}
     </div>}
