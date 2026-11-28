@@ -26,7 +26,8 @@ export async function POST(request: Request) {
 
     // Bootstrap the verified platform owner account after successful password
     // authentication. The email is allowlisted and the password is still required.
-    const authenticatedUser = email === "samwel@udom.ac.tz" && user.role !== "ADMIN"
+    const ownerEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const authenticatedUser = ownerEmail && email === ownerEmail && user.role !== "ADMIN"
       ? await prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN" } })
       : user;
 
