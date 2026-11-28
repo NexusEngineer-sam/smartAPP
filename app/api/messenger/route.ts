@@ -11,6 +11,7 @@ async function getMessenger(request:Request) {
   include:{participants:{include:{user:{select:{id:true,name:true,avatarUrl:true,university:true}}}},messages:{orderBy:{createdAt:"desc"},take:1}},
   orderBy:{updatedAt:"desc"},take:60
  });
+ const directConversations=conversations.filter(c=>!c.isGroup&&c.participants.length===2);
  const users=q.length>=2?await prisma.user.findMany({
   where:{id:{not:user.id},isActive:true,OR:[{name:{contains:q,mode:"insensitive"}},{university:{contains:q,mode:"insensitive"}},{course:{contains:q,mode:"insensitive"}}]},
   select:{id:true,name:true,avatarUrl:true,university:true,course:true},take:15
@@ -31,9 +32,9 @@ async function getMessenger(request:Request) {
   return {...person,online:state?.online||false,lastSeenAt:state?.lastSeenAt||null};
  };
  return NextResponse.json({
-  conversations:conversations.filter(c=>c.requestStatus==="ACCEPTED").map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
-  incomingRequests:conversations.filter(c=>c.requestStatus==="PENDING"&&c.createdById!==user.id).map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
-  outgoingRequests:conversations.filter(c=>c.requestStatus==="PENDING"&&c.createdById===user.id).map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
+  conversations:directConversations.filter(c=>c.requestStatus==="ACCEPTED").map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
+  incomingRequests:directConversations.filter(c=>c.requestStatus==="PENDING"&&c.createdById!==user.id).map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
+  outgoingRequests:directConversations.filter(c=>c.requestStatus==="PENDING"&&c.createdById===user.id).map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
   users:users.map(withPresence)
  });
 }
