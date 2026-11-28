@@ -1773,3 +1773,17 @@ table td{color:#1c1e21!important;border-color:#e4e6eb!important}
 .campus-story-reply-form button:disabled{opacity:.45}
 .campus-story-reply-error{color:#d93025;font-size:10px}
 @media(max-width:650px){.campus-story-replies{padding:10px;border-radius:10px}.campus-story-replies-list{max-height:150px}}
+
+
+/* Topbar More spaces launcher */
+.topbar-right{gap:12px}
+.topbar-more-trigger{height:39px;display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:none;padding:0 13px;border:1px solid #e6eaf1;border-radius:999px;background:#fff;color:#263247;font-size:12px;font-weight:750;white-space:nowrap;transition:background .18s,border-color .18s,box-shadow .18s}
+.topbar-more-trigger:hover,.topbar-more-trigger.is-open{background:#f1f5ff;border-color:#cbd9ff;box-shadow:0 3px 12px rgba(37,99,235,.08)}
+.topbar-more-trigger>svg:last-child{color:#8a94a6;transition:transform .18s}
+.topbar-more-trigger.is-open>svg:last-child{transform:rotate(90deg)}
+@media(max-width:760px){
+ .topbar-right{gap:7px}
+ .topbar-more-trigger{height:36px;padding:0 10px;gap:5px;font-size:11px}
+ .topbar-more-trigger>svg:first-child{width:16px;height:16px}
+}
+@media(max-width:390px){.topbar-more-trigger{padding:0 8px}.topbar-more-trigger>svg:last-child{display:none}.topbar-more-trigger span{font-size:10px}}
