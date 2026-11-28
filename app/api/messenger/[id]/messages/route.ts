@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { sendPushToUser } from "@/lib/push";
 type Context={params:Promise<{id:string}>};
-async function getMessages(_request:Request,{params}:Context){
+async function getMessages(request:Request,{params}:Context){
  const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Sign in required."},{status:401});
  const {id}=await params;
  const member=await prisma.chatParticipant.findUnique({where:{conversationId_userId:{conversationId:id,userId:user.id}}});
@@ -12,14 +12,24 @@ async function getMessages(_request:Request,{params}:Context){
  const conversation=await prisma.chatConversation.findUnique({where:{id},include:{participants:{select:{userId:true}}}});
  if(!conversation||conversation.isGroup||conversation.participants.length!==2||!conversation.participants.some(p=>p.userId===user.id))return NextResponse.json({error:"This is not a valid private conversation."},{status:404});
  if(conversation.requestStatus!=="ACCEPTED")return NextResponse.json({error:"This message request has not been accepted yet."},{status:403});
- const [latestMessages,total]=await Promise.all([
-  prisma.chatMessage.findMany({where:{conversationId:id},include:{sender:{select:{id:true,name:true,avatarUrl:true}}},orderBy:{createdAt:"desc"},take:100}),
-  prisma.chatMessage.count({where:{conversationId:id}})
- ]);
- const messages=latestMessages.reverse();
+ const beforeId=new URL(request.url).searchParams.get("beforeId");
+ let cursor: {id:string}|undefined;
+ if(beforeId){
+  const anchor=await prisma.chatMessage.findFirst({where:{id:beforeId,conversationId:id},select:{id:true}});
+  if(!anchor)return NextResponse.json({error:"Message history cursor not found."},{status:404});
+  cursor={id:anchor.id};
+ }
+ const batch=await prisma.chatMessage.findMany({
+  where:{conversationId:id},
+  ...(cursor?{cursor,skip:1}:{}),
+  include:{sender:{select:{id:true,name:true,avatarUrl:true}}},
+  orderBy:{createdAt:"desc"},take:101
+ });
+ const hasMore=batch.length>100;
+ const messages=batch.slice(0,100).reverse();
  await prisma.chatParticipant.update({where:{id:member.id},data:{lastReadAt:new Date()}});
  const peer=await prisma.chatParticipant.findFirst({where:{conversationId:id,userId:{not:user.id}},select:{lastReadAt:true}});
- return NextResponse.json({messages,hasMore:total>messages.length,peerReadAt:peer?.lastReadAt?.toISOString()||null});
+ return NextResponse.json({messages,hasMore,peerReadAt:peer?.lastReadAt?.toISOString()||null});
 }
 const schema=z.object({body:z.string().trim().min(1).max(4000)});
 async function createMessage(request:Request,{params}:Context){
