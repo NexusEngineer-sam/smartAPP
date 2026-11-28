@@ -1487,7 +1487,35 @@ table td{color:#1c1e21!important;border-color:#e4e6eb!important}
  .mobile-nav-item.active{background:#e7f3ff!important;color:#0866ff!important}
  .topbar{background:#fff!important}
 }
-\n\n/* Content-first navigation pass: open each tab on its actual content */\n.page-content>.welcome-row:not(:has(.digital-id-card)){ }\n.campus-ads-page{padding-top:0!important}\n.campus-ads-hero,.campus-feed-toolbar{display:none!important}\n.campus-ads-layout{display:flex!important;flex-direction:column!important;gap:18px!important}\n.campus-ad-feed{order:1!important;width:100%!important;max-width:760px!important;margin:0 auto!important}\n.campus-ads-sidebar{order:2!important;width:100%!important;max-width:760px!important;margin:0 auto!important}\n.campus-ad-post{background:#fff!important;border:0!important;border-bottom:1px solid #e4e6eb!important;border-radius:0!important;box-shadow:none!important;padding:14px 0!important;margin:0!important}\n.campus-ad-media-wrap{margin:8px -14px!important}\n.campus-ad-media{display:block;width:100%!important;max-height:620px!important;object-fit:contain!important;background:#111!important}\n.campus-ad-copy{padding:4px 0 8px!important}\n.campus-ad-copy h3{margin:0 0 5px!important;font-size:17px!important}\n.campus-ad-copy p{margin:0!important;line-height:1.45!important}\n.campus-ad-actions{border-top:1px solid #e4e6eb!important;justify-content:space-around!important}\n.campus-ad-actions button,.campus-ad-actions a{flex:1!important;justify-content:center!important}\n.campus-ad-compose{margin-top:10px!important}\n.video-hub{display:flex!important;flex-direction:column!important;gap:12px!important}\n.video-hub-head{display:none!important}\n.video-feed-heading{order:1!important}\n.video-grid{order:2!important}\n.video-compose{order:3!important}\n.video-card{border:0!important;border-bottom:1px solid #e4e6eb!important;border-radius:0!important;box-shadow:none!important}\n.video-frame{margin:0 -12px!important}\n.video-frame video{width:100%!important;max-height:72vh!important;object-fit:contain!important;background:#000!important}\n.social-post{border-radius:0!important;box-shadow:none!important}\n@media(max-width:760px){.campus-ad-media{max-height:72vh!important}.campus-ad-actions small{font-size:11px!important}}\n
+
+
+/* Content-first navigation pass: open each tab on its actual content */
+.page-content>.welcome-row:not(:has(.digital-id-card)){ }
+.campus-ads-page{padding-top:0!important}
+.campus-ads-hero,.campus-feed-toolbar{display:none!important}
+.campus-ads-layout{display:flex!important;flex-direction:column!important;gap:18px!important}
+.campus-ad-feed{order:1!important;width:100%!important;max-width:760px!important;margin:0 auto!important}
+.campus-ads-sidebar{order:2!important;width:100%!important;max-width:760px!important;margin:0 auto!important}
+.campus-ad-post{background:#fff!important;border:0!important;border-bottom:1px solid #e4e6eb!important;border-radius:0!important;box-shadow:none!important;padding:14px 0!important;margin:0!important}
+.campus-ad-media-wrap{margin:8px -14px!important}
+.campus-ad-media{display:block;width:100%!important;max-height:620px!important;object-fit:contain!important;background:#111!important}
+.campus-ad-copy{padding:4px 0 8px!important}
+.campus-ad-copy h3{margin:0 0 5px!important;font-size:17px!important}
+.campus-ad-copy p{margin:0!important;line-height:1.45!important}
+.campus-ad-actions{border-top:1px solid #e4e6eb!important;justify-content:space-around!important}
+.campus-ad-actions button,.campus-ad-actions a{flex:1!important;justify-content:center!important}
+.campus-ad-compose{margin-top:10px!important}
+.video-hub{display:flex!important;flex-direction:column!important;gap:12px!important}
+.video-hub-head{display:none!important}
+.video-feed-heading{order:1!important}
+.video-grid{order:2!important}
+.video-compose{order:3!important}
+.video-card{border:0!important;border-bottom:1px solid #e4e6eb!important;border-radius:0!important;box-shadow:none!important}
+.video-frame{margin:0 -12px!important}
+.video-frame video{width:100%!important;max-height:72vh!important;object-fit:contain!important;background:#000!important}
+.social-post{border-radius:0!important;box-shadow:none!important}
+@media(max-width:760px){.campus-ad-media{max-height:72vh!important}.campus-ad-actions small{font-size:11px!important}}
+
 /* Keep each campus space focused on its live content */
 .events-hero,.study-planner-hero,.life-hero,.global-network-hero{display:none!important}
 .events-toolbar{margin-top:0!important}
