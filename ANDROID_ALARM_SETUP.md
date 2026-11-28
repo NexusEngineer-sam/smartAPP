@@ -2,6 +2,14 @@
 
 The existing NEXUS website is a Next.js server application/PWA. Browser timers cannot reliably ring after the browser or app process is closed. This change adds a Capacitor Local Notifications bridge so the Android APK can hand alarm schedules to Android's native alarm manager.
 
+## Production NEXUS URL
+
+The Android wrapper is configured to load the live NEXUS deployment:
+
+`https://smartapp-d4va.onrender.com`
+
+The config also allows an override through `CAPACITOR_SERVER_URL` when building another environment.
+
 ## What this integration does
 
 - Keeps the existing web alarm UI and local alarm list.
@@ -14,15 +22,15 @@ A local notification is not yet a full-screen, continuously ringing Clock-app al
 
 ## Build the Android wrapper
 
-1. Install dependencies: npm install.
-2. Set CAPACITOR_SERVER_URL to the real HTTPS origin where NEXUS is deployed. Do not include a page path. Example format: https://your-nexus-host.example.
-3. Generate the Android project once: npx cap add android.
-4. Open android/app/src/main/AndroidManifest.xml and add this permission directly under the manifest element:
+1. Install dependencies: `npm install`.
+2. The production URL is already configured. To override it, set `CAPACITOR_SERVER_URL` to an HTTPS origin (no page path).
+3. Generate the Android project once: `npx cap add android`.
+4. Open `android/app/src/main/AndroidManifest.xml` and add this permission directly under the manifest element:
 
-   <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+   `<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />`
 
-5. Sync native plugins: npx cap sync android.
-6. Open the project with npx cap open android, build a signed APK/AAB in Android Studio, and install it on a physical Android device.
+5. Sync native plugins: `npx cap sync android`.
+6. Open the project with `npx cap open android`, build a signed APK/AAB in Android Studio, and install it on a physical Android device.
 7. On first use, allow notifications and grant **Alarms & reminders** access when Android opens the setting screen.
 
 The web deployment alone does not create or update an APK. The native Android project must be generated, synced, built, installed and tested separately. Android battery restrictions and manufacturer-specific power management can still affect delivery; verify on the target device.
