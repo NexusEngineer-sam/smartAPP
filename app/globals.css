@@ -984,3 +984,29 @@ h1,h2,h3,h4,.brand,.side-brand,.welcome-row h1,.section-title h2,.card-heading h
 @media(prefers-reduced-motion:no-preference){
  .nav-item,.mobile-nav-item,.discovery-filters button,.social-post-actions button,.social-whats-on-mind{transition:background-color .15s ease,color .15s ease,border-color .15s ease}
 }
+
+
+/* Feed-first information architecture: open directly into student posts */
+.discovery-facebook-layout{gap:10px;max-width:100%;padding-top:0}
+.discovery-facebook-layout>.discovery-filters{position:relative;top:0;z-index:4;display:flex;gap:0;overflow-x:auto;padding:0 4px;border-bottom:1px solid #e4e6eb;background:#fff;scrollbar-width:none}
+.discovery-facebook-layout>.discovery-filters::-webkit-scrollbar{display:none}
+.discovery-facebook-layout>.discovery-filters button{flex:1 0 auto;min-height:48px;padding:0 15px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;color:#65676b;box-shadow:none;font-size:14px;font-weight:650}
+.discovery-facebook-layout>.discovery-filters button.selected{border-bottom-color:#0866ff;background:transparent;color:#0866ff}
+.discovery-facebook-layout>.discovery-filters button:hover{background:#f0f2f5;color:#0866ff}
+.discovery-facebook-layout>.social-feed{width:min(100%,700px);margin:0 auto;gap:10px}
+.discovery-facebook-layout>.social-feed .campus-stories{margin:0;border-radius:8px}
+.discovery-facebook-layout>.social-feed .social-composer,.discovery-facebook-layout>.social-feed .social-post{border-radius:8px}
+.discovery-facebook-layout>.social-feed .social-post{padding:14px 16px}
+.discovery-facebook-layout>.social-feed .social-feed-heading{margin:2px 0 0;padding:8px 2px 0;border-top:1px solid #e4e6eb}
+.discovery-facebook-layout>.social-feed .social-feed-heading h3{font-size:17px}
+.discovery-facebook-layout>.discovery-news{width:min(100%,700px);margin:0 auto;border-radius:8px}
+.discovery-facebook-layout>.business-center,.discovery-facebook-layout>.campus-events-hub,.discovery-facebook-layout>.campus-video-hub{width:min(100%,900px);margin:0 auto}
+.discovery-facebook-layout>.social-feed .social-hero{display:none}
+@media(max-width:650px){
+ .discovery-facebook-layout{gap:8px;margin:0 -10px}
+ .discovery-facebook-layout>.discovery-filters{padding:0 8px}
+ .discovery-facebook-layout>.discovery-filters button{min-height:46px;padding:0 13px;font-size:13px}
+ .discovery-facebook-layout>.social-feed{width:100%;gap:8px;padding:0 8px}
+ .discovery-facebook-layout>.social-feed .campus-stories{border-radius:8px}
+ .discovery-facebook-layout>.social-feed .social-composer,.discovery-facebook-layout>.social-feed .social-post{border-radius:8px}
+}
