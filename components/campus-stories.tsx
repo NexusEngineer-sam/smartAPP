@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Plus, X, ImagePlus, Video, Send, ChevronRight, LoaderCircle, Clock3, MessageCircle, Eye, Heart, Trash2 } from "lucide-react";
+import { Plus, X, ImagePlus, Video, Send, ChevronRight, LoaderCircle, Clock3, MessageCircle, Eye, Heart, Trash2, ArrowLeft } from "lucide-react";
 
 type Story = { id:string; content:string; mediaUrl:string|null; mediaType:"image"|"video"|null; createdAt:string; expiresAt:string; authorId:string; authorName:string; authorAvatar?:string|null; hasViewed?:boolean };
-type Props = { user:{id?:string;name:string;avatarUrl?:string|null} };
+type Props = { user:{id?:string;name:string;avatarUrl?:string|null}; fullPage?:boolean; onExit?:()=>void };
 type StoryReply = {id:string;body:string;createdAt:string;authorName:string;authorAvatar?:string|null};
 type StoryViewer = {userId:string;name:string;avatarUrl?:string|null;viewedAt:string};
 type StoryLike = {userId:string;name:string;avatarUrl?:string|null;createdAt:string};
 
-export default function CampusStories({user}:Props) {
+export default function CampusStories({user,fullPage=false,onExit}:Props) {
   const [stories,setStories]=useState<Story[]>([]);
   const [open,setOpen]=useState(false);
   const [viewing,setViewing]=useState<Story|null>(null);
