@@ -75,6 +75,22 @@ export default function NotificationInbox() {
 
   const unread = useMemo(() => items.filter(item => !readIds.includes(item.id)).length, [items, readIds]);
   const importantUnread = useMemo(() => items.filter(item => item.priority === "HIGH" && !readIds.includes(item.id)).length, [items, readIds]);
+
+  useEffect(() => {
+    if (!("setAppBadge" in navigator) && !("clearAppBadge" in navigator)) return;
+    const updateBadge = async () => {
+      try {
+        if (unread > 0 && "setAppBadge" in navigator) {
+          await (navigator as Navigator & { setAppBadge?: (count?: number) => Promise<void> }).setAppBadge?.(unread);
+        } else if ("clearAppBadge" in navigator) {
+          await (navigator as Navigator & { clearAppBadge?: () => Promise<void> }).clearAppBadge?.();
+        }
+        const registration = await navigator.serviceWorker?.getRegistration("/");
+        registration?.active?.postMessage({ type: "SET_APP_BADGE", count: unread });
+      } catch {}
+    };
+    void updateBadge();
+  }, [unread]);
   const visibleItems = useMemo(() => {
     const filtered = filter === "IMPORTANT" ? items.filter(item => item.priority === "HIGH") : items;
     return [...filtered].sort((a, b) => {
