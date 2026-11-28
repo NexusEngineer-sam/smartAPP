@@ -360,13 +360,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .more-sheet-handle{width:38px;height:4px;border-radius:9px;background:#dedbe8;margin:0 auto 17px}
 .more-sheet-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .more-sheet-heading h2{font:800 21px var(--display);letter-spacing:-.6px;margin:5px 0 0}
-.more-sheet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.more-sheet-item{position:relative;min-height:82px;display:grid;grid-template-columns:34px 1fr 14px;grid-template-rows:auto auto;align-items:center;column-gap:10px;text-align:left;padding:12px;border:1px solid #eeecf4;background:#fff;border-radius:13px;color:#312d45;transition:background .16s,border-color .16s}
-.more-sheet-item>span{grid-row:1/3;width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:#f2efff;color:#7055dc}
-.more-sheet-item>b{align-self:end;font-size:10px;font-weight:800}
-.more-sheet-item>small{align-self:start;margin-top:4px;font-size:8px;color:#9692a6}
+.more-sheet-grid{display:flex;flex-direction:column;gap:0;border-top:1px solid #efedf4}
+.more-sheet-item{position:relative;width:100%;min-height:64px;display:grid;grid-template-columns:38px minmax(0,1fr) 16px;grid-template-rows:auto auto;align-items:center;column-gap:12px;text-align:left;padding:10px 7px;border:0;border-bottom:1px solid #efedf4;background:transparent;border-radius:0;color:#312d45;transition:background .16s}
+.more-sheet-item>span{grid-row:1/3;width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:#f2efff;color:#7055dc}
+.more-sheet-item>b{align-self:end;font-size:12px;font-weight:800}
+.more-sheet-item>small{align-self:start;margin-top:3px;font-size:10px;color:#9692a6}
 .more-sheet-item>svg{grid-column:3;grid-row:1/3;color:#aaa5b8}
-.more-sheet-item.chosen,.more-sheet-item:active{background:#f8f6ff;border-color:#dcd4ff}
+.more-sheet-item.chosen,.more-sheet-item:active{background:#f8f6ff;border-color:#efedf4}
+.more-sheet{max-height:88dvh}
+
 .more-logout{width:100%;height:44px;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:15px;border:1px solid #eeeaf3;border-radius:11px;background:#fff;color:#b04c61;font-size:10px;font-weight:800}
 .mobile-more-glyph{height:19px;font-size:24px;line-height:10px;letter-spacing:1px;font-weight:800}
 @keyframes sheet-fade{from{opacity:0}to{opacity:1}}
