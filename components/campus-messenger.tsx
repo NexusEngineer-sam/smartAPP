@@ -11,6 +11,7 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  const [query,setQuery]=useState("");
  const [selected,setSelected]=useState<Conversation|null>(null);
  const [messages,setMessages]=useState<Message[]>([]);
+ const [peerReadAt,setPeerReadAt]=useState<string|null>(null);
  const [draft,setDraft]=useState("");
  const [loading,setLoading]=useState(true);
  const [sending,setSending]=useState(false);
@@ -24,7 +25,7 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  useEffect(()=>{const t=window.setTimeout(()=>void load(),250);return()=>window.clearTimeout(t)},[load]);
  useEffect(()=>{const t=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},15000);return()=>window.clearInterval(t)},[load]);
  const loadMessages=useCallback(async(id:string)=>{
-  try{const r=await fetch("/api/messenger/"+id+"/messages",{cache:"no-store"});const d=await r.json();if(r.ok)setMessages(d.messages||[]);}
+  try{const r=await fetch("/api/messenger/"+id+"/messages",{cache:"no-store"});const d=await r.json();if(r.ok){setMessages(d.messages||[]);setPeerReadAt(d.peerReadAt||null);}}
   catch{/* transient connection issue */ }
  },[]);
  useEffect(()=>{if(!selected)return;void loadMessages(selected.id);const t=window.setInterval(()=>void loadMessages(selected.id),5000);return()=>window.clearInterval(t)},[selected?.id,loadMessages]);
@@ -49,7 +50,7 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
    </aside>
    <div className={mobileChat?"messenger-chat":"messenger-chat empty-chat"}>
     {selected?<><header className="messenger-chat-head"><button className="messenger-back" onClick={()=>setMobileChat(false)}><ArrowLeft size={18}/></button><span className="messenger-avatar">{selected.otherUsers[0]?.avatarUrl?<img src={selected.otherUsers[0].avatarUrl} alt=""/>:activeName.slice(0,1)}<i className={selected.otherUsers.some(x=>x.online)?"is-online":""}/></span><div className="messenger-head-copy"><b>{activeName}</b><small><i className={selected.otherUsers.some(x=>x.online)?"messenger-status-dot online":"messenger-status-dot"}/>{selected.isGroup?"Group conversation":presenceLabel(selected.otherUsers[0])}</small></div></header>
-      <div className="messenger-messages">{messages.length===0?<div className="messenger-empty-chat"><MessageCircle size={28}/><b>Start a conversation</b><span>Say hello and make a new campus connection.</span></div>:messages.map(m=><div key={m.id} className={"messenger-bubble-row "+(m.sender.id===currentUser.id?"mine":"theirs")}><article className="messenger-bubble"><p>{m.body}</p><small>{new Date(m.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} {m.sender.id===currentUser.id&&<CheckCheck size={12}/>}</small></article></div>)}</div>
+      <div className="messenger-messages">{messages.length===0?<div className="messenger-empty-chat"><MessageCircle size={28}/><b>Start a conversation</b><span>Say hello and make a new campus connection.</span></div>:messages.map(m=><div key={m.id} className={"messenger-bubble-row "+(m.sender.id===currentUser.id?"mine":"theirs")}><article className="messenger-bubble"><p>{m.body}</p><small>{new Date(m.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} {m.sender.id===currentUser.id&&<><CheckCheck size={12}/>{messages[messages.length-1]?.id===m.id&&peerReadAt&&new Date(peerReadAt).getTime()>=new Date(m.createdAt).getTime()&&<span className="messenger-seen-label">Seen</span>}</>}</small></article></div>)}</div>
       <form className="messenger-compose" onSubmit={sendMessage}><textarea value={draft} onChange={e=>setDraft(e.target.value)} placeholder="Write a message…" maxLength={4000} rows={1}/><button disabled={!draft.trim()||sending}><Send size={18}/></button></form>
     </>:<div className="messenger-empty-chat"><MessageCircle size={36}/><b>Your campus conversations, in one place</b><span>Choose a conversation or search for a student to start chatting.</span><div className="messenger-encryption-note"><Users size={15}/> Messages are visible only to conversation participants.</div></div>}
    </div>
