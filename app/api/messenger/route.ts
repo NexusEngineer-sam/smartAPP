@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 async function getMessenger(request:Request) {
  const user=await getCurrentUser(); if(!user)return NextResponse.json({error:"Sign in required."},{status:401});
  const q=(new URL(request.url).searchParams.get("q")||"").trim().slice(0,80);
+ const normalizedId=q.toUpperCase().replace(/[^A-Z0-9-]/g,"");
  const conversations=await prisma.chatConversation.findMany({
   where:{participants:{some:{userId:user.id}}},
   include:{participants:{include:{user:{select:{id:true,name:true,avatarUrl:true,university:true}}}},messages:{orderBy:{createdAt:"desc"},take:1}},
@@ -13,8 +14,8 @@ async function getMessenger(request:Request) {
  });
  const directConversations=conversations.filter(c=>!c.isGroup&&c.participants.length===2);
  const users=q.length>=2?await prisma.user.findMany({
-  where:{id:{not:user.id},isActive:true,OR:[{name:{contains:q,mode:"insensitive"}},{university:{contains:q,mode:"insensitive"}},{course:{contains:q,mode:"insensitive"}}]},
-  select:{id:true,name:true,avatarUrl:true,university:true,course:true},take:15
+  where:{id:{not:user.id},isActive:true,OR:[{nexusId:{equals:normalizedId}},{name:{contains:q,mode:"insensitive"}},{university:{contains:q,mode:"insensitive"}},{course:{contains:q,mode:"insensitive"}}]},
+  select:{id:true,name:true,nexusId:true,avatarUrl:true,university:true,course:true},take:15
  }):[];
  const people=[...new Set([...conversations.flatMap(c=>c.participants.filter(p=>p.userId!==user.id).map(p=>p.userId)),...users.map(p=>p.id)])];
  const cutoff=new Date(Date.now()-75_000);
@@ -32,6 +33,7 @@ async function getMessenger(request:Request) {
   return {...person,online:state?.online||false,lastSeenAt:state?.lastSeenAt||null};
  };
  return NextResponse.json({
+  myNexusId:user.nexusId,
   conversations:directConversations.filter(c=>c.requestStatus==="ACCEPTED").map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
   incomingRequests:directConversations.filter(c=>c.requestStatus==="PENDING"&&c.createdById!==user.id).map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
   outgoingRequests:directConversations.filter(c=>c.requestStatus==="PENDING"&&c.createdById===user.id).map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
