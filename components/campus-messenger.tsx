@@ -1,7 +1,7 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
 import {MessageCircle,Search,Send,ArrowLeft,Plus,Users,CheckCheck,Video,Phone} from "lucide-react";
-type Person={id:string;name:string;avatarUrl:string|null;university?:string|null;course?:string|null;online?:boolean;lastSeenAt?:string|null};
+type Person={id:string;name:string;nexusId?:string;avatarUrl:string|null;university?:string|null;course?:string|null;online?:boolean;lastSeenAt?:string|null};
 type Message={id:string;body:string;createdAt:string;sender:{id:string;name:string;avatarUrl:string|null}};
 type Conversation={id:string;isGroup:boolean;title:string|null;updatedAt:string;otherUsers:Person[];lastMessage:Message|null};
 
@@ -14,6 +14,7 @@ function presenceLabel(person?:Person){if(!person)return "Campus conversation";i
 export default function CampusMessenger({currentUser}:{currentUser:{id?:string;name:string}}){
  const [conversations,setConversations]=useState<Conversation[]>([]);
  const [users,setUsers]=useState<Person[]>([]);
+ const [myNexusId,setMyNexusId]=useState("");
  const [incomingRequests,setIncomingRequests]=useState<Conversation[]>([]);
  const [outgoingRequests,setOutgoingRequests]=useState<Conversation[]>([]);
  const [query,setQuery]=useState("");
@@ -27,7 +28,7 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  const [mobileChat,setMobileChat]=useState(false);
  const activeName=useMemo(()=>selected?.title||selected?.otherUsers.map(x=>x.name).join(", ")||"Conversation",[selected]);
  const load=useCallback(async()=>{
-  try{const r=await fetch("/api/messenger"+(query.trim()?"?q="+encodeURIComponent(query.trim()):""),{cache:"no-store"});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not load messages.");setConversations(d.conversations||[]);setIncomingRequests(d.incomingRequests||[]);setOutgoingRequests(d.outgoingRequests||[]);setUsers(d.users||[]);setSelected(previous=>previous?((d.conversations||[]).find((item:Conversation)=>item.id===previous.id)||previous):null);}
+  try{const r=await fetch("/api/messenger"+(query.trim()?"?q="+encodeURIComponent(query.trim()):""),{cache:"no-store"});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not load messages.");setMyNexusId(d.myNexusId||"");setConversations(d.conversations||[]);setIncomingRequests(d.incomingRequests||[]);setOutgoingRequests(d.outgoingRequests||[]);setUsers(d.users||[]);setSelected(previous=>previous?((d.conversations||[]).find((item:Conversation)=>item.id===previous.id)||previous):null);}
   catch(e){setError(e instanceof Error?e.message:"Messenger unavailable.");}finally{setLoading(false);}
  },[query]);
  useEffect(()=>{const t=window.setTimeout(()=>void load(),250);return()=>window.clearTimeout(t)},[load]);
@@ -71,8 +72,8 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
   {error&&<p className="messenger-error">{error}</p>}
   <div className="messenger-layout">
    <aside className={mobileChat?"messenger-sidebar hide-mobile":"messenger-sidebar"}>
-    <div className="messenger-search"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Find students or chats…"/></div>
-    {query.trim().length>=2&&users.length>0&&<div className="messenger-search-results"><small>STUDENTS · SEND REQUEST FIRST</small>{users.map(p=>{const sent=outgoingRequests.some(x=>x.otherUsers.some(y=>y.id===p.id));return <button key={p.id} onClick={()=>!sent&&void startChat(p)} disabled={sent}><span className="messenger-avatar">{p.avatarUrl?<img src={p.avatarUrl} alt=""/>:p.name.slice(0,1)}<i className={p.online?"is-online":""}/></span><span><b>{p.name}</b><small>{p.online?"Active now":([p.course,p.university].filter(Boolean).join(" · ")||presenceLabel(p))}</small></span>{sent?<small>Request sent</small>:<Plus size={16}/>}</button>})}</div>}
+    <div className="messenger-my-id"><span>Your NEXUS ID</span><b>{myNexusId||"Loading…"}</b><small>Share this ID so friends can find you.</small></div><div className="messenger-search"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search by NEXUS ID or name…"/></div>
+    {query.trim().length>=2&&users.length>0&&<div className="messenger-search-results"><small>STUDENTS · SEND REQUEST FIRST</small>{users.map(p=>{const sent=outgoingRequests.some(x=>x.otherUsers.some(y=>y.id===p.id));return <button key={p.id} onClick={()=>!sent&&void startChat(p)} disabled={sent}><span className="messenger-avatar">{p.avatarUrl?<img src={p.avatarUrl} alt=""/>:p.name.slice(0,1)}<i className={p.online?"is-online":""}/></span><span><b>{p.name}</b><small>{p.nexusId||"NEXUS member"} · {p.online?"Active now":([p.course,p.university].filter(Boolean).join(" · ")||presenceLabel(p))}</small></span>{sent?<small>Request sent</small>:<Plus size={16}/>}</button>})}</div>}
     {incomingRequests.length>0&&<div className="messenger-search-results"><small>MESSAGE REQUESTS · {incomingRequests.length}</small>{incomingRequests.map(c=>{const p=c.otherUsers[0];return <div className="messenger-request-card" key={c.id}><b>{p?.name||"Student"}</b><small>Wants to start a private chat</small><div><button onClick={()=>void respondToRequest(c.id,"accept")}>Accept</button><button onClick={()=>void respondToRequest(c.id,"decline")}>Decline</button></div></div>})}</div>}
     {outgoingRequests.length>0&&<div className="messenger-list-heading"><b>Requests sent</b><small>{outgoingRequests.length}</small></div>}
     <div className="messenger-list-heading"><b>Recent chats</b><small>{conversations.length}</small></div>
