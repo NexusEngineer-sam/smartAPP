@@ -21,7 +21,7 @@ import GlobalCampusNetwork from "@/components/global-campus-network";
 import CampusMessenger from "@/components/campus-messenger";
 import { Activity, Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, GraduationCap, LayoutDashboard, LogOut, Plus, Shield, Wallet, X, ArrowUpRight, Clock3, Sparkles, Megaphone, Video, Users, ChartNoAxesCombined, Settings, Globe2, MessageCircle } from "lucide-react";
 
-type User = { name: string; email: string; role: string; avatarUrl?: string | null };
+type User = { id: string; name: string; email: string; role: string; avatarUrl?: string | null };
 type Expense = { id: string; title: string; category: string; amount: number; createdAt: string };
 type Notice = { id: string; title: string; body: string; createdAt: string };
 type ClassEvent = { id:string; title:string; courseCode:string|null; location:string|null; startsAt:string; endsAt:string; reminderMins:number };
@@ -102,7 +102,7 @@ export default function Dashboard({user}:{user:User}) {
         {activeSection==="study"&&<StudyPlanner/>}
         {activeSection==="social"&&<><SocialFeed user={user}/>{user.role==="CLASS_REP"?<ClassRepPanel/>:<ClassMessages/>}</>}
         {activeSection==="global"&&<GlobalCampusNetwork/>}
-        {activeSection==="messages"&&<CampusMessenger currentUser={{name:user.name}}/>}
+        {activeSection==="messages"&&<CampusMessenger currentUser={{id:user.id,name:user.name}}/>}
         {activeSection==="events"&&<CampusEventsHub user={user}/> }
         {activeSection==="life"&&<StudentLifeHub user={user}/>}
         {activeSection==="videos"&&<CampusVideoHub/>}
