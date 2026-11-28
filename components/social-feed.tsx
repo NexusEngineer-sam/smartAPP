@@ -7,7 +7,7 @@ type SocialPost={id:string;content:string;createdAt:string;authorId?:string;auth
 type Comment={id:string;body:string;createdAt:string;authorName:string};
 type Burst={id:number;left:number};
 
-export default function SocialFeed({user}:{user:{name:string;email:string;role:string;avatarUrl?:string|null}}){
+export default function SocialFeed({user}:{user:{id?:string;name:string;email:string;role:string;avatarUrl?:string|null}}){
  const [posts,setPosts]=useState<SocialPost[]>([]);
  const [content,setContent]=useState("");
  const [busy,setBusy]=useState(false);
@@ -52,7 +52,7 @@ export default function SocialFeed({user}:{user:{name:string;email:string;role:s
  async function sendComment(id:string){const body=(drafts[id]||"").trim();if(!body)return;try{const r=await fetch("/api/social/comments",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({postId:id,body})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Comment failed.");setComments(c=>({...c,[id]:[...(c[id]||[]),d.comment]}));setPosts(p=>p.map(x=>x.id===id?{...x,comments:x.comments+1}:x));setDrafts(v=>({...v,[id]:""}));}catch(e){setError(e instanceof Error?e.message:"Comment failed.");}}
  return <section className="social-feed">
   <div className="social-hero"><div><span className="social-kicker"><Sparkles size={14}/> STUDENT COMMUNITY</span><h2>Your campus. Your people.</h2><p>Share ideas, celebrate moments and connect with students around the world.</p></div><span className="social-hero-icon"><Users size={26}/></span></div>
-  <CampusStories user={user as {id?:string;name:string;avatarUrl?:string|null}}/>\n  <section className={`social-composer social-composer-compact ${composerOpen?"is-open":""}`}>
+  <CampusStories user={user}/>\n  <section className={`social-composer social-composer-compact ${composerOpen?"is-open":""}`}>
    <div className="social-compose-top"><span className="social-avatar">{user.avatarUrl?<img src={user.avatarUrl} alt=""/>:initials}</span><button type="button" className="social-whats-on-mind" onClick={()=>setComposerOpen(true)}>What's on your mind, {user.name.split(" ")[0]}?</button></div>
    {composerOpen&&<form onSubmit={publish} className="social-compose-expanded">
     <textarea autoFocus value={content} onChange={e=>setContent(e.target.value)} maxLength={1200} placeholder="Share something with your campus community…" aria-label="Write a post"/>
