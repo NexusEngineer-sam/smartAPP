@@ -40,8 +40,15 @@ export async function POST(request: Request) {
     // either insert fails, the transaction rolls back instead of leaving
     // an account that appears registered but cannot sign in.
     const user = await prisma.$transaction(async (tx) => {
+      let nexusId = "";
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const candidate = "NX-" + randomBytes(4).toString("hex").toUpperCase();
+        const exists = await tx.user.findUnique({ where: { nexusId: candidate }, select: { id: true } });
+        if (!exists) { nexusId = candidate; break; }
+      }
+      if (!nexusId) throw new Error("Could not allocate a NEXUS ID.");
       const created = await tx.user.create({
-        data: { name, email, passwordHash: await hash(password, 12), role: "STUDENT", avatarUrl: avatarUrl || null },
+        data: { name, email, nexusId, passwordHash: await hash(password, 12), role: "STUDENT", avatarUrl: avatarUrl || null },
       });
 
       await tx.session.create({
@@ -62,7 +69,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { user: { id: user.id, name: user.name, email: user.email, role: user.role, avatarUrl: user.avatarUrl } },
+      { user: { id: user.id, name: user.name, email: user.email, role: user.role, avatarUrl: user.avatarUrl, nexusId: user.nexusId } },
       { status: 201 }
     );
   } catch (error) {
