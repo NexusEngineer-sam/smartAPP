@@ -1,5 +1,5 @@
 "use client";
-import {useCallback,useEffect,useMemo,useState} from "react";
+import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {MessageCircle,Search,Send,ArrowLeft,Plus,Users,CheckCheck} from "lucide-react";
 import MessengerCallControls from "@/components/messenger-call-controls";
 type Person={id:string;name:string;avatarUrl:string|null;university?:string|null;course?:string|null;online?:boolean;lastSeenAt?:string|null};
@@ -20,6 +20,8 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  const [query,setQuery]=useState("");
  const [selected,setSelected]=useState<Conversation|null>(null);
  const [messages,setMessages]=useState<Message[]>([]);
+ const [hasMoreMessages,setHasMoreMessages]=useState(false);
+ const [loadingOlder,setLoadingOlder]=useState(false);
  const [peerReadAt,setPeerReadAt]=useState<string|null>(null);
  const [draft,setDraft]=useState("");
  const [loading,setLoading]=useState(true);
@@ -35,10 +37,17 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  useEffect(()=>{const t=window.setTimeout(()=>void load(),250);return()=>window.clearTimeout(t)},[load]);
  useEffect(()=>{const t=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},15000);return()=>window.clearInterval(t)},[load]);
  const loadMessages=useCallback(async(id:string)=>{
-  try{const r=await fetch("/api/messenger/"+id+"/messages",{cache:"no-store"});const d=await readJsonResponse(r);if(r.ok){setMessages(d.messages||[]);setPeerReadAt(d.peerReadAt||null);}}
+  try{const r=await fetch("/api/messenger/"+id+"/messages",{cache:"no-store"});const d=await readJsonResponse(r);if(r.ok){setMessages(previous=>{const merged=new Map([...previous,...(d.messages||[])].map((message:Message)=>[message.id,message]));return [...merged.values()].sort((a,b)=>new Date(a.createdAt).getTime()-new Date(b.createdAt).getTime());});setHasMoreMessages(!!d.hasMore);setPeerReadAt(d.peerReadAt||null);}}
   catch{/* transient connection issue */ }
  },[]);
- useEffect(()=>{if(!selected)return;void loadMessages(selected.id);const t=window.setInterval(()=>void loadMessages(selected.id),5000);return()=>window.clearInterval(t)},[selected?.id,loadMessages]);
+ useEffect(()=>{if(!selected)return;setMessages([]);setHasMoreMessages(false);void loadMessages(selected.id);const poll=()=>{if(document.visibilityState==="visible")void loadMessages(selected.id);};const timer=window.setInterval(poll,5000);document.addEventListener("visibilitychange",poll);return()=>{window.clearInterval(timer);document.removeEventListener("visibilitychange",poll);};},[selected?.id,loadMessages]);
+ async function loadOlderMessages(){
+  if(!selected||!messages.length||!hasMoreMessages||loadingOlder)return;
+  setLoadingOlder(true);
+  try{const cursor=messages[0].id;const r=await fetch("/api/messenger/"+selected.id+"/messages?beforeId="+encodeURIComponent(cursor),{cache:"no-store"});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Older messages could not be loaded.");setMessages(previous=>{const merged=new Map([...(d.messages||[]),...previous].map((message:Message)=>[message.id,message]));return [...merged.values()].sort((a,b)=>new Date(a.createdAt).getTime()-new Date(b.createdAt).getTime());});setHasMoreMessages(!!d.hasMore);}
+  catch(e){setError(e instanceof Error?e.message:"Older messages could not be loaded.");}
+  finally{setLoadingOlder(false);}
+ }
  async function startChat(person:Person){
   setError("");setNotice("");try{const r=await fetch("/api/messenger",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({recipientId:person.id})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not send request.");await load();setQuery("");if(d.pending){setSelected(null);setMobileChat(false);setNotice(d.direction==="incoming"?"This student has already sent you a request. Accept it under Message Requests.":"Message request sent. You can chat after the student accepts.");return;}const conversation:Conversation={id:d.conversationId,isGroup:false,title:null,updatedAt:new Date().toISOString(),otherUsers:[person],lastMessage:null};setSelected(conversation);setMessages([]);setMobileChat(true);}
   catch(e){setError(e instanceof Error?e.message:"Could not send request.");}
@@ -66,7 +75,7 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
    </aside>
    <div className={mobileChat?"messenger-chat":"messenger-chat empty-chat"}>
     {selected?<><header className="messenger-chat-head"><button className="messenger-back" onClick={()=>setMobileChat(false)}><ArrowLeft size={18}/></button><span className="messenger-avatar">{selected.otherUsers[0]?.avatarUrl?<img src={selected.otherUsers[0].avatarUrl} alt=""/>:activeName.slice(0,1)}<i className={selected.otherUsers.some(x=>x.online)?"is-online":""}/></span><div className="messenger-head-copy"><b>{activeName}</b><small><i className={selected.otherUsers.some(x=>x.online)?"messenger-status-dot online":"messenger-status-dot"}/>{selected.isGroup?"Group conversation":presenceLabel(selected.otherUsers[0])}</small></div>{!selected.isGroup&&<MessengerCallControls conversationId={selected.id} currentUserId={currentUser.id}/>}</header>
-      <div className="messenger-messages">{messages.length===0?<div className="messenger-empty-chat"><MessageCircle size={28}/><b>Start a conversation</b><span>Say hello and make a new campus connection.</span></div>:messages.map(m=><div key={m.id} className={"messenger-bubble-row "+(m.sender.id===currentUser.id?"mine":"theirs")}><article className="messenger-bubble"><p>{m.body}</p><small>{new Date(m.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} {m.sender.id===currentUser.id&&<><CheckCheck size={12}/>{messages[messages.length-1]?.id===m.id&&peerReadAt&&new Date(peerReadAt).getTime()>=new Date(m.createdAt).getTime()&&<span className="messenger-seen-label">Seen</span>}</>}</small></article></div>)}</div>
+      <div className="messenger-messages">{hasMoreMessages&&<button type="button" className="messenger-load-older" onClick={()=>void loadOlderMessages()} disabled={loadingOlder}>{loadingOlder?"Loading…":"Load older messages"}</button>}{messages.length===0?<div className="messenger-empty-chat"><MessageCircle size={28}/><b>Start a conversation</b><span>Say hello and make a new campus connection.</span></div>:messages.map(m=><div key={m.id} className={"messenger-bubble-row "+(m.sender.id===currentUser.id?"mine":"theirs")}><article className="messenger-bubble"><p>{m.body}</p><small>{new Date(m.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} {m.sender.id===currentUser.id&&<><CheckCheck size={12}/>{messages[messages.length-1]?.id===m.id&&peerReadAt&&new Date(peerReadAt).getTime()>=new Date(m.createdAt).getTime()&&<span className="messenger-seen-label">Seen</span>}</>}</small></article></div>)}</div>
       <form className="messenger-compose" onSubmit={sendMessage}><textarea value={draft} onChange={e=>setDraft(e.target.value)} placeholder="Write a message…" maxLength={4000} rows={1}/><button disabled={!draft.trim()||sending}><Send size={18}/></button></form>
     </>:<div className="messenger-empty-chat"><MessageCircle size={36}/><b>Your campus conversations, in one place</b><span>Choose a conversation or search for a student to start chatting.</span><div className="messenger-encryption-note"><Users size={15}/> Send a message request first. The other student must accept before chatting.</div></div>}
    </div>
