@@ -1,6 +1,23 @@
 const BADGE_DB = "nexus-app-badge";
 const BADGE_STORE = "counts";
 
+function saveStoredBadge(count) {
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open(BADGE_DB, 1);
+      request.onupgradeneeded = () => request.result.createObjectStore(BADGE_STORE);
+      request.onsuccess = () => {
+        const db = request.result;
+        const tx = db.transaction(BADGE_STORE, "readwrite");
+        tx.objectStore(BADGE_STORE).put(count, "unread");
+        tx.oncomplete = () => { db.close(); resolve(); };
+        tx.onerror = () => { db.close(); resolve(); };
+      };
+      request.onerror = () => resolve();
+    } catch { resolve(); }
+  });
+}
+
 function updateStoredBadge(increment = 0) {
   return new Promise((resolve) => {
     try {
@@ -27,18 +44,11 @@ function updateStoredBadge(increment = 0) {
 self.addEventListener("message", (event) => {
   if (event.data?.type === "SET_APP_BADGE") {
     const count = Math.max(0, Number(event.data.count || 0));
-    event.waitUntil?.(Promise.resolve());
-    if (count > 0 && self.navigator.setAppBadge) void self.navigator.setAppBadge(count);
-    else if (self.navigator.clearAppBadge) void self.navigator.clearAppBadge();
-    void updateStoredBadge(0).then(() => {
-      const request = indexedDB.open(BADGE_DB, 1);
-      request.onsuccess = () => {
-        const db = request.result;
-        const tx = db.transaction(BADGE_STORE, "readwrite");
-        tx.objectStore(BADGE_STORE).put(count, "unread");
-        tx.oncomplete = () => db.close();
-      };
-    });
+    event.waitUntil((async () => {
+      if (count > 0 && self.navigator.setAppBadge) await self.navigator.setAppBadge(count).catch(() => undefined);
+      else if (self.navigator.clearAppBadge) await self.navigator.clearAppBadge().catch(() => undefined);
+      await saveStoredBadge(count);
+    })());
   }
 });
 
