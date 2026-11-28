@@ -62,3 +62,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not publish your status. Try again." }, { status: 500 });
   }
 }
+
+const deleteSchema = z.object({ storyId: z.string().min(1).max(128) });
+
+export async function DELETE(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+  const parsed = deleteSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: "Invalid status identifier." }, { status: 400 });
+  try {
+    await ensureStoriesTable();
+    const deleted = await prisma.$executeRaw`DELETE FROM "CampusStory" WHERE "id" = ${parsed.data.storyId} AND "userId" = ${user.id}`;
+    if (deleted === 0) return NextResponse.json({ error: "Status not found or you do not have permission to delete it." }, { status: 404 });
+    return NextResponse.json({ success: true, deletedId: parsed.data.storyId });
+  } catch {
+    return NextResponse.json({ error: "Could not delete your status. Try again." }, { status: 500 });
+  }
+}
