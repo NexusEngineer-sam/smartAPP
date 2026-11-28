@@ -16,3 +16,4 @@ CREATE TABLE IF NOT EXISTS "ChatMessage" (
 CREATE INDEX IF NOT EXISTS "ChatConversation_updatedAt_idx" ON "ChatConversation"("updatedAt");
 CREATE INDEX IF NOT EXISTS "ChatParticipant_userId_joinedAt_idx" ON "ChatParticipant"("userId","joinedAt");
 CREATE INDEX IF NOT EXISTS "ChatMessage_conversationId_createdAt_idx" ON "ChatMessage"("conversationId","createdAt");
+ALTER TABLE "ChatConversation" ADD COLUMN IF NOT EXISTS "requestStatus" VARCHAR(16) NOT NULL DEFAULT 'ACCEPTED';
