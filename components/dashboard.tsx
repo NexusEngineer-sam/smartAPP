@@ -20,14 +20,14 @@ type ClassEvent = { id:string; title:string; courseCode:string|null; location:st
 const BusinessCenter = dynamic(() => import("@/components/business-center"), { loading: () => null });
 const EngagementAnalytics = dynamic(() => import("@/components/engagement-analytics"), { loading: () => null });
 const CampusVideoHub = dynamic(() => import("@/components/campus-video-hub"), { loading: () => null });
-const CampusDiscoveryHub = dynamic(() => import("@/components/campus-discovery-hub"), { loading: () => null });
+const CampusDiscoveryHub = dynamic(() => import("@/components/campus-discovery-hub"), { loading: () => <div className="section-loading" role="status">Inafungua Discover…</div> });
 const SocialFeed = dynamic(() => import("@/components/social-feed"), { loading: () => null });
 const DigitalId = dynamic(() => import("@/components/digital-id"), { loading: () => null });
 const CampusGuide = dynamic(() => import("@/components/campus-guide"), { loading: () => null });
 const ClassRepPanel = dynamic(() => import("@/components/class-rep-panel"), { loading: () => null });
 const ClassMessages = dynamic(() => import("@/components/class-messages"), { loading: () => null });
 const StudentLifeHub = dynamic(() => import("@/components/student-life-hub"), { loading: () => null });
-const StudyPlanner = dynamic(() => import("@/components/study-planner"), { loading: () => null });
+const StudyPlanner = dynamic(() => import("@/components/study-planner"), { loading: () => <div className="section-loading" role="status">Inafungua Study Zone…</div> });
 const AlarmSystem = dynamic(() => import("@/components/alarm-system"), { loading: () => null });
 const CampusEventsHub = dynamic(() => import("@/components/campus-events-hub"), { loading: () => null });
 const GlobalCampusNetwork = dynamic(() => import("@/components/global-campus-network"), { loading: () => null });
