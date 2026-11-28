@@ -17,22 +17,21 @@ type Notice = { id: string; title: string; body: string; createdAt: string };
 type ClassEvent = { id:string; title:string; courseCode:string|null; location:string|null; startsAt:string; endsAt:string; reminderMins:number };
 
 
-const lazyOptions = { loading: () => null };
-const BusinessCenter = dynamic(() => import("@/components/business-center"), lazyOptions);
-const EngagementAnalytics = dynamic(() => import("@/components/engagement-analytics"), lazyOptions);
-const CampusVideoHub = dynamic(() => import("@/components/campus-video-hub"), lazyOptions);
-const CampusDiscoveryHub = dynamic(() => import("@/components/campus-discovery-hub"), lazyOptions);
-const SocialFeed = dynamic(() => import("@/components/social-feed"), lazyOptions);
-const DigitalId = dynamic(() => import("@/components/digital-id"), lazyOptions);
-const CampusGuide = dynamic(() => import("@/components/campus-guide"), lazyOptions);
-const ClassRepPanel = dynamic(() => import("@/components/class-rep-panel"), lazyOptions);
-const ClassMessages = dynamic(() => import("@/components/class-messages"), lazyOptions);
-const StudentLifeHub = dynamic(() => import("@/components/student-life-hub"), lazyOptions);
-const StudyPlanner = dynamic(() => import("@/components/study-planner"), lazyOptions);
-const AlarmSystem = dynamic(() => import("@/components/alarm-system"), lazyOptions);
-const CampusEventsHub = dynamic(() => import("@/components/campus-events-hub"), lazyOptions);
-const GlobalCampusNetwork = dynamic(() => import("@/components/global-campus-network"), lazyOptions);
-const CampusMessenger = dynamic(() => import("@/components/campus-messenger"), lazyOptions);
+const BusinessCenter = dynamic(() => import("@/components/business-center"), { loading: () => null });
+const EngagementAnalytics = dynamic(() => import("@/components/engagement-analytics"), { loading: () => null });
+const CampusVideoHub = dynamic(() => import("@/components/campus-video-hub"), { loading: () => null });
+const CampusDiscoveryHub = dynamic(() => import("@/components/campus-discovery-hub"), { loading: () => null });
+const SocialFeed = dynamic(() => import("@/components/social-feed"), { loading: () => null });
+const DigitalId = dynamic(() => import("@/components/digital-id"), { loading: () => null });
+const CampusGuide = dynamic(() => import("@/components/campus-guide"), { loading: () => null });
+const ClassRepPanel = dynamic(() => import("@/components/class-rep-panel"), { loading: () => null });
+const ClassMessages = dynamic(() => import("@/components/class-messages"), { loading: () => null });
+const StudentLifeHub = dynamic(() => import("@/components/student-life-hub"), { loading: () => null });
+const StudyPlanner = dynamic(() => import("@/components/study-planner"), { loading: () => null });
+const AlarmSystem = dynamic(() => import("@/components/alarm-system"), { loading: () => null });
+const CampusEventsHub = dynamic(() => import("@/components/campus-events-hub"), { loading: () => null });
+const GlobalCampusNetwork = dynamic(() => import("@/components/global-campus-network"), { loading: () => null });
+const CampusMessenger = dynamic(() => import("@/components/campus-messenger"), { loading: () => null });
 
 const money = (n:number) => new Intl.NumberFormat("en-TZ",{style:"currency",currency:"TZS",maximumFractionDigits:0}).format(n);
 
