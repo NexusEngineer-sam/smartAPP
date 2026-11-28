@@ -1,6 +1,6 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
-import {MessageCircle,Search,Send,ArrowLeft,Plus,Users,CheckCheck} from "lucide-react";
+import {MessageCircle,Search,Send,ArrowLeft,Plus,Users,CheckCheck,Video} from "lucide-react";
 type Person={id:string;name:string;avatarUrl:string|null;university?:string|null;course?:string|null;online?:boolean;lastSeenAt?:string|null};
 type Message={id:string;body:string;createdAt:string;sender:{id:string;name:string;avatarUrl:string|null}};
 type Conversation={id:string;isGroup:boolean;title:string|null;updatedAt:string;otherUsers:Person[];lastMessage:Message|null};
@@ -45,6 +45,19 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
   setError("");try{const r=await fetch("/api/messenger/"+id+"/request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not update request.");await load();if(action==="accept"){const c=(d.conversation||incomingRequests.find(x=>x.id===id));if(c){setSelected(c);setMessages([]);setMobileChat(true);}}}
   catch(e){setError(e instanceof Error?e.message:"Could not update request.");}
  }
+ async function startVideoCall(){
+  if(!selected||selected.isGroup)return;
+  const room="NEXUS-"+selected.id.replace(/[^a-zA-Z0-9-]/g,"");
+  const callUrl="https://meet.jit.si/"+encodeURIComponent(room);
+  window.open(callUrl,"_blank","noopener,noreferrer");
+  try{
+   const r=await fetch("/api/messenger/"+selected.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({body:"📹 Video call invitation: "+callUrl})});
+   const d=await readJsonResponse(r);
+   if(!r.ok)throw new Error(d.error||"Could not send call invitation.");
+   setMessages(v=>[...v,d.message]);
+   void load();
+  }catch(e){setError(e instanceof Error?e.message:"Could not send call invitation.");}
+ }
  async function sendMessage(e:React.FormEvent){
   e.preventDefault();if(!selected||!draft.trim()||sending)return;setSending(true);setError("");
   try{const r=await fetch("/api/messenger/"+selected.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({body:draft.trim()})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Message not sent.");setMessages(v=>[...v,d.message]);setDraft("");void load();}
@@ -63,8 +76,8 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
     {loading?<p className="messenger-empty">Loading conversations…</p>:conversations.length===0?<p className="messenger-empty">No conversations yet. Search for a student to say hello.</p>:conversations.map(c=>{const name=c.title||c.otherUsers.map(x=>x.name).join(", ")||"Campus chat";return <button key={c.id} className={"messenger-conversation "+(selected?.id===c.id?"active":"")} onClick={()=>{setSelected(c);setMobileChat(true)}}><span className="messenger-avatar">{c.otherUsers[0]?.avatarUrl?<img src={c.otherUsers[0].avatarUrl} alt=""/>:name.slice(0,1)}<i className={c.otherUsers.some(x=>x.online)?"is-online":""}/></span><span className="messenger-conversation-copy"><b>{name}</b><small>{c.otherUsers[0]?.online?<em className="messenger-list-online">● Active now</em>:(c.lastMessage?.body||presenceLabel(c.otherUsers[0]))}</small></span><small className="messenger-time">{c.lastMessage?new Date(c.lastMessage.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):""}</small></button>})}
    </aside>
    <div className={mobileChat?"messenger-chat":"messenger-chat empty-chat"}>
-    {selected?<><header className="messenger-chat-head"><button className="messenger-back" onClick={()=>setMobileChat(false)}><ArrowLeft size={18}/></button><span className="messenger-avatar">{selected.otherUsers[0]?.avatarUrl?<img src={selected.otherUsers[0].avatarUrl} alt=""/>:activeName.slice(0,1)}<i className={selected.otherUsers.some(x=>x.online)?"is-online":""}/></span><div className="messenger-head-copy"><b>{activeName}</b><small><i className={selected.otherUsers.some(x=>x.online)?"messenger-status-dot online":"messenger-status-dot"}/>{selected.isGroup?"Group conversation":presenceLabel(selected.otherUsers[0])}</small></div></header>
-      <div className="messenger-messages">{messages.length===0?<div className="messenger-empty-chat"><MessageCircle size={28}/><b>Start a conversation</b><span>Say hello and make a new campus connection.</span></div>:messages.map(m=><div key={m.id} className={"messenger-bubble-row "+(m.sender.id===currentUser.id?"mine":"theirs")}><article className="messenger-bubble"><p>{m.body}</p><small>{new Date(m.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} {m.sender.id===currentUser.id&&<><CheckCheck size={12}/>{messages[messages.length-1]?.id===m.id&&peerReadAt&&new Date(peerReadAt).getTime()>=new Date(m.createdAt).getTime()&&<span className="messenger-seen-label">Seen</span>}</>}</small></article></div>)}</div>
+    {selected?<><header className="messenger-chat-head"><button className="messenger-back" onClick={()=>setMobileChat(false)}><ArrowLeft size={18}/></button><span className="messenger-avatar">{selected.otherUsers[0]?.avatarUrl?<img src={selected.otherUsers[0].avatarUrl} alt=""/>:activeName.slice(0,1)}<i className={selected.otherUsers.some(x=>x.online)?"is-online":""}/></span><div className="messenger-head-copy"><b>{activeName}</b><small><i className={selected.otherUsers.some(x=>x.online)?"messenger-status-dot online":"messenger-status-dot"}/>{selected.isGroup?"Group conversation":presenceLabel(selected.otherUsers[0])}</small></div>{!selected.isGroup&&<button type="button" className="messenger-video-call" onClick={()=>void startVideoCall()} aria-label="Start video call" title="Start video call"><Video size={19}/></button>}</header>
+      <div className="messenger-messages">{messages.length===0?<div className="messenger-empty-chat"><MessageCircle size={28}/><b>Start a conversation</b><span>Say hello and make a new campus connection.</span></div>:messages.map(m=><div key={m.id} className={"messenger-bubble-row "+(m.sender.id===currentUser.id?"mine":"theirs")}><article className="messenger-bubble"><p>{m.body.startsWith("📹 Video call invitation: https://meet.jit.si/")?<><span>📹 Video call invitation </span><a href={m.body.slice("📹 Video call invitation: ".length)} target="_blank" rel="noreferrer">Join video call</a></>:m.body}</p><small>{new Date(m.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} {m.sender.id===currentUser.id&&<><CheckCheck size={12}/>{messages[messages.length-1]?.id===m.id&&peerReadAt&&new Date(peerReadAt).getTime()>=new Date(m.createdAt).getTime()&&<span className="messenger-seen-label">Seen</span>}</>}</small></article></div>)}</div>
       <form className="messenger-compose" onSubmit={sendMessage}><textarea value={draft} onChange={e=>setDraft(e.target.value)} placeholder="Write a message…" maxLength={4000} rows={1}/><button disabled={!draft.trim()||sending}><Send size={18}/></button></form>
     </>:<div className="messenger-empty-chat"><MessageCircle size={36}/><b>Your campus conversations, in one place</b><span>Choose a conversation or search for a student to start chatting.</span><div className="messenger-encryption-note"><Users size={15}/> Send a message request first. The other student must accept before chatting.</div></div>}
    </div>
