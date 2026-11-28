@@ -1,3 +1,47 @@
+const BADGE_DB = "nexus-app-badge";
+const BADGE_STORE = "counts";
+
+function updateStoredBadge(increment = 0) {
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open(BADGE_DB, 1);
+      request.onupgradeneeded = () => request.result.createObjectStore(BADGE_STORE);
+      request.onsuccess = () => {
+        const db = request.result;
+        const tx = db.transaction(BADGE_STORE, "readwrite");
+        const store = tx.objectStore(BADGE_STORE);
+        const get = store.get("unread");
+        get.onsuccess = () => {
+          const count = Math.max(0, Number(get.result || 0) + increment);
+          store.put(count, "unread");
+          resolve(count);
+        };
+        tx.oncomplete = () => db.close();
+        tx.onerror = () => { db.close(); resolve(1); };
+      };
+      request.onerror = () => resolve(1);
+    } catch { resolve(1); }
+  });
+}
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SET_APP_BADGE") {
+    const count = Math.max(0, Number(event.data.count || 0));
+    event.waitUntil?.(Promise.resolve());
+    if (count > 0 && self.navigator.setAppBadge) void self.navigator.setAppBadge(count);
+    else if (self.navigator.clearAppBadge) void self.navigator.clearAppBadge();
+    void updateStoredBadge(0).then(() => {
+      const request = indexedDB.open(BADGE_DB, 1);
+      request.onsuccess = () => {
+        const db = request.result;
+        const tx = db.transaction(BADGE_STORE, "readwrite");
+        tx.objectStore(BADGE_STORE).put(count, "unread");
+        tx.oncomplete = () => db.close();
+      };
+    });
+  }
+});
+
 self.addEventListener("push", (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch (_) {}
@@ -16,7 +60,11 @@ self.addEventListener("push", (event) => {
     data: { url: data.url || "/" }
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil((async () => {
+    const count = await updateStoredBadge(1);
+    if (self.navigator.setAppBadge) await self.navigator.setAppBadge(count).catch(() => undefined);
+    await self.registration.showNotification(title, options);
+  })());
 });
 
 self.addEventListener("notificationclick", (event) => {
