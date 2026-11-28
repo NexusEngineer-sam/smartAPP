@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "start": "next start",
+    "start": "yarn db:messenger && yarn db:social && next start",
     "lint": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -13,6 +13,8 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
     "db:monetization": "prisma db execute --file prisma/monetization.sql --schema prisma/schema.prisma",
+    "db:messenger": "prisma db execute --file prisma/messenger.sql --schema prisma/schema.prisma",
+    "db:social": "prisma db execute --file prisma/social.sql --schema prisma/schema.prisma",
     "db:legacy:apply": "prisma db execute --file prisma/auth-token-tables.sql --schema prisma/schema.prisma && prisma db execute --file prisma/monetization.sql --schema prisma/schema.prisma && prisma db execute --file prisma/push-subscriptions.sql --schema prisma/schema.prisma && prisma db execute --file prisma/social.sql --schema prisma/schema.prisma && prisma db execute --file prisma/campus-events.sql --schema prisma/schema.prisma && prisma db execute --file prisma/student-profile-onboarding.sql --schema prisma/schema.prisma && prisma db execute --file prisma/personal-schedules.sql --schema prisma/schema.prisma && prisma db execute --file prisma/global-campus-network.sql --schema prisma/schema.prisma && prisma db execute --file prisma/global-campus-interactions.sql --schema prisma/schema.prisma && prisma db execute --file prisma/global-student-matching.sql --schema prisma/schema.prisma && prisma db execute --file prisma/messenger.sql --schema prisma/schema.prisma",
     "db:google-drive-backup": "prisma db execute --file prisma/google-drive-backup.sql --schema prisma/schema.prisma"
   },
