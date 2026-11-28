@@ -1522,3 +1522,69 @@ table td{color:#1c1e21!important;border-color:#e4e6eb!important}
 .life-panel-head>div>p,.global-match-heading>div>p{display:none!important}
 .wa-chat-subbar,.wa-date-chip,.wa-chat-footer{display:none!important}
 .global-match-panel{margin-top:0!important}
+
+
+/* Attraction pass: make the campus feed feel alive, editorial and effortless */
+.social-feed{width:100%;max-width:790px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.discovery-hub.discovery-facebook-layout{width:100%;max-width:1000px;margin:0 auto}
+.discovery-facebook-layout>.discovery-filters{position:sticky;top:70px;z-index:4;display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:9px 4px;margin:0 0 15px;background:rgba(255,255,255,.94)!important;border:1px solid #e4e6eb;border-radius:14px;backdrop-filter:blur(14px)}
+.discovery-facebook-layout>.discovery-filters::-webkit-scrollbar{display:none}
+.discovery-facebook-layout>.discovery-filters button{flex:0 0 auto;min-height:39px;padding:0 13px;border-radius:10px;font-size:12px;font-weight:700;transition:background .18s ease,transform .18s ease}
+.discovery-facebook-layout>.discovery-filters button:active{transform:scale(.96)}
+.campus-stories{background:linear-gradient(135deg,#fff 0%,#fbfcff 100%);border:1px solid #e4e6eb;border-radius:16px;padding:15px 16px 13px;box-shadow:0 5px 22px rgba(20,40,80,.035)}
+.campus-stories-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.campus-stories-heading h3{font:800 16px var(--display);letter-spacing:-.45px;margin:3px 0 0;color:#1c1e21}
+.campus-stories-heading>span{display:flex;align-items:center;gap:5px;color:#8a8d96;font-size:10px}
+.campus-stories-rail{display:flex;gap:12px;overflow-x:auto;padding:2px 1px 6px;scrollbar-width:none}
+.campus-stories-rail::-webkit-scrollbar{display:none}
+.campus-story-tile{flex:0 0 76px;min-width:76px;display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:transparent;padding:0;color:#1c1e21;transition:transform .2s ease}
+.campus-story-tile:active{transform:scale(.94)}
+.campus-story-ring{width:62px;height:62px;padding:3px;border-radius:50%;background:conic-gradient(from 25deg,#0866ff,#7b61ff,#e34c91,#0866ff);display:grid;place-items:center}
+.campus-story-ring.own{background:#e4e6eb}
+.campus-story-avatar{width:100%;height:100%;border:2px solid white;border-radius:50%;background:#e7f3ff;color:#0866ff;display:grid;place-items:center;overflow:hidden;font-size:19px;font-weight:800}
+.campus-story-avatar img{width:100%;height:100%;object-fit:cover}
+.campus-story-ring>i{position:absolute;transform:translate(21px,21px);width:21px;height:21px;border:2px solid white;border-radius:50%;background:#0866ff;color:white;display:grid;place-items:center}
+.campus-story-tile>b{max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:700}
+.campus-story-tile>small{font-size:9px;color:#8a8d96}
+.campus-stories-empty{align-self:center;color:#8a8d96;font-size:11px;padding:16px 8px}
+.social-composer{background:#fff;border:1px solid #e4e6eb;border-radius:16px;padding:14px 16px;box-shadow:0 5px 22px rgba(20,40,80,.035);transition:box-shadow .2s ease}
+.social-composer:focus-within{box-shadow:0 8px 28px rgba(8,102,255,.09);border-color:#c9dcff}
+.social-compose-top{gap:11px}
+.social-whats-on-mind{min-height:42px;border-radius:24px!important;background:#f0f2f5!important;color:#65676b!important;text-align:left!important;padding:0 17px!important;font-size:13px!important;transition:background .18s ease}
+.social-whats-on-mind:hover{background:#e4e6eb!important}
+.social-compose-shortcuts{border-top:1px solid #f0f2f5;margin-top:12px;padding-top:9px}
+.social-compose-shortcuts button{flex:1;justify-content:center;border-radius:10px;padding:9px 5px;font-size:11px;font-weight:700;transition:background .18s ease}
+.social-compose-shortcuts button:hover{background:#f0f2f5}
+.social-feed-heading{display:flex;align-items:center;justify-content:space-between;padding:3px 2px}
+.social-feed-heading h3{font:800 17px var(--display);letter-spacing:-.4px;margin:0}
+.social-feed-heading button{border:0;background:#f0f2f5;color:#65676b;border-radius:20px;padding:8px 12px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:6px}
+.social-post{background:#fff;border:1px solid #e4e6eb!important;border-radius:16px!important;padding:16px!important;margin:0!important;box-shadow:0 5px 22px rgba(20,40,80,.035)!important;transition:box-shadow .2s ease,border-color .2s ease}
+.social-post:hover{box-shadow:0 10px 30px rgba(20,40,80,.075)!important;border-color:#d7e5fb!important}
+.social-post-author{gap:10px}
+.social-post-author>b,.social-post-author div>b{font-size:12px!important;letter-spacing:-.1px}
+.social-post-author div>small{font-size:10px!important;color:#8a8d96!important}
+.social-post-tag{font-size:8px!important;letter-spacing:.7px!important;background:#e7f3ff!important;color:#0866ff!important;border-radius:20px!important;padding:5px 8px!important}
+.social-post-content{font-size:14px!important;line-height:1.65!important;color:#24262b!important;margin:13px 0!important;white-space:pre-wrap}
+.social-post-media{overflow:hidden;border-radius:12px;background:#f0f2f5}
+.social-post-media img,.social-post-media video{display:block;width:100%;max-height:680px;object-fit:contain;background:#101114}
+.social-post-stats{color:#8a8d96!important;font-size:10px!important;padding:10px 2px!important}
+.social-post-actions{border-top:1px solid #e4e6eb!important;margin-top:3px!important;padding-top:7px!important;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.social-post-actions button{min-height:39px;border-radius:9px!important;color:#65676b!important;font-size:11px!important;font-weight:700!important;justify-content:center;transition:background .18s ease,color .18s ease}
+.social-post-actions button:hover{background:#f0f2f5!important}
+.social-post-actions button.liked{color:#0866ff!important}
+.social-comments{margin-top:10px!important;padding-top:10px!important;border-top:1px solid #f0f2f5}
+.social-comments form{display:flex;gap:8px}
+.social-comments form input{min-width:0;flex:1;border-radius:22px!important;padding:11px 14px!important;font-size:12px!important}
+.social-comments form button{width:38px;height:38px;border:0;border-radius:50%;background:#0866ff;color:white;display:grid;place-items:center}
+.social-empty{background:#fff;border:1px dashed #d7dce5;border-radius:14px;padding:35px 15px;color:#8a8d96}
+.topbar{position:sticky;top:0;z-index:6;backdrop-filter:blur(14px);background:rgba(255,255,255,.94)!important}
+@media(max-width:760px){
+ .discovery-facebook-layout>.discovery-filters{top:59px;border-radius:0 0 12px 12px;margin:0 -14px 12px;padding:8px 12px;border-left:0;border-right:0}
+ .social-feed{gap:10px}
+ .campus-stories,.social-composer{border-radius:13px;padding:12px}
+ .social-post{border-radius:13px!important;padding:13px!important}
+ .social-post-media{margin:0 -13px;border-radius:0}
+ .social-post-media img,.social-post-media video{max-height:68vh}
+ .social-post-content{font-size:13px!important}
+}
+@media(prefers-reduced-motion:reduce){.social-post,.social-composer,.social-story-tile,.discovery-filters button{transition:none!important}}
