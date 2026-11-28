@@ -4,12 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import { Plus, X, ImagePlus, Video, Send, ChevronRight, LoaderCircle, Clock3, MessageCircle } from "lucide-react";
 
 type Story = { id:string; content:string; mediaUrl:string|null; mediaType:"image"|"video"|null; createdAt:string; expiresAt:string; authorId:string; authorName:string; authorAvatar?:string|null };
-type Props = { user:{id?:string;name:string;avatarUrl?:string|null} };\ntype StoryReply = {id:string;body:string;createdAt:string;authorName:string;authorAvatar?:string|null};
+type Props = { user:{id?:string;name:string;avatarUrl?:string|null} };
+type StoryReply = {id:string;body:string;createdAt:string;authorName:string;authorAvatar?:string|null};
 
 export default function CampusStories({user}:Props) {
   const [stories,setStories]=useState<Story[]>([]);
   const [open,setOpen]=useState(false);
-  const [viewing,setViewing]=useState<Story|null>(null);\n  const [replies,setReplies]=useState<StoryReply[]>([]);\n  const [replyText,setReplyText]=useState("");\n  const [replyBusy,setReplyBusy]=useState(false);\n  const [replyError,setReplyError]=useState("");
+  const [viewing,setViewing]=useState<Story|null>(null);
+  const [replies,setReplies]=useState<StoryReply[]>([]);
+  const [replyText,setReplyText]=useState("");
+  const [replyBusy,setReplyBusy]=useState(false);
+  const [replyError,setReplyError]=useState("");
   const [content,setContent]=useState("");
   const [file,setFile]=useState<File|null>(null);
   const [preview,setPreview]=useState("");
@@ -20,7 +25,9 @@ export default function CampusStories({user}:Props) {
 
   async function load(){try{const r=await fetch("/api/stories",{cache:"no-store"});const d=await r.json();if(r.ok)setStories(d.stories||[]);}catch{}}
   useEffect(()=>{void load();const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},10000);return()=>window.clearInterval(timer);},[]);
-  useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview);},[preview]);\n  useEffect(()=>{if(!viewing)return;let active=true;const refresh=async()=>{try{const r=await fetch("/api/stories/comments?storyId="+encodeURIComponent(viewing.id),{cache:"no-store"});const d=await r.json();if(active&&r.ok)setReplies(d.replies||[]);}catch{}};setReplies([]);setReplyError("");void refresh();const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh();},5000);return()=>{active=false;window.clearInterval(timer);};},[viewing?.id]);\n  async function sendReply(e:React.FormEvent){e.preventDefault();const body=replyText.trim();if(!viewing||!body||replyBusy)return;setReplyBusy(true);setReplyError("");try{const r=await fetch("/api/stories/comments",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({storyId:viewing.id,body})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Reply haikutumwa.");setReplies(v=>[...v,d.reply]);setReplyText("");}catch(e){setReplyError(e instanceof Error?e.message:"Reply haikutumwa.");}finally{setReplyBusy(false);}}
+  useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview);},[preview]);
+  useEffect(()=>{if(!viewing)return;let active=true;const refresh=async()=>{try{const r=await fetch("/api/stories/comments?storyId="+encodeURIComponent(viewing.id),{cache:"no-store"});const d=await r.json();if(active&&r.ok)setReplies(d.replies||[]);}catch{}};setReplies([]);setReplyError("");void refresh();const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh();},5000);return()=>{active=false;window.clearInterval(timer);};},[viewing?.id]);
+  async function sendReply(e:React.FormEvent){e.preventDefault();const body=replyText.trim();if(!viewing||!body||replyBusy)return;setReplyBusy(true);setReplyError("");try{const r=await fetch("/api/stories/comments",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({storyId:viewing.id,body})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Reply haikutumwa.");setReplies(v=>[...v,d.reply]);setReplyText("");}catch(e){setReplyError(e instanceof Error?e.message:"Reply haikutumwa.");}finally{setReplyBusy(false);}}
   function choose(next:File|null){if(preview)URL.revokeObjectURL(preview);setPreview("");setFile(null);if(!next)return;if(!next.type.startsWith("image/")&&!next.type.startsWith("video/")){setError("Chagua picha au video.");return;}const limit=next.type.startsWith("video/")?100:12;if(next.size>limit*1024*1024){setError("Faili imezidi "+limit+" MB.");return;}setFile(next);setPreview(URL.createObjectURL(next));setError("");}
   async function publish(e:React.FormEvent){e.preventDefault();if((!content.trim()&&!file)||busy)return;setBusy(true);setError("");try{let mediaUrl:string|null=null;let mediaType:"image"|"video"|null=null;if(file){const sr=await fetch("/api/social/media-signature",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({resourceType:file.type.startsWith("video/")?"video":"image",folder:"campus-stories"})});const sig=await sr.json();if(!sr.ok)throw new Error(sig.error||"Media upload is unavailable.");const form=new FormData();form.append("file",file);form.append("api_key",sig.apiKey);form.append("timestamp",String(sig.timestamp));form.append("folder",sig.folder);form.append("signature",sig.signature);const upload=await fetch("https://api.cloudinary.com/v1_1/"+sig.cloudName+"/"+sig.resourceType+"/upload",{method:"POST",body:form});const media=await upload.json();if(!upload.ok)throw new Error(media.error?.message||"Upload failed.");mediaUrl=media.secure_url;mediaType=sig.resourceType;}
 const r=await fetch("/api/stories",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({content,mediaUrl,mediaType})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Status haijachapishwa.");setStories(v=>[d.story,...v.filter(s=>s.authorId!==d.story.authorId)]);setContent("");setFile(null);if(preview)URL.revokeObjectURL(preview);setPreview("");setOpen(false);if(inputRef.current)inputRef.current.value="";}catch(e){setError(e instanceof Error?e.message:"Status haijachapishwa.");}finally{setBusy(false);}}
