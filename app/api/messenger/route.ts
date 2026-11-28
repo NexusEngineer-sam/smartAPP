@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
-export async function GET(request:Request) {
+async function getMessenger(request:Request) {
  const user=await getCurrentUser(); if(!user)return NextResponse.json({error:"Sign in required."},{status:401});
  const q=(new URL(request.url).searchParams.get("q")||"").trim().slice(0,80);
  const conversations=await prisma.chatConversation.findMany({
@@ -38,7 +38,7 @@ export async function GET(request:Request) {
  });
 }
 const createSchema=z.object({recipientId:z.string().min(1)});
-export async function POST(request:Request) {
+async function createMessengerRequest(request:Request) {
  const user=await getCurrentUser(); if(!user)return NextResponse.json({error:"Sign in required."},{status:401});
  let body:unknown;try{body=await request.json()}catch{return NextResponse.json({error:"Invalid request."},{status:400})}
  const parsed=createSchema.safeParse(body);if(!parsed.success||parsed.data.recipientId===user.id)return NextResponse.json({error:"Choose another student."},{status:400});
@@ -53,3 +53,5 @@ export async function POST(request:Request) {
  const conversation=await prisma.chatConversation.create({data:{createdById:user.id,requestStatus:"PENDING",participants:{create:[{userId:user.id},{userId:recipient.id}]}},select:{id:true}});
  return NextResponse.json({conversationId:conversation.id,requestStatus:"PENDING",pending:true},{status:201});
 }
+export async function GET(request:Request){try{return await getMessenger(request)}catch(error){console.error("[messenger:GET]",error);return NextResponse.json({error:"Messenger imeshindwa kupakia mazungumzo. Jaribu tena."},{status:500})}}
+export async function POST(request:Request){try{return await createMessengerRequest(request)}catch(error){console.error("[messenger:POST]",error);return NextResponse.json({error:"Ombi la ujumbe halijafanikiwa. Jaribu tena."},{status:500})}}

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 type Context={params:Promise<{id:string}>};
-export async function GET(_request:Request,{params}:Context){
+async function getMessages(_request:Request,{params}:Context){
  const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Sign in required."},{status:401});
  const {id}=await params;
  const member=await prisma.chatParticipant.findUnique({where:{conversationId_userId:{conversationId:id,userId:user.id}}});
@@ -16,7 +16,7 @@ export async function GET(_request:Request,{params}:Context){
  return NextResponse.json({messages,peerReadAt:peer?.lastReadAt?.toISOString()||null});
 }
 const schema=z.object({body:z.string().trim().min(1).max(4000)});
-export async function POST(request:Request,{params}:Context){
+async function createMessage(request:Request,{params}:Context){
  const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Sign in required."},{status:401});
  const {id}=await params;
  const member=await prisma.chatParticipant.findUnique({where:{conversationId_userId:{conversationId:id,userId:user.id}}});
@@ -29,3 +29,5 @@ export async function POST(request:Request,{params}:Context){
  await prisma.chatConversation.update({where:{id},data:{updatedAt:new Date()}});
  return NextResponse.json({message},{status:201});
 }
+export async function GET(request:Request,context:Context){try{return await getMessages(request,context)}catch(error){console.error("[messenger:messages:GET]",error);return NextResponse.json({error:"Ujumbe haukuweza kupakiwa. Jaribu tena."},{status:500})}}
+export async function POST(request:Request,context:Context){try{return await createMessage(request,context)}catch(error){console.error("[messenger:messages:POST]",error);return NextResponse.json({error:"Ujumbe haukutumwa. Jaribu tena."},{status:500})}}

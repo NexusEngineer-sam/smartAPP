@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 type Context={params:Promise<{id:string}>};
 const schema=z.object({action:z.enum(["accept","decline"])});
 
-export async function POST(request:Request,{params}:Context){
+async function handleMessageRequest(request:Request,{params}:Context){
  const user=await getCurrentUser();
  if(!user)return NextResponse.json({error:"Sign in required."},{status:401});
  const {id}=await params;
@@ -28,3 +28,5 @@ export async function POST(request:Request,{params}:Context){
  if(!updated.count)return NextResponse.json({error:"This request has already been handled."},{status:409});
  return NextResponse.json({ok:true,status:parsed.data.action==="accept"?"ACCEPTED":"DECLINED"});
 }
+
+export async function POST(request:Request,context:Context){try{return await handleMessageRequest(request,context)}catch(error){console.error("[messenger:request:POST]",error);return NextResponse.json({error:"Ombi la mazungumzo halijashughulikiwa. Jaribu tena."},{status:500})}}
