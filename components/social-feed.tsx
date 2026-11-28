@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CampusStories from "@/components/campus-stories";
 import { Heart, MessageCircle, Send, RefreshCw, Sparkles, Users, ImagePlus, Video, Smile, X, Share2 } from "lucide-react";
 
@@ -9,6 +9,7 @@ type Burst={id:number;left:number};
 
 export default function SocialFeed({user}:{user:{id?:string;name:string;email:string;role:string;avatarUrl?:string|null}}){
  const [posts,setPosts]=useState<SocialPost[]>([]);
+ const [feedMode,setFeedMode]=useState<"for-you"|"latest"|"trending">("for-you");
  const [content,setContent]=useState("");
  const [busy,setBusy]=useState(false);
  const [loading,setLoading]=useState(true);
@@ -24,12 +25,28 @@ export default function SocialFeed({user}:{user:{id?:string;name:string;email:st
  const fileRef=useRef<HTMLInputElement>(null);
  const burstId=useRef(0);
  const initials=user.name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
+ const rankedPosts=useMemo(()=>{
+  const now=Date.now();
+  const score=(post:SocialPost)=>{
+   const ageHours=Math.max(0,(now-new Date(post.createdAt).getTime())/3600000);
+   const engagement=Math.log1p(Math.max(0,post.likes)*2+Math.max(0,post.comments)*3);
+   const freshness=Math.exp(-ageHours/30);
+   return engagement*0.58+freshness*2.4;
+  };
+  return [...posts].sort((a,b)=>{
+   if(feedMode==="latest")return new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime();
+   if(feedMode==="trending")return score(b)-score(a);
+   const byRelevance=score(b)-score(a);
+   return Math.abs(byRelevance)>0.08?byRelevance:new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime();
+  });
+ },[posts,feedMode]);
+
 
  async function load(){try{const r=await fetch("/api/social",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load the community feed.");setPosts(d.posts||[]);}catch(e){setError(e instanceof Error?e.message:"Feed unavailable.");}finally{setLoading(false);}}
  useEffect(()=>{
   void load();
   // Synchronize the shared student feed across signed-in app users.
-  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},5000);
+  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},15000);
   const onVisibility=()=>{if(document.visibilityState==="visible")void load();};
   document.addEventListener("visibilitychange",onVisibility);
   return ()=>{window.clearInterval(timer);document.removeEventListener("visibilitychange",onVisibility);};
@@ -64,8 +81,13 @@ export default function SocialFeed({user}:{user:{id?:string;name:string;email:st
    {!composerOpen&&<div className="social-compose-shortcuts"><button type="button" onClick={()=>{setComposerOpen(true);window.setTimeout(()=>{if(fileRef.current){fileRef.current.accept="image/*";fileRef.current.click();}},180);}}><ImagePlus size={16}/> Photo</button><button type="button" onClick={()=>{setComposerOpen(true);window.setTimeout(()=>{if(fileRef.current){fileRef.current.accept="video/*";fileRef.current.click();}},180);}}><Video size={16}/> Video</button><button type="button" onClick={()=>setComposerOpen(true)}><Smile size={16}/> Feeling</button></div>}
   </section>
   {error&&<p className="social-error" role="alert">{error}</p>}
-  <div className="social-feed-heading"><h3>Posts</h3><button type="button" onClick={()=>void load()}><RefreshCw size={14}/> Refresh</button></div>
-  {loading?<div className="social-empty"><RefreshCw/><span>Loading student posts…</span></div>:posts.length===0?<div className="social-empty"><Users size={28}/><b>Your community starts here</b><span>Share the first post and invite other students to join.</span></div>:posts.map(post=><article className="social-post" id={"post-"+post.id} key={post.id}>
+  <div className="social-feed-heading social-feed-discovery-heading"><div><span className="social-kicker">CAMPUS COMMUNITY</span><h3>Kinachoendelea</h3></div><button type="button" onClick={()=>void load()}><RefreshCw size={14}/> Refresh</button></div>
+  <div className="social-feed-modes" role="tablist" aria-label="Panga posts">
+   <button type="button" role="tab" aria-selected={feedMode==="for-you"} className={feedMode==="for-you"?"active":""} onClick={()=>setFeedMode("for-you")}><Sparkles size={14}/> Kwa ajili yako</button>
+   <button type="button" role="tab" aria-selected={feedMode==="latest"} className={feedMode==="latest"?"active":""} onClick={()=>setFeedMode("latest")}>Mpya</button>
+   <button type="button" role="tab" aria-selected={feedMode==="trending"} className={feedMode==="trending"?"active":""} onClick={()=>setFeedMode("trending")}>Zinazovuma</button>
+  </div>
+  {loading?<div className="social-empty"><RefreshCw/><span>Loading student posts…</span></div>:posts.length===0?<div className="social-empty"><Users size={28}/><b>Your community starts here</b><span>Share the first post and invite other students to join.</span></div>:rankedPosts.map(post=><article className="social-post" id={"post-"+post.id} key={post.id}>
    <div className="social-post-author"><span className="social-avatar">{post.authorAvatar?<img src={post.authorAvatar} alt=""/>:post.authorName.slice(0,1).toUpperCase()}</span><div><b>{post.authorName}</b><small>Student community · {new Date(post.createdAt).toLocaleString()}</small></div><span className="social-post-tag">STUDENT</span></div>
    <div className="social-post-content-wrap" onDoubleClick={()=>doubleTap(post)}>{post.content&&<p className="social-post-content">{post.content}</p>}{post.mediaUrl&&<div className="social-post-media">{post.mediaType==="video"?<video src={post.mediaUrl} controls playsInline preload="metadata"/>:<img src={post.mediaUrl} alt="Post attachment"/>}</div> }{(bursts[post.id]||[]).map(b=><span key={b.id} className="social-heart-burst" style={{left:`${b.left}%`}}>♥</span>)}</div>
    <div className="social-post-stats"><span>{post.likes} likes</span><span>{post.comments} comments</span></div>
