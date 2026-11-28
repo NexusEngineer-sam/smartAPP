@@ -1880,3 +1880,66 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-seri
  .app-footer{padding:18px 0 4px}
 }
 @media(max-width:360px){.tool-grid,.more-sheet-grid{grid-template-columns:1fr}}
+
+
+/* Smart Alarm */
+.alarm-system{width:100%;max-width:980px;margin:0 auto;color:var(--text,#172033)}
+.alarm-hero{display:flex;align-items:center;gap:18px;padding:26px 28px;border-radius:22px;background:linear-gradient(115deg,#111b38,#243b70 65%,#3154a1);color:#fff;margin-bottom:18px;position:relative;overflow:hidden}
+.alarm-hero:after{content:"";position:absolute;width:240px;height:240px;border:1px solid #ffffff18;border-radius:50%;right:90px;top:-155px;box-shadow:0 0 0 32px #ffffff08,0 0 0 64px #ffffff06}
+.alarm-hero-icon{width:58px;height:58px;border-radius:18px;background:#ffffff18;display:grid;place-items:center;flex-shrink:0}
+.alarm-kicker{font-size:10px;font-weight:800;letter-spacing:1.4px;color:#8197cc}
+.alarm-hero h2{font-size:26px;line-height:1.15;margin:5px 0;font-weight:800;color:#fff}
+.alarm-hero p{font-size:13px;color:#d2dcf5;margin:0}
+.alarm-live-clock{margin-left:auto;text-align:right;z-index:1;flex-shrink:0}
+.alarm-live-clock strong{display:block;font-size:36px;letter-spacing:-1.5px;font-variant-numeric:tabular-nums}
+.alarm-live-clock small{font-size:11px;color:#d2dcf5}
+.alarm-columns{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(0,1.35fr);gap:16px;align-items:start}
+.alarm-panel{background:var(--surface,#fff);border:1px solid var(--border,#e8ebf1);border-radius:18px;padding:21px;box-shadow:0 6px 24px #14213b08}
+.alarm-panel-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.alarm-panel-heading h3{font-size:19px;font-weight:800;margin:4px 0 0;color:var(--text,#172033)}
+.alarm-heading-icon{width:36px;height:36px;border-radius:12px;background:#edf1ff;color:#435fba;display:grid;place-items:center}
+.alarm-count{display:inline-grid;place-items:center;vertical-align:middle;border-radius:20px;background:#eef1f8;color:#51617e;font-size:11px;padding:3px 8px}
+.alarm-field{display:block;margin:0 0 16px}
+.alarm-field>span{display:block;font-size:12px;font-weight:750;margin-bottom:8px;color:var(--text,#172033)}
+.alarm-field>span small{font-weight:500;color:#8a93a5}
+.alarm-field input{width:100%;height:46px;border:1px solid var(--border,#e3e7ef);border-radius:11px;background:var(--background,#fafbfe);padding:0 12px;color:var(--text,#172033);font:inherit;font-size:14px;outline:none}
+.alarm-field input:focus{border-color:#6078d7;box-shadow:0 0 0 3px #6078d71a}
+.alarm-days{display:flex;gap:5px;flex-wrap:wrap}
+.alarm-days button{width:35px;height:35px;border-radius:50%;border:1px solid var(--border,#e5e8ef);background:transparent;color:var(--muted,#697386);font-size:10px;font-weight:750}
+.alarm-days button.selected{background:#314e9a;border-color:#314e9a;color:white}
+.alarm-editor-actions{display:flex;gap:8px;margin-top:20px}
+.alarm-save-btn,.alarm-cancel-btn{height:42px;border-radius:11px;padding:0 15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:750}
+.alarm-save-btn{background:#314e9a;color:#fff;border:0;flex:1}
+.alarm-cancel-btn{background:transparent;border:1px solid var(--border,#e5e8ef);color:var(--text,#172033)}
+.alarm-permissions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.alarm-permissions button{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:#65718a;font-size:11px;padding:5px 0}
+.alarm-notice{font-size:11px;color:#a66a19;line-height:1.5}
+.alarm-empty{min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:#8a93a5;text-align:center}
+.alarm-empty b{color:var(--text,#172033);font-size:14px}
+.alarm-empty span{font-size:12px}
+.alarm-list{display:flex;flex-direction:column}
+.alarm-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid var(--border,#edf0f4)}
+.alarm-item:first-child{padding-top:0}
+.alarm-item.disabled{opacity:.48}
+.alarm-item-main{min-width:0;display:flex;flex-direction:column;gap:3px}
+.alarm-item-main strong{font-size:28px;line-height:1.1;letter-spacing:-1px;font-variant-numeric:tabular-nums;color:var(--text,#172033)}
+.alarm-item-main span{font-size:12px;font-weight:750;color:var(--text,#303b50)}
+.alarm-item-main small{font-size:10px;color:#8992a4}
+.alarm-item-actions{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.alarm-item-actions>button{width:30px;height:30px;border:0;border-radius:9px;background:transparent;color:#8992a4;display:grid;place-items:center}
+.alarm-item-actions>button:hover{background:#f0f2f8;color:#344f9c}
+.alarm-item-actions .alarm-toggle{width:38px;height:22px;border-radius:20px;background:#d8dce5;padding:3px;display:flex;align-items:center;justify-content:flex-start}
+.alarm-item-actions .alarm-toggle span{width:16px;height:16px;border-radius:50%;background:white;box-shadow:0 1px 3px #0002;transition:transform .18s}
+.alarm-item-actions .alarm-toggle.on{background:#3858ac;justify-content:flex-end}
+.alarm-footnote{display:flex;align-items:center;gap:7px;color:#8992a4;font-size:10px;line-height:1.4;margin-top:18px}
+.alarm-ringing-backdrop{position:fixed;inset:0;z-index:9999;background:#071126c9;backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px}
+.alarm-ringing-card{width:min(100%,390px);background:#fff;border-radius:25px;padding:30px 24px;text-align:center;box-shadow:0 25px 100px #0005;display:flex;align-items:center;flex-direction:column}
+.alarm-ringing-pulse{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:#edf1ff;color:#3454a6;margin-bottom:17px;box-shadow:0 0 0 10px #edf1ff70;animation:alarmPulse 1.5s infinite}
+@keyframes alarmPulse{50%{box-shadow:0 0 0 20px #edf1ff00;transform:scale(1.04)}}
+.alarm-ringing-card>strong{font-size:58px;letter-spacing:-3px;margin:6px 0;color:#182342;font-variant-numeric:tabular-nums}
+.alarm-ringing-card h3{font-size:19px;margin:0;color:#182342}
+.alarm-ringing-card p{font-size:13px;color:#788297}
+.alarm-ringing-card>div:last-child{display:flex;gap:9px;width:100%;margin-top:16px}
+.alarm-ringing-card>div:last-child button{height:45px;border-radius:12px;flex:1;border:1px solid #e2e6ef;background:#fff;color:#34415e;font-weight:750;font-size:12px}
+.alarm-ringing-card>div:last-child button:last-child{background:#314e9a;border-color:#314e9a;color:#fff}
+@media(max-width:700px){.alarm-hero{padding:19px;gap:12px;border-radius:17px}.alarm-hero-icon{width:46px;height:46px;border-radius:14px}.alarm-hero h2{font-size:21px}.alarm-hero p{font-size:11px;max-width:220px}.alarm-live-clock strong{font-size:27px}.alarm-live-clock small{font-size:9px}.alarm-columns{grid-template-columns:1fr}.alarm-panel{padding:17px}.alarm-item-main strong{font-size:25px}}
