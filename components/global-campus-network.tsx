@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Globe2, Search, Users, Plus, Languages, MapPin, ArrowUpRight, LoaderCircle, X, MessageSquareText, Send, Languages } from "lucide-react";
+import { Globe2, Search, Users, Plus, Languages, MapPin, ArrowUpRight, LoaderCircle, X, MessageSquareText, Send } from "lucide-react";
 
 type CommunityPost = { id:string; body:string; createdAt:string; authorId:string; authorName:string; authorAvatar?:string|null };
 type CommunityMessage = CommunityPost;
@@ -29,6 +29,11 @@ export default function GlobalCampusNetwork() {
   const [spaceLoading, setSpaceLoading] = useState(false);
   const [spaceSending, setSpaceSending] = useState(false);
   const [targetLanguage, setTargetLanguage] = useState("en");
+  const [matchProfile, setMatchProfile] = useState({ country: "", bio: "", skills: "", interests: "", lookingFor: "Study partner" });
+  const [matches, setMatches] = useState<Array<{id:string;name:string;avatarUrl:string|null;university:string|null;course:string|null;country:string;bio:string;skills:string[];interests:string[];lookingFor:string;score:number}>>([]);
+  const [matchLoading, setMatchLoading] = useState(false);
+  const [matchSaving, setMatchSaving] = useState(false);
+  const [matchMessage, setMatchMessage] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true); setError("");
@@ -70,6 +75,31 @@ export default function GlobalCampusNetwork() {
   }
 
   const joinedCount = useMemo(() => items.filter(x => x.joined).length, [items]);
+
+  const loadMatches = useCallback(async () => {
+    setMatchLoading(true); setMatchMessage("");
+    try {
+      const response = await fetch("/api/global-network/matches", { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load student matches.");
+      setMatchProfile({ country: data.profile?.country === "Not specified" ? "" : (data.profile?.country || ""), bio: data.profile?.bio || "", skills: (data.profile?.skills || []).join(", "), interests: (data.profile?.interests || []).join(", "), lookingFor: data.profile?.lookingFor || "Study partner" });
+      setMatches(data.matches || []);
+    } catch (e) { setMatchMessage(e instanceof Error ? e.message : "Matching unavailable."); }
+    finally { setMatchLoading(false); }
+  }, []);
+
+  useEffect(() => { void loadMatches(); }, [loadMatches]);
+
+  async function saveMatchProfile(e: React.FormEvent) {
+    e.preventDefault(); setMatchSaving(true); setMatchMessage("");
+    try {
+      const response = await fetch("/api/global-network/matches", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...matchProfile, skills: matchProfile.skills.split(",").map(x=>x.trim()).filter(Boolean), interests: matchProfile.interests.split(",").map(x=>x.trim()).filter(Boolean) }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not save your matching profile.");
+      setMatches(data.matches || []); setMatchMessage("Profile saved. Your matches have been refreshed.");
+    } catch (e) { setMatchMessage(e instanceof Error ? e.message : "Could not save profile."); }
+    finally { setMatchSaving(false); }
+  }
 
   const loadSpace = useCallback(async (community: Community, tab: "discussion"|"chat") => {
     setSpaceLoading(true);
@@ -122,6 +152,19 @@ export default function GlobalCampusNetwork() {
       <div className="global-network-hero-copy"><span className="eyebrow">ONE WORLD · MANY CAMPUSES</span><h2>Global Campus Network</h2><p>Meet students, exchange knowledge and build projects across borders.</p></div>
       <div className="global-network-hero-stats"><div><b>{items.length}</b><span>Communities shown</span></div><div><b>{joinedCount}</b><span>Joined here</span></div></div>
     </div>
+    <section className="global-match-panel">
+      <div className="global-match-heading"><div><span className="eyebrow">MEET YOUR NEXT COLLABORATOR</span><h3>Smart Student Match</h3><p>Find study partners, project teammates and skill-exchange friends across campuses.</p></div><span className="global-match-count">{matches.length} matches</span></div>
+      <form className="global-match-form" onSubmit={saveMatchProfile}>
+        <label>Country<input maxLength={80} value={matchProfile.country} onChange={e=>setMatchProfile({...matchProfile,country:e.target.value})} placeholder="e.g. Tanzania"/></label>
+        <label>Skills <small>comma separated</small><input maxLength={500} value={matchProfile.skills} onChange={e=>setMatchProfile({...matchProfile,skills:e.target.value})} placeholder="Python, UI design, research"/></label>
+        <label>Interests <small>comma separated</small><input maxLength={500} value={matchProfile.interests} onChange={e=>setMatchProfile({...matchProfile,interests:e.target.value})} placeholder="AI, cybersecurity, startups"/></label>
+        <label>Looking for<select value={matchProfile.lookingFor} onChange={e=>setMatchProfile({...matchProfile,lookingFor:e.target.value})}><option>Study partner</option><option>Project partner</option><option>Research collaborator</option><option>Skill exchange</option><option>Startup co-founder</option><option>Mentor</option></select></label>
+        <label className="global-match-bio">Short introduction<textarea maxLength={500} value={matchProfile.bio} onChange={e=>setMatchProfile({...matchProfile,bio:e.target.value})} placeholder="Tell other students what you are learning or building…"/></label>
+        <button className="global-match-save" disabled={matchSaving}>{matchSaving?"Saving…":"Save profile & find matches"}</button>
+      </form>
+      {matchMessage && <p className="global-network-error">{matchMessage}</p>}
+      {matchLoading ? <div className="global-network-empty">Finding collaborators…</div> : <div className="global-match-results">{matches.map(person=><article className="global-match-card" key={person.id}><div className="global-match-person">{person.avatarUrl?<img src={person.avatarUrl} alt=""/>:<span>{person.name.slice(0,1).toUpperCase()}</span>}<div><b>{person.name}</b><small>{[person.course,person.university,person.country].filter(Boolean).join(" · ")}</small></div><strong>{person.score}% match</strong></div><p>{person.bio || "Student open to connecting and sharing knowledge."}</p><div className="global-match-tags">{person.skills.slice(0,4).map(s=><span key={s}>{s}</span>)}{person.interests.slice(0,3).map(s=><span key={s}>{s}</span>)}</div><small>Looking for: {person.lookingFor}</small></article>)}</div>}
+    </section>
     <div className="global-network-toolbar">
       <label className="global-network-search"><Search size={17}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search topics, countries or universities…"/></label>
       <button className="global-network-create" onClick={() => setShowCreate(true)}><Plus size={17}/> Create community</button>
