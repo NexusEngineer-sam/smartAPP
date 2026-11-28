@@ -1,18 +1,24 @@
 self.addEventListener("push", (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch (_) {}
-  const title = data.title || "SAMWEL CAMPUS OS";
+
+  const title = data.title || "NEXUS";
   const options = {
-    body: data.body || "You have a new campus update.",
+    body: data.body || "You have a new NEXUS alert.",
     icon: "/icons/campus-icon.svg",
     badge: "/icons/campus-icon.svg",
-    tag: data.tag || "campus-os",
+    tag: data.tag || "nexus-alert",
     renotify: true,
-    vibrate: [200, 100, 200],
+    requireInteraction: true,
+    silent: false,
+    vibrate: [400, 150, 400, 150, 700],
+    timestamp: Date.now(),
     data: { url: data.url || "/" }
   };
+
   event.waitUntil(self.registration.showNotification(title, options));
 });
+
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const target = new URL(event.notification.data?.url || "/", self.location.origin).href;
