@@ -51,7 +51,7 @@ export default function SocialFeed({user}:{user:{id?:string;name:string;email:st
  useEffect(()=>{
   void load();
   // Synchronize the shared student feed across signed-in app users.
-  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},15000);
+  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},45000);
   const onVisibility=()=>{if(document.visibilityState==="visible")void load();};
   document.addEventListener("visibilitychange",onVisibility);
   return ()=>{window.clearInterval(timer);document.removeEventListener("visibilitychange",onVisibility);};
@@ -61,7 +61,7 @@ export default function SocialFeed({user}:{user:{id?:string;name:string;email:st
   let active=true;
   const refresh=async()=>{try{const r=await fetch("/api/social/comments?postId="+encodeURIComponent(commentPost),{cache:"no-store"});const d=await r.json();if(active&&r.ok)setComments(c=>({...c,[commentPost]:d.comments||[]}));}catch{}};
   void refresh();
-  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh();},5000);
+  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh();},15000);
   return ()=>{active=false;window.clearInterval(timer);};
  },[commentPost]);
  useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview);},[preview]);
