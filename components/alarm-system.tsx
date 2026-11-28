@@ -16,8 +16,10 @@ async function syncNativeAlarms(alarms:Alarm[],requestPermissions=false,requestE
   const {LocalNotifications}=await import("@capacitor/local-notifications");
   const pending=await LocalNotifications.getPending();
   const owned=pending.notifications.filter((item:any)=>item.extra?.kind==="nexus-alarm");
-  if(owned.length)await LocalNotifications.cancel({notifications:owned.map((item:any)=>({id:item.id}))});
-  if(!alarms.some(alarm=>alarm.enabled))return {native:true as const,message:"Hakuna alarm inayowashwa kwa sasa."};
+  if(!alarms.some(alarm=>alarm.enabled)){
+   if(owned.length)await LocalNotifications.cancel({notifications:owned.map((item:any)=>({id:item.id}))});
+   return {native:true as const,message:"Hakuna alarm inayowashwa kwa sasa."};
+  }
   let permission=await LocalNotifications.checkPermissions();
   if(permission.display!=="granted"&&requestPermissions)permission=await LocalNotifications.requestPermissions();
   if(permission.display!=="granted")return {native:true as const,message:"Ruhusu NEXUS kutuma notifications ili alarm za Android zifanye kazi."};
@@ -27,6 +29,7 @@ async function syncNativeAlarms(alarms:Alarm[],requestPermissions=false,requestE
    const changed=await LocalNotifications.changeExactNotificationSetting();
    if(changed.exact_alarm!=="granted")return {native:true as const,message:"Washa ruhusa ya Alarms & reminders kwenye Android Settings ili alarm iweze kufika kwa muda sahihi."};
   }
+  if(owned.length)await LocalNotifications.cancel({notifications:owned.map((item:any)=>({id:item.id}))});
   await LocalNotifications.createChannel({id:"nexus-alarm",name:"NEXUS Alarms",description:"Scheduled NEXUS alarm alerts",importance:5,vibration:true,visibility:1});
   const weekdays=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"] as const;
   const scheduled:any[]=[];
