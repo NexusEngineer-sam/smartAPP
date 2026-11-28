@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Camera, CheckCircle2, GraduationCap, LockKeyhole, Save, ShieldCheck, UserRound } from "lucide-react";
+import GoogleDriveBackupCard from "@/components/google-drive-backup";
 
 type Account = {name:string;email:string;avatarUrl:string|null;university:string|null;faculty:string|null;course:string|null;role:string;createdAt:string};
 export default function AccountSettingsPage(){
@@ -24,6 +25,6 @@ export default function AccountSettingsPage(){
  <div className="account-form-grid"><label>Full name<input required minLength={2} maxLength={80} value={name} onChange={e=>setName(e.target.value)}/></label><label>Email address<input value={account?.email||""} readOnly/><small>Email haiwezi kubadilishwa hapa kwa sasa.</small></label><label>University / College<input required value={university} onChange={e=>setUniversity(e.target.value)} placeholder="Chuo chako"/></label><label>Faculty / College / School<input required value={faculty} onChange={e=>setFaculty(e.target.value)} placeholder="Faculty yako"/></label><label className="account-full">Course / Programme<input required value={course} onChange={e=>setCourse(e.target.value)} placeholder="Kozi unayosoma"/></label></div>
  {error&&<p className="account-error">{error}</p>}{message&&<p className="account-success"><CheckCircle2 size={15}/>{message}</p>}<button className="account-save" disabled={saving}><Save size={16}/>{saving?"Inahifadhi...":"Save profile changes"}</button></form>
  <form className="account-panel" onSubmit={changePassword}><div className="account-panel-title"><div><h2>Login & security</h2><p>Badilisha password ili kulinda account yako.</p></div><LockKeyhole size={21}/></div><div className="account-form-grid"><label>Current password<input type="password" autoComplete="current-password" required value={currentPassword} onChange={e=>setCurrentPassword(e.target.value)}/></label><label>New password<input type="password" autoComplete="new-password" minLength={10} required value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder="Angalau herufi 10"/></label></div>{passwordError&&<p className="account-error">{passwordError}</p>}{passwordMessage&&<p className="account-success"><ShieldCheck size={15}/>{passwordMessage}</p>}<button className="account-save" disabled={changing}><LockKeyhole size={16}/>{changing?"Inabadilisha...":"Update password"}</button><small className="account-security-note">Baada ya kubadilisha password, session za vifaa vingine zitaondolewa.</small></form>
- <div className="account-panel account-meta"><GraduationCap size={19}/><div><b>SAMWEL CAMPUS OS</b><small>Member since {account?new Date(account.createdAt).toLocaleDateString():"—"} · {account?.role||"STUDENT"}</small></div></div></>}
+ <GoogleDriveBackupCard />\n <div className="account-panel account-meta"><GraduationCap size={19}/><div><b>SAMWEL CAMPUS OS</b><small>Member since {account?new Date(account.createdAt).toLocaleDateString():"—"} · {account?.role||"STUDENT"}</small></div></div></>}
  </div></main>;
 }
