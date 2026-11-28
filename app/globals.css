@@ -1148,3 +1148,81 @@ html,body{background:#111318;color:#e7e9ee}
 @media(prefers-reduced-motion:no-preference){
  .social-post,.social-composer,.campus-stories,.nav-item,.mobile-nav-item{transition:background-color .16s ease,border-color .16s ease}
 }
+
+
+/* Open-canvas refinement: remove unnecessary card framing */
+.discovery-facebook-layout,
+.discovery-facebook-layout > .social-feed,
+.social-feed {
+  background: transparent !important;
+}
+.discovery-facebook-layout > .social-feed .campus-stories,
+.discovery-facebook-layout > .social-feed .social-composer,
+.discovery-facebook-layout > .social-feed .social-post,
+.social-feed .campus-stories,
+.social-feed .social-composer,
+.social-feed .social-post,
+.social-feed .social-empty {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.discovery-facebook-layout > .social-feed .campus-stories,
+.social-feed .campus-stories {
+  padding: 12px 0 16px !important;
+  border-bottom: 1px solid var(--campus-border, #30343d) !important;
+}
+.discovery-facebook-layout > .social-feed .social-composer,
+.social-feed .social-composer {
+  padding: 14px 0 !important;
+  border-bottom: 1px solid var(--campus-border, #30343d) !important;
+}
+.discovery-facebook-layout > .social-feed .social-post,
+.social-feed .social-post {
+  padding: 17px 0 !important;
+  border-bottom: 1px solid var(--campus-border, #30343d) !important;
+}
+.social-feed .social-whats-on-mind {
+  background: #272c35;
+  border: 0;
+  border-radius: 24px;
+}
+.social-feed .social-post-media,
+.social-feed .social-media-preview {
+  border-radius: 4px;
+  overflow: hidden;
+}
+.social-feed .social-comment {
+  border-radius: 16px;
+}
+.social-feed .social-feed-heading {
+  padding: 12px 0 4px;
+  border: 0;
+}
+.social-feed .social-post-actions button {
+  border-radius: 6px;
+}
+.social-feed .social-compose-expanded textarea {
+  border-radius: 0;
+}
+.social-feed .social-empty {
+  padding: 28px 0;
+}
+@media (max-width: 650px) {
+  .discovery-facebook-layout > .social-feed,
+  .social-feed {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    gap: 0 !important;
+  }
+  .social-feed .campus-stories { padding-left: 0 !important; padding-right: 0 !important; }
+  .social-feed .social-composer,
+  .social-feed .social-post { padding-left: 0 !important; padding-right: 0 !important; }
+}
+
+/* Keep utility modules readable without turning every section into a card */
+.page-content .surface-card,
+.page-content .timetable-card {
+  box-shadow: none;
+}
