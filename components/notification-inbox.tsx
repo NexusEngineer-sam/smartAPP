@@ -46,7 +46,7 @@ export default function NotificationInbox() {
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") void load();
     };
-    const timer = window.setInterval(refreshWhenVisible, 15000);
+    const timer = window.setInterval(refreshWhenVisible, 30000);
     window.addEventListener("focus", refreshWhenVisible);
     document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
