@@ -29,6 +29,9 @@ export default function StudyPlanner(){
  }
  useEffect(()=>{void load();},[]);
  const upcoming=useMemo(()=>items.filter(x=>!x.done).sort((a,b)=>new Date(a.startsAt).getTime()-new Date(b.startsAt).getTime()),[items]);
+ const completedCount=useMemo(()=>items.filter(x=>x.done).length,[items]);
+ const examCount=useMemo(()=>upcoming.filter(x=>x.kind==="EXAM").length,[upcoming]);
+ const assignmentCount=useMemo(()=>upcoming.filter(x=>x.kind==="ASSIGNMENT").length,[upcoming]);
  async function add(){
   if(!title.trim()||!date||!time){setError("Jaza jina, tarehe na muda.");return;}
   setBusy(true);setError("");setNotice("");
@@ -53,6 +56,12 @@ export default function StudyPlanner(){
  const label=(k:Kind)=>kinds.find(x=>x.value===k)?.label||k;
  return <section className="study-planner">
   <div className="study-planner-hero"><div><span className="study-kicker"><GraduationCap size={15}/> SMART ACADEMIC ASSISTANT</span><h2>Panga muda wako. Fikia malengo yako.</h2><p>Ratiba unazoweka ni zako binafsi na zinahifadhiwa kwenye akaunti yako.</p></div><div className="study-hero-icon"><CalendarDays size={29}/></div></div>
+  <div className="study-overview-grid" aria-label="Muhtasari wa maendeleo ya masomo">
+   <article className="study-overview-card"><span>Ratiba zinazosubiri</span><strong>{upcoming.length}</strong><small>Shughuli ambazo hazijakamilika</small></article>
+   <article className="study-overview-card"><span>Mitihani ijayo</span><strong>{examCount}</strong><small>Mitihani uliyoipanga</small></article>
+   <article className="study-overview-card"><span>Assignments</span><strong>{assignmentCount}</strong><small>Kazi zinazohitaji kukamilishwa</small></article>
+   <article className="study-overview-card"><span>Zilizokamilika</span><strong>{completedCount}</strong><small>Hatua ulizokwishaweka tiki</small></article>
+  </div>
   <div className="study-layout">
    <section className="surface-card study-form-card"><div className="card-heading"><div><h3><Plus size={16}/> Ongeza ratiba</h3><p>Jaza taarifa za lecture au kazi ya masomo.</p></div></div>
     <label>Aina ya ratiba<select value={kind} onChange={e=>{setKind(e.target.value as Kind);setRepeat(false);}}>{kinds.map(x=><option key={x.value} value={x.value}>{x.label}</option>)}</select></label>
