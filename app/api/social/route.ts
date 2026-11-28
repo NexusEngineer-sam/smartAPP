@@ -15,7 +15,8 @@ export async function GET() {
       u."id" AS "authorId", u."name" AS "authorName", u."avatarUrl" AS "authorAvatar",
       (SELECT COUNT(*)::int FROM "SocialPostLike" l WHERE l."postId"=p."id") AS "likes",
       EXISTS(SELECT 1 FROM "SocialPostLike" mine WHERE mine."postId"=p."id" AND mine."userId"=${user.id}) AS "likedByMe",
-      (SELECT COUNT(*)::int FROM "SocialPostComment" c WHERE c."postId"=p."id") AS "comments"
+      (SELECT COUNT(*)::int FROM "SocialPostComment" c WHERE c."postId"=p."id") AS "comments",
+      EXISTS(SELECT 1 FROM "SocialPostSave" s WHERE s."postId"=p."id" AND s."userId"=${user.id}) AS "savedByMe"
     FROM "SocialPost" p JOIN "User" u ON u."id"=p."userId"
     WHERE u."isActive"=true
     ORDER BY p."createdAt" DESC LIMIT 50
