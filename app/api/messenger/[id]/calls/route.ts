@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { sendPushToUser } from "@/lib/push";
 
 type Ctx = { params: Promise<{ id: string }> };
 const startSchema = z.object({ kind: z.enum(["AUDIO", "VIDEO"]), offer: z.record(z.string(), z.unknown()) });
@@ -71,7 +72,7 @@ export async function POST(request: Request, { params }: Ctx) {
       INSERT INTO "MessengerCall" ("id","conversationId","callerId","calleeId","kind","status","offer","createdAt","updatedAt")
       VALUES (${callId},${id},${user.id},${member.peerId},${parsed.data.kind},'RINGING',${JSON.stringify(parsed.data.offer)}::jsonb,NOW(),NOW())
     `;
-    return NextResponse.json({ callId, status: "RINGING" }, { status: 201 });
+    void sendPushToUser(member.peerId, parsed.data.kind === "VIDEO" ? `Incoming video call from ${user.name}` : `Incoming voice call from ${user.name}`, "Open NEXUS Messenger to answer.", "/").catch(error => console.error("[messenger:calls:push]", error));\n    return NextResponse.json({ callId, status: "RINGING" }, { status: 201 });
   } catch (error) {
     console.error("[messenger:calls:POST]", error);
     return NextResponse.json({ error: "Could not start call." }, { status: 500 });
