@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Heart, MessageCircle, Send, Megaphone, ShieldCheck, Eye, Image as ImageIcon, ExternalLink, Sparkles, BadgeCheck, Upload, X } from "lucide-react";
+import { Heart, MessageCircle, Send, Megaphone, ShieldCheck, Eye, ExternalLink, BadgeCheck, Upload, X, Share2 } from "lucide-react";
 
 type Comment = { id:string; body:string; createdAt:string; user:{id:string;name:string;avatarUrl:string|null} };
 type Campaign = { id:string; businessName:string; title:string; description:string; contact:string; budgetTzs:number; mediaUrl:string|null; status:"PENDING"|"APPROVED"|"REJECTED"; createdAt:string; advertiserId?:string; _count:{likes:number;comments:number}; likes:{id:string}[]; comments:Comment[] };
@@ -31,14 +31,14 @@ export default function BusinessCenter({role}:{role:string}) {
   <header className="campus-ads-hero"><div><span className="eyebrow">CAMPUS COMMUNITY • CREATOR ECONOMY</span><h2>Campus <em>Spotlight</em></h2><p>Biashara, huduma na vipaji vya wanafunzi — sehemu moja yenye nguvu.</p></div><div className="campus-free-pill"><Sparkles size={15}/> 100% BURE KWA SASA</div></header>
   <div className="campus-ads-layout"><main className="campus-ad-feed">
    <div className="campus-feed-toolbar"><div><b>Kwa ajili ya campus</b><small>Matangazo mapya kutoka kwenye jamii ya chuo</small></div><span><Eye size={14}/> LIVE FEED</span></div>
-   {visible.length===0?<div className="campus-ad-empty"><Megaphone size={30}/><b>Bado hakuna tangazo</b><span>Anza kwa kuweka tangazo lako la kwanza — ni bure.</span></div>:visible.map(ad=><article className="campus-ad-post" key={ad.id}>
+   {visible.length===0?<div className="campus-ad-empty"><Megaphone size={30}/><b>Bado hakuna tangazo</b><span>Anza kwa kuweka tangazo lako la kwanza — ni bure.</span></div>:visible.map(ad=><article className="campus-ad-post" id={"ad-"+ad.id} key={ad.id}>
     <div className="campus-ad-author"><span className="campus-ad-avatar">{ad.businessName.slice(0,1).toUpperCase()}</span><div><b>{ad.businessName} <BadgeCheck size={13}/></b><small>{new Date(ad.createdAt).toLocaleDateString()} · {ad.status==="PENDING"?"Inasubiri ukaguzi":"Campus promotion"}</small></div><span className="campus-ad-tag">PROMO</span></div>
     <div className="campus-ad-copy"><h3>{ad.title}</h3><p>{ad.description}</p></div>
     <div className="campus-ad-media-wrap">{media(ad.mediaUrl)}</div>
     <div className="campus-ad-actions">
      <button className={ad.likes.length?"liked":""} onClick={()=>void interact(ad.id,ad.likes.length?"unlike":"like")}><Heart size={20} fill={ad.likes.length?"currentColor":"none"}/><b>{ad._count.likes}</b><small>Like</small></button>
      <button onClick={()=>setCommentOpen(commentOpen===ad.id?null:ad.id)}><MessageCircle size={20}/><b>{ad._count.comments}</b><small>Comment</small></button>
-     <button onClick={()=>{void navigator.clipboard?.writeText(ad.contact);setMessage("Mawasiliano yamenakiliwa.");}}><Send size={19}/><small>Contact</small></button>
+     <button onClick={()=>{void navigator.clipboard?.writeText(ad.contact);setMessage("Mawasiliano yamenakiliwa.");}}><Send size={19}/><small>Contact</small></button>\n     <button onClick={()=>{const url=window.location.origin+window.location.pathname+"#ad-"+ad.id;if(navigator.share){void navigator.share({title:ad.title,text:ad.description,url}).catch(()=>{});}else{void navigator.clipboard?.writeText(url);setMessage("Kiungo cha tangazo kimenakiliwa.");}}}><Share2 size={18}/><small>Share</small></button>
      <a href={ad.contact.startsWith("http")?ad.contact:ad.contact.includes("@")?"mailto:"+ad.contact:"tel:"+ad.contact}><ExternalLink size={18}/><small>Reach out</small></a>
     </div>
     {commentOpen===ad.id&&<div className="campus-ad-comments"><b>Maoni ya jamii</b>{ad.comments.map(c=><div className="campus-ad-comment" key={c.id}><span>{c.user.name.slice(0,1).toUpperCase()}</span><p><b>{c.user.name}</b>{c.body}</p></div>)}<form onSubmit={e=>{e.preventDefault();const body=commentDrafts[ad.id]?.trim();if(body)void interact(ad.id,"comment",body);}}><input value={commentDrafts[ad.id]||""} onChange={e=>setCommentDrafts(old=>({...old,[ad.id]:e.target.value}))} maxLength={1000} placeholder="Andika comment yako..."/><button disabled={!commentDrafts[ad.id]?.trim()}><Send size={16}/></button></form></div>}
