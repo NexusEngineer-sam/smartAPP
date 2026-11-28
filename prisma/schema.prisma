@@ -53,6 +53,8 @@ model User {
   eventRegistrations EventRegistration[]
   globalCommunityMemberships GlobalCommunityMembership[]
   createdGlobalCommunities GlobalCommunity[]
+  globalCommunityPosts GlobalCommunityPost[]
+  globalCommunityMessages GlobalCommunityMessage[]
   @@index([classGroupId])
 }
 
@@ -437,4 +439,27 @@ model GlobalCommunityMembership {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([communityId, userId])
   @@index([userId])
+}
+
+
+model GlobalCommunityPost {
+  id          String   @id @default(cuid())
+  communityId String
+  userId      String
+  body        String   @db.VarChar(2000)
+  createdAt   DateTime @default(now())
+  community   GlobalCommunity @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([communityId, createdAt])
+}
+
+model GlobalCommunityMessage {
+  id          String   @id @default(cuid())
+  communityId String
+  userId      String
+  body        String   @db.VarChar(2000)
+  createdAt   DateTime @default(now())
+  community   GlobalCommunity @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([communityId, createdAt])
 }
