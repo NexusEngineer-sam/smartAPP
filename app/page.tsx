@@ -6,5 +6,5 @@ export default async function HomePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (!user.profileCompleted) redirect("/onboarding");
-  return <Dashboard user={{ name: user.name, email: user.email, role: user.role, avatarUrl: user.avatarUrl }} />;
+  return <Dashboard user={{ id: user.id, name: user.name, email: user.email, role: user.role, avatarUrl: user.avatarUrl }} />;
 }
