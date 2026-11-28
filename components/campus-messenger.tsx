@@ -18,7 +18,7 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  const [mobileChat,setMobileChat]=useState(false);
  const activeName=useMemo(()=>selected?.title||selected?.otherUsers.map(x=>x.name).join(", ")||"Conversation",[selected]);
  const load=useCallback(async()=>{
-  try{const r=await fetch("/api/messenger"+(query.trim()?"?q="+encodeURIComponent(query.trim()):""),{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load messages.");setConversations(d.conversations||[]);setUsers(d.users||[]);}
+  try{const r=await fetch("/api/messenger"+(query.trim()?"?q="+encodeURIComponent(query.trim()):""),{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load messages.");setConversations(d.conversations||[]);setUsers(d.users||[]);setSelected(previous=>previous?((d.conversations||[]).find((item:Conversation)=>item.id===previous.id)||previous):null);}
   catch(e){setError(e instanceof Error?e.message:"Messenger unavailable.");}finally{setLoading(false);}
  },[query]);
  useEffect(()=>{const t=window.setTimeout(()=>void load(),250);return()=>window.clearTimeout(t)},[load]);
