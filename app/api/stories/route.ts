@@ -19,6 +19,7 @@ async function ensureStoriesTable() {
     )
   `);
   await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "CampusStory_expiresAt_createdAt_idx" ON "CampusStory" ("expiresAt","createdAt")`);
+  await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "CampusStoryView" ("id" TEXT PRIMARY KEY, "storyId" TEXT NOT NULL REFERENCES "CampusStory"("id") ON DELETE CASCADE, "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE, "viewedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "CampusStoryView_storyId_userId_key" UNIQUE ("storyId","userId"))`);
 }
 
 export async function GET() {
@@ -28,7 +29,7 @@ export async function GET() {
     await ensureStoriesTable();
     const stories = await prisma.$queryRaw<Array<Record<string, unknown>>> `
       SELECT s."id",s."content",s."mediaUrl",s."mediaType",s."createdAt",s."expiresAt",
-        u."id" AS "authorId",u."name" AS "authorName",u."avatarUrl" AS "authorAvatar"
+        u."id" AS "authorId",u."name" AS "authorName",u."avatarUrl" AS "authorAvatar", EXISTS(SELECT 1 FROM "CampusStoryView" v WHERE v."storyId"=s."id" AND v."userId"=${user.id}) AS "hasViewed"
       FROM "CampusStory" s JOIN "User" u ON u."id"=s."userId"
       WHERE s."expiresAt">NOW() AND u."isActive"=true
       ORDER BY s."createdAt" DESC LIMIT 100
