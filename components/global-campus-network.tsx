@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Globe2, Search, Users, Plus, Languages, MapPin, ArrowUpRight, LoaderCircle, X } from "lucide-react";
+import { Globe2, Search, Users, Plus, Languages, MapPin, ArrowUpRight, LoaderCircle, X, MessageSquareText, Send, Languages } from "lucide-react";
 
+type CommunityPost = { id:string; body:string; createdAt:string; authorId:string; authorName:string; authorAvatar?:string|null };
+type CommunityMessage = CommunityPost;
 type Community = {
   id: string; name: string; country: string; university: string | null; category: string;
   description: string; language: string; memberCount: number; joined: boolean;
@@ -19,6 +21,14 @@ export default function GlobalCampusNetwork() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ name: "", country: "", university: "", category: "General", description: "", language: "English" });
   const [saving, setSaving] = useState(false);
+  const [selected, setSelected] = useState<Community | null>(null);
+  const [spaceTab, setSpaceTab] = useState<"discussion"|"chat">("discussion");
+  const [communityPosts, setCommunityPosts] = useState<CommunityPost[]>([]);
+  const [communityMessages, setCommunityMessages] = useState<CommunityMessage[]>([]);
+  const [spaceDraft, setSpaceDraft] = useState("");
+  const [spaceLoading, setSpaceLoading] = useState(false);
+  const [spaceSending, setSpaceSending] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState("en");
 
   const load = useCallback(async () => {
     setLoading(true); setError("");
@@ -61,6 +71,51 @@ export default function GlobalCampusNetwork() {
 
   const joinedCount = useMemo(() => items.filter(x => x.joined).length, [items]);
 
+  const loadSpace = useCallback(async (community: Community, tab: "discussion"|"chat") => {
+    setSpaceLoading(true);
+    try {
+      const endpoint = tab === "discussion" ? "posts" : "chat";
+      const response = await fetch(`/api/global-network/communities/${community.id}/${endpoint}`, { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load community space.");
+      if (tab === "discussion") setCommunityPosts(data.posts || []);
+      else setCommunityMessages(data.messages || []);
+    } catch (e) { setError(e instanceof Error ? e.message : "Community space unavailable."); }
+    finally { setSpaceLoading(false); }
+  }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    void loadSpace(selected, spaceTab);
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") void loadSpace(selected, spaceTab);
+    }, 7000);
+    return () => window.clearInterval(timer);
+  }, [selected, spaceTab, loadSpace]);
+
+  async function sendToSpace(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selected || !spaceDraft.trim() || spaceSending) return;
+    setSpaceSending(true); setError("");
+    try {
+      const endpoint = spaceTab === "discussion" ? "posts" : "chat";
+      const response = await fetch(`/api/global-network/communities/${selected.id}/${endpoint}`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: spaceDraft.trim() })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Message could not be sent.");
+      if (spaceTab === "discussion") setCommunityPosts(v => [data.post, ...v]);
+      else setCommunityMessages(v => [...v, data.message]);
+      setSpaceDraft("");
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not send."); }
+    finally { setSpaceSending(false); }
+  }
+
+  function translateText(value: string) {
+    const url = "https://translate.google.com/?sl=auto&tl=" + encodeURIComponent(targetLanguage) + "&text=" + encodeURIComponent(value) + "&op=translate";
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
   return <section className="global-network">
     <div className="global-network-hero">
       <div className="global-network-orbit"><Globe2 size={34}/></div>
@@ -79,8 +134,18 @@ export default function GlobalCampusNetwork() {
         <h3>{item.name}</h3><p>{item.description}</p>
         <div className="global-community-meta"><span><MapPin size={14}/>{item.country}</span>{item.university && <span>{item.university}</span>}</div>
         <div className="global-community-footer"><span><Users size={15}/>{item.memberCount.toLocaleString()} members</span><span><Languages size={14}/>{item.language}</span></div>
-        <button className={item.joined ? "global-community-joined" : "global-community-join"} disabled={busy === item.id} onClick={() => void toggleJoin(item)}>{busy === item.id ? "Please wait…" : item.joined ? "Joined · Leave" : "Join community"} <ArrowUpRight size={15}/></button>
+        <div className="global-community-actions">{item.joined && <button className="global-community-space" onClick={() => { setSelected(item); setSpaceTab("discussion"); setError(""); }}><MessageSquareText size={15}/> Open space</button>}<button className={item.joined ? "global-community-joined" : "global-community-join"} disabled={busy === item.id} onClick={() => void toggleJoin(item)}>{busy === item.id ? "Please wait…" : item.joined ? "Leave" : "Join community"} <ArrowUpRight size={15}/></button></div>
       </article>)}</div>}
+    {selected && <div className="global-network-modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setSelected(null); }}><section className="global-network-space">
+      <header className="global-network-space-head"><div><span className="eyebrow">CROSS-CAMPUS COMMUNITY</span><h3>{selected.name}</h3><p>{selected.country}{selected.university ? " · " + selected.university : ""}</p></div><button type="button" onClick={() => setSelected(null)} aria-label="Close"><X size={20}/></button></header>
+      <div className="global-network-space-tools"><div className="global-network-tabs"><button className={spaceTab==="discussion"?"active":""} onClick={() => setSpaceTab("discussion")}><MessageSquareText size={15}/> Discussions</button><button className={spaceTab==="chat"?"active":""} onClick={() => setSpaceTab("chat")}><Users size={15}/> Live chat</button></div><label className="global-network-language"><Languages size={15}/><select value={targetLanguage} onChange={e=>setTargetLanguage(e.target.value)}><option value="en">English</option><option value="sw">Kiswahili</option><option value="fr">Français</option><option value="es">Español</option><option value="pt">Português</option><option value="ar">العربية</option><option value="ja">日本語</option><option value="zh-CN">中文</option></select></label></div>
+      <div className="global-network-space-feed">{spaceLoading && <div className="global-network-empty"><LoaderCircle size={20}/> Loading…</div>}
+        {!spaceLoading && (spaceTab==="discussion"?communityPosts:communityMessages).length===0 && <div className="global-network-empty"><Globe2 size={25}/><b>Start the international conversation</b><span>Share a question, idea or useful resource with members.</span></div>}
+        {(spaceTab==="discussion"?communityPosts:communityMessages).map(post=><article className="global-space-post" key={post.id}><div className="global-space-author"><span>{post.authorAvatar?<img src={post.authorAvatar} alt=""/>:post.authorName.slice(0,1).toUpperCase()}</span><div><b>{post.authorName}</b><small>{new Date(post.createdAt).toLocaleString()}</small></div></div><p>{post.body}</p><button onClick={()=>translateText(post.body)}><Languages size={14}/> Translate</button></article>)}
+      </div>
+      <form className="global-network-space-compose" onSubmit={sendToSpace}><textarea value={spaceDraft} onChange={e=>setSpaceDraft(e.target.value)} maxLength={2000} placeholder={spaceTab==="discussion"?"Share an idea or ask the global community…":"Write a message to community members…"} /><button disabled={spaceSending||!spaceDraft.trim()}><Send size={16}/>{spaceSending?"Sending…":spaceTab==="discussion"?"Publish":"Send"}</button></form>
+      <p className="global-network-translation-note"><Languages size={13}/> Translate opens Google Translate in a new tab; it does not alter the original message.</p>
+    </section></div>}
     {showCreate && <div className="global-network-modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setShowCreate(false); }}><form className="global-network-modal" onSubmit={createCommunity}>
       <div className="global-network-modal-heading"><div><span className="eyebrow">GROW THE NETWORK</span><h3>Create a global community</h3></div><button type="button" onClick={() => setShowCreate(false)} aria-label="Close"><X size={19}/></button></div>
       <label>Community name<input required minLength={3} maxLength={100} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="e.g. African AI Researchers"/></label>
