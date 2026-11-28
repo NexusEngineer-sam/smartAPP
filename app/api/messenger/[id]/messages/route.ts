@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { sendPushToUser } from "@/lib/push";
 type Context={params:Promise<{id:string}>};
 async function getMessages(_request:Request,{params}:Context){
  const user=await getCurrentUser();if(!user)return NextResponse.json({error:"Sign in required."},{status:401});
@@ -29,6 +30,11 @@ async function createMessage(request:Request,{params}:Context){
  const parsed=schema.safeParse(body);if(!parsed.success)return NextResponse.json({error:"Message must contain 1–4000 characters."},{status:400});
  const message=await prisma.chatMessage.create({data:{conversationId:id,senderId:user.id,body:parsed.data.body},include:{sender:{select:{id:true,name:true,avatarUrl:true}}}});
  await prisma.chatConversation.update({where:{id},data:{updatedAt:new Date()}});
+ const recipient=conversation.participants.find(p=>p.userId!==user.id);
+ if(recipient){
+  const preview=parsed.data.body.length>120?parsed.data.body.slice(0,117)+"…":parsed.data.body;
+  void sendPushToUser(recipient.userId,`Ujumbe mpya kutoka ${user.name}`,preview,"/").catch(error=>console.error("[messenger:push]",error));
+ }
  return NextResponse.json({message},{status:201});
 }
 export async function GET(request:Request,context:Context){try{return await getMessages(request,context)}catch(error){console.error("[messenger:messages:GET]",error);return NextResponse.json({error:"Ujumbe haukuweza kupakiwa. Jaribu tena."},{status:500})}}
