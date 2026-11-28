@@ -37,7 +37,12 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getCurrentUser();
+  let user = await getCurrentUser();
+  const cronSecret = process.env.CAMPUS_BACKUP_CRON_SECRET;
+  if (!user && cronSecret && request.headers.get("authorization") === `Bearer ${cronSecret}`) {
+    const internalBody = await request.json().catch(() => ({})) as { userId?: string };
+    if (internalBody.userId) user = await prisma.user.findUnique({ where: { id: internalBody.userId } });
+  }
   if (!user) return NextResponse.json({ error: "Tafadhali ingia kwanza." }, { status: 401 });
   if (!googleOAuthConfigured()) return NextResponse.json({ error: "Google Drive haijawekwa kwenye server bado." }, { status: 503 });
   try {
@@ -58,7 +63,7 @@ export async function POST(request: NextRequest) {
       prisma.classMessage.findMany({ where: { senderId: user.id }, orderBy: { createdAt: "asc" } }),
       prisma.campusVideo.findMany({ where: { userId: user.id }, orderBy: { createdAt: "asc" } }),
       prisma.adCampaign.findMany({ where: { advertiserId: user.id }, include: { likes: { where: { userId: user.id }, select: { createdAt: true } }, comments: { where: { userId: user.id }, select: { body: true, createdAt: true } } } }),
-      prisma.chatParticipant.findMany({ where: { userId: user.id }, include: { conversation: { include: { participants: { select: { userId: true, joinedAt: true } }, messages: { orderBy: { createdAt: "asc" } } } } } }),
+      prisma.chatParticipant.findMany({ where: { userId: user.id }, include: { conversation: { include: { participants: { select: { userId: true, joinedAt: true } }, messages: { where: { senderId: user.id }, orderBy: { createdAt: "asc" } } } } } }),
       prisma.user.findUnique({ where: { id: user.id }, select: { classGroup: { select: { name: true } } } }),
       prisma.$queryRawUnsafe<Array<Record<string, unknown>>>('SELECT "id","content","mediaUrl","mediaType","createdAt","updatedAt" FROM "SocialPost" WHERE "userId" = $1 ORDER BY "createdAt" ASC', user.id),
       prisma.$queryRawUnsafe<Array<Record<string, unknown>>>('SELECT "id","postId","body","createdAt" FROM "SocialPostComment" WHERE "userId" = $1 ORDER BY "createdAt" ASC', user.id),
