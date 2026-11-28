@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, X, ImagePlus, Video, Send, ChevronRight, LoaderCircle, Clock3, MessageCircle, Eye, Heart, Trash2 } from "lucide-react";
 
-type Story = { id:string; content:string; mediaUrl:string|null; mediaType:"image"|"video"|null; createdAt:string; expiresAt:string; authorId:string; authorName:string; authorAvatar?:string|null };
+type Story = { id:string; content:string; mediaUrl:string|null; mediaType:"image"|"video"|null; createdAt:string; expiresAt:string; authorId:string; authorName:string; authorAvatar?:string|null; hasViewed?:boolean };
 type Props = { user:{id?:string;name:string;avatarUrl?:string|null} };
 type StoryReply = {id:string;body:string;createdAt:string;authorName:string;authorAvatar?:string|null};
 type StoryViewer = {userId:string;name:string;avatarUrl?:string|null;viewedAt:string};
@@ -21,7 +21,9 @@ export default function CampusStories({user}:Props) {
   const [likes,setLikes]=useState<StoryLike[]>([]);
   const [myLiked,setMyLiked]=useState(false);
   const [engagementBusy,setEngagementBusy]=useState(false);
-  const [heartBurst,setHeartBurst]=useState(false);\n  const [deleteBusy,setDeleteBusy]=useState(false);\n  const [deleteError,setDeleteError]=useState("");
+  const [heartBurst,setHeartBurst]=useState(false);
+  const [deleteBusy,setDeleteBusy]=useState(false);
+  const [deleteError,setDeleteError]=useState("");
   const [content,setContent]=useState("");
   const [file,setFile]=useState<File|null>(null);
   const [preview,setPreview]=useState("");
@@ -43,8 +45,8 @@ const r=await fetch("/api/stories",{method:"POST",headers:{"Content-Type":"appli
   return <section className="campus-stories">
     <div className="campus-stories-heading"><div><span className="social-kicker">CAMPUS STORIES</span><h3>Status za saa 24</h3></div><span><Clock3 size={13}/> Huisha baada ya saa 24</span></div>
     <div className="campus-stories-rail">
-      <button type="button" className="campus-story-tile create" onClick={()=>setOpen(true)}><span className="campus-story-ring own"><span className="campus-story-avatar">{user.avatarUrl?<img src={user.avatarUrl} alt=""/>:initials}</span><i><Plus size={15}/></i></span><b>Story yako</b><small>Ongeza status</small></button>
-      {stories.map(story=><button type="button" className="campus-story-tile" key={story.id} onClick={()=>setViewing(story)}><span className="campus-story-ring"><span className="campus-story-avatar">{story.mediaUrl&&story.mediaType==="image"?<img src={story.mediaUrl} alt=""/>:story.authorAvatar?<img src={story.authorAvatar} alt=""/>:story.authorName.slice(0,1).toUpperCase()}</span></span><b>{story.authorId===user.id?"Story yako":story.authorName.split(" ")[0]}</b><small>{new Date(story.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</small></button>)}
+      {stories.some(story=>story.authorId===user.id)?(()=>{const own=stories.find(story=>story.authorId===user.id)!;return <div className="campus-story-own-wrap"><button type="button" className="campus-story-tile" onClick={()=>setViewing(own)}><span className="campus-story-ring own"><span className="campus-story-avatar">{own.mediaUrl&&own.mediaType==="image"?<img src={own.mediaUrl} alt=""/>:user.avatarUrl?<img src={user.avatarUrl} alt=""/>:initials}</span></span><b>Story yako</b><small>Angalia status</small></button><button type="button" className="campus-story-add-again" onClick={()=>setOpen(true)} aria-label="Ongeza status nyingine"><Plus size={15}/></button></div>})():<button type="button" className="campus-story-tile create" onClick={()=>setOpen(true)}><span className="campus-story-ring own"><span className="campus-story-avatar">{user.avatarUrl?<img src={user.avatarUrl} alt=""/>:initials}</span><i><Plus size={15}/></i></span><b>Story yako</b><small>Ongeza status</small></button>}
+      {stories.filter(story=>story.authorId!==user.id).map(story=><button type="button" className={"campus-story-tile"+(story.hasViewed?" viewed":" unseen")} key={story.id} onClick={()=>setViewing(story)}><span className="campus-story-ring"><span className="campus-story-avatar">{story.mediaUrl&&story.mediaType==="image"?<img src={story.mediaUrl} alt=""/>:story.authorAvatar?<img src={story.authorAvatar} alt=""/>:story.authorName.slice(0,1).toUpperCase()}</span></span><b>{story.authorName.split(" ")[0]}</b><small>{story.hasViewed?"Umeangalia":new Date(story.createdAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</small></button>)}
       {stories.length===0&&<div className="campus-stories-empty">Hakuna status mpya. Kuwa wa kwanza kushare.</div>}
     </div>
     {open&&<div className="campus-story-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setOpen(false);}}><form className="campus-story-compose" onSubmit={publish}><header><div><span className="social-kicker">SHARE A MOMENT</span><h3>Weka status yako</h3></div><button type="button" onClick={()=>setOpen(false)} aria-label="Close"><X/></button></header><textarea value={content} onChange={e=>setContent(e.target.value)} maxLength={500} placeholder="Unaendeleaje leo? Share na campus…"/>{preview&&<div className="campus-story-preview">{file?.type.startsWith("video/")?<video src={preview} controls/>:<img src={preview} alt="Story preview"/>}</div>}<div className="campus-story-actions"><button type="button" onClick={()=>{if(inputRef.current){inputRef.current.accept="image/*";inputRef.current.click();}}}><ImagePlus size={17}/> Picha</button><button type="button" onClick={()=>{if(inputRef.current){inputRef.current.accept="video/*";inputRef.current.click();}}}><Video size={17}/> Video</button><input ref={inputRef} type="file" hidden onChange={e=>choose(e.target.files?.[0]||null)}/><small>{content.length}/500 · Picha 12 MB · Video 100 MB</small></div>{error&&<p className="social-error">{error}</p>}<button className="campus-story-publish" disabled={busy||(!content.trim()&&!file)}>{busy?<><LoaderCircle size={16}/> Inachapisha…</>:<><Send size={16}/> Chapisha status</>}</button></form></div>}
