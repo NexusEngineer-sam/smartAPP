@@ -15,7 +15,21 @@ export async function GET(request:Request) {
   where:{id:{not:user.id},isActive:true,OR:[{name:{contains:q,mode:"insensitive"}},{university:{contains:q,mode:"insensitive"}},{course:{contains:q,mode:"insensitive"}}]},
   select:{id:true,name:true,avatarUrl:true,university:true,course:true},take:15
  }):[];
- return NextResponse.json({conversations:conversations.map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>p.user),lastMessage:c.messages[0]||null})),users});
+ const people=[...new Set([...conversations.flatMap(c=>c.participants.filter(p=>p.userId!==user.id).map(p=>p.userId)),...users.map(p=>p.id)])];
+ const cutoff=new Date(Date.now()-75_000);
+ const activity=people.length?await prisma.engagementSession.findMany({
+  where:{userId:{in:people},endedAt:null,lastSeenAt:{gte:cutoff}},
+  select:{userId:true,lastSeenAt:true},orderBy:{lastSeenAt:"desc"},take:500
+ }):[];
+ const presence=new Map<string,string>();
+ for(const item of activity)if(!presence.has(item.userId))presence.set(item.userId,item.lastSeenAt.toISOString());
+ const withPresence=(person:{id:string;name:string;avatarUrl:string|null;university?:string|null;course?:string|null})=>({
+  ...person,online:presence.has(person.id),lastSeenAt:presence.get(person.id)||null
+ });
+ return NextResponse.json({
+  conversations:conversations.map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
+  users:users.map(withPresence)
+ });
 }
 const createSchema=z.object({recipientId:z.string().min(1)});
 export async function POST(request:Request) {
