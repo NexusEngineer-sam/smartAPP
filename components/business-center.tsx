@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Heart, MessageCircle, Send, Megaphone, ShieldCheck, Eye, ExternalLink, BadgeCheck, Upload, X, Share2 } from "lucide-react";
+import { Heart, MessageCircle, Send, Megaphone, ShieldCheck, Eye, ExternalLink, BadgeCheck, Upload, X, Share2, Sparkles, Image as ImageIcon } from "lucide-react";
 
 type Comment = { id:string; body:string; createdAt:string; user:{id:string;name:string;avatarUrl:string|null} };
 type Campaign = { id:string; businessName:string; title:string; description:string; contact:string; budgetTzs:number; mediaUrl:string|null; status:"PENDING"|"APPROVED"|"REJECTED"; createdAt:string; advertiserId?:string; _count:{likes:number;comments:number}; likes:{id:string}[]; comments:Comment[] };
