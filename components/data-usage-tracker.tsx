@@ -51,7 +51,7 @@ export default function DataUsageTracker() {
     } catch {
       return;
     }
-    timer = window.setInterval(() => { void flush(); }, 30000);
+    timer = window.setInterval(() => { void flush(); }, 60000);
     const onHide = () => { void flush(); };
     document.addEventListener("visibilitychange", onHide);
     window.addEventListener("pagehide", onHide);
