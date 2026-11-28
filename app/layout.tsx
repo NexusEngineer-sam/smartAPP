@@ -1,20 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./nexus-premium.css";
 import LaunchSplash from "@/components/launch-splash";
 
 export const metadata: Metadata = {
-  title: { default: "SAMWEL CAMPUS OS", template: "%s | SAMWEL CAMPUS OS" },
-  description: "A secure, intelligent operating system for university life.",
-  applicationName: "SAMWEL CAMPUS OS",
+  title: { default: "NEXUS", template: "%s | NEXUS" },
+  description: "NEXUS — One Ecosystem. Infinite Connections.",
+  applicationName: "NEXUS",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Campus OS" },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "NEXUS" },
+  openGraph: { title: "NEXUS", description: "One Ecosystem. Infinite Connections.", siteName: "NEXUS", type: "website" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false,
+  userScalable: true,
+  themeColor: "#101a38",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -1,12 +1,12 @@
 {
-  "name": "SAMWEL CAMPUS OS",
-  "short_name": "Campus OS",
-  "description": "Your intelligent university workspace.",
+  "name": "NEXUS",
+  "short_name": "NEXUS",
+  "description": "One Ecosystem. Infinite Connections.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f6f7fb",
-  "theme_color": "#171629",
+  "background_color": "#f5f7fb",
+  "theme_color": "#101a38",
   "icons": [
     {
       "src": "/icons/campus-icon.svg",
