@@ -27,14 +27,16 @@ export default function SocialFeed({user}:{user:{id?:string;name:string;email:st
  const burstId=useRef(0);
  const initials=user.name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
  useEffect(()=>{try{const saved=window.localStorage.getItem("campus-feed-interest-signals");if(saved){const parsed=JSON.parse(saved);if(Array.isArray(parsed))setInterestSignals(parsed.filter((x):x is string=>typeof x==="string").slice(0,80));}}catch{}},[]);
- function learnFromPost(post:SocialPost){const words=(post.content.toLocaleLowerCase().match(/[\\p{L}\\p{N}]{4,}/gu)||[]).filter(x=>!["this","that","with","from","your","about","kwa","hiyo","yako","sana","kama","hapa","nime","wana","mimi"].includes(x));setInterestSignals(previous=>{const next=[...new Set([...words,...previous])].slice(0,80);try{window.localStorage.setItem("campus-feed-interest-signals",JSON.stringify(next));}catch{}return next;});}
+ function learnFromPost(post:SocialPost){const words=(post.content.toLocaleLowerCase().match(/[\p{L}\p{N}]{4,}/gu)||[]).filter(x=>!["this","that","with","from","your","about","kwa","hiyo","yako","sana","kama","hapa","nime","wana","mimi"].includes(x));setInterestSignals(previous=>{const next=[...new Set([...words,...previous])].slice(0,80);try{window.localStorage.setItem("campus-feed-interest-signals",JSON.stringify(next));}catch{}return next;});}
  const rankedPosts=useMemo(()=>{
   const now=Date.now();
   const score=(post:SocialPost)=>{
    const ageHours=Math.max(0,(now-new Date(post.createdAt).getTime())/3600000);
    const engagement=Math.log1p(Math.max(0,post.likes)*2+Math.max(0,post.comments)*3);
    const freshness=Math.exp(-ageHours/30);
-   return engagement*0.58+freshness*2.4;
+   const words=(post.content.toLocaleLowerCase().match(/[\p{L}\p{N}]{4,}/gu)||[]);
+   const relevance=interestSignals.length?words.filter(word=>interestSignals.includes(word)).length/Math.min(8,interestSignals.length):0;
+   return engagement*0.42+freshness*2.1+relevance*2.8;
   };
   return [...posts].sort((a,b)=>{
    if(feedMode==="latest")return new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime();
