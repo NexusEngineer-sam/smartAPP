@@ -17,3 +17,9 @@ CREATE INDEX IF NOT EXISTS "ChatConversation_updatedAt_idx" ON "ChatConversation
 CREATE INDEX IF NOT EXISTS "ChatParticipant_userId_joinedAt_idx" ON "ChatParticipant"("userId","joinedAt");
 CREATE INDEX IF NOT EXISTS "ChatMessage_conversationId_createdAt_idx" ON "ChatMessage"("conversationId","createdAt");
 ALTER TABLE "ChatConversation" ADD COLUMN IF NOT EXISTS "requestStatus" VARCHAR(16) NOT NULL DEFAULT 'ACCEPTED';
+
+
+-- Public NEXUS identity, searchable by other students.
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "nexusId" TEXT;
+UPDATE "User" SET "nexusId" = 'NX-' || UPPER(SUBSTRING(MD5("id"), 1, 8)) WHERE "nexusId" IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS "User_nexusId_key" ON "User"("nexusId");
