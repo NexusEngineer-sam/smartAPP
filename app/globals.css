@@ -2096,3 +2096,16 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-seri
 .topbar-more-trigger,
 .topbar-more-trigger svg{background:#fff!important;color:#000!important}
 .topbar-more-trigger{border:1px solid #ddd!important}
+
+
+/* NEXUS Messenger calling */
+.nexus-call-controls{display:flex;align-items:center;gap:8px;margin-left:auto;position:relative;flex-shrink:0}
+.nexus-call-controls>button,.nexus-call-panel button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:36px;height:36px;padding:0 10px;border:1px solid var(--border,#e5e7eb);border-radius:999px;background:var(--surface,#fff);color:var(--foreground,#111827);cursor:pointer}
+.nexus-call-controls button:disabled{opacity:.5;cursor:wait}
+.nexus-call-panel{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:8px;border:1px solid var(--border,#e5e7eb);border-radius:14px;background:var(--surface,#fff);box-shadow:0 8px 24px #00000012}
+.nexus-call-panel strong{font-size:12px;white-space:nowrap}
+.nexus-call-panel button:last-child{background:#dc2626;color:white;border-color:#dc2626}
+.nexus-call-controls>small{position:absolute;top:100%;right:0;z-index:5;max-width:220px;padding:6px 8px;border-radius:8px;background:#fff1f2;color:#be123c;font-size:11px}
+.nexus-call-videos{display:flex;gap:5px;max-width:230px}
+.nexus-call-videos video{width:105px;height:72px;object-fit:cover;background:#111;border-radius:8px}
+@media(max-width:600px){.messenger-chat-head{gap:7px}.nexus-call-controls{gap:4px}.nexus-call-controls>button{width:32px;min-width:32px;height:32px;padding:0}.nexus-call-panel{position:absolute;right:0;top:42px;z-index:20;max-width:calc(100vw - 32px)}}
