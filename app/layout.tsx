@@ -8,14 +8,16 @@ export const metadata: Metadata = {
   description: "NEXUS — One Ecosystem. Infinite Connections.",
   applicationName: "NEXUS",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "NEXUS" },
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "NEXUS" },
+  openGraph: { title: "NEXUS", description: "One Ecosystem. Infinite Connections.", siteName: "NEXUS", type: "website" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false,
+  userScalable: true,
+  themeColor: "#101a38",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
