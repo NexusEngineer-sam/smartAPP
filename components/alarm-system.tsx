@@ -9,7 +9,7 @@ const pad=(n:number)=>String(n).padStart(2,"0");
 function nextOccurrence(alarm:Alarm,now:Date){const [h,m]=alarm.time.split(":").map(Number);for(let offset=0;offset<8;offset++){const d=new Date(now);d.setDate(now.getDate()+offset);d.setHours(h,m,0,0);if(d.getTime()<=now.getTime())continue;if(alarm.days.length&&!alarm.days.includes(d.getDay()))continue;return d;}return null;}
 
 const nativeAlarmId=(value:string)=>{let hash=2166136261;for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);}return (hash>>>0)%2000000000+1;};
-async function syncNativeAlarms(alarms:Alarm[]){
+async function syncNativeAlarms(alarms:Alarm[],requestPermissions=false,requestExactAccess=false){
  try{
   const {Capacitor}=await import("@capacitor/core");
   if(!Capacitor.isNativePlatform())return {native:false as const};
@@ -19,10 +19,11 @@ async function syncNativeAlarms(alarms:Alarm[]){
   if(owned.length)await LocalNotifications.cancel({notifications:owned.map((item:any)=>({id:item.id}))});
   if(!alarms.some(alarm=>alarm.enabled))return {native:true as const,message:"Hakuna alarm inayowashwa kwa sasa."};
   let permission=await LocalNotifications.checkPermissions();
-  if(permission.display!=="granted")permission=await LocalNotifications.requestPermissions();
+  if(permission.display!=="granted"&&requestPermissions)permission=await LocalNotifications.requestPermissions();
   if(permission.display!=="granted")return {native:true as const,message:"Ruhusu NEXUS kutuma notifications ili alarm za Android zifanye kazi."};
   const exact=await LocalNotifications.checkExactNotificationSetting();
   if(exact.exact_alarm!=="granted"){
+   if(!requestExactAccess)return {native:true as const,message:"Bonyeza Enable notifications kisha ruhusu Alarms & reminders ili Android ihifadhi alarm."};
    const changed=await LocalNotifications.changeExactNotificationSetting();
    if(changed.exact_alarm!=="granted")return {native:true as const,message:"Washa ruhusa ya Alarms & reminders kwenye Android Settings ili alarm iweze kufika kwa muda sahihi."};
   }
@@ -115,7 +116,18 @@ export default function AlarmSystem(){
   return()=>{active=false;document.removeEventListener("visibilitychange",onVisible);void wakeLockRef.current?.release().catch(()=>{});wakeLockRef.current=null;};
  },[ringing]);
  useEffect(()=>()=>stopSound(),[stopSound]);
- async function enableNotifications(){if(!("Notification"in window)){setNotice("Browser hii haitumii notifications.");return;}const result=await Notification.requestPermission();setNotice(result==="granted"?"Arifa zimewashwa.":"Ruhusa ya arifa haijatolewa.");}
+ async function enableNotifications(){
+  try{
+   const {Capacitor}=await import("@capacitor/core");
+   if(Capacitor.isNativePlatform()){
+    const result=await syncNativeAlarms(alarms,true,true);
+    if(result.native){setNotice(result.message||"Android alarm settings updated.");return;}
+   }
+  }catch{/* Continue with the browser notification fallback. */}
+  if(!("Notification"in window)){setNotice("Browser hii haitumii notifications.");return;}
+  const result=await Notification.requestPermission();
+  setNotice(result==="granted"?"Arifa zimewashwa.":"Ruhusa ya arifa haijatolewa.");
+ }
  function save(){const alarm:Alarm={id:editing||crypto.randomUUID(),time,label:label.trim()||"Alarm",days,enabled:true};setAlarms(old=>editing?old.map(a=>a.id===editing?alarm:a):[...old,alarm].sort((a,b)=>a.time.localeCompare(b.time)));setEditing(null);setTime("07:00");setLabel("Wake up");setDays([]);}
  function edit(a:Alarm){setEditing(a.id);setTime(a.time);setLabel(a.label);setDays(a.days);}
  function dismiss(){setRinging(null);stopSound();}
