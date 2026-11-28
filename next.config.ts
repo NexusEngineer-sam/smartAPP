@@ -8,6 +8,8 @@ const config: NextConfig = {
       source: "/:path*",
       headers: [
         { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
+        { key: "Origin-Agent-Cluster", value: "?1" },
         { key: "X-Frame-Options", value: "DENY" },
         { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
