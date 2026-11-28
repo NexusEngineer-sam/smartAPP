@@ -8,6 +8,7 @@ import PwaInstall from "@/components/pwa-install";
 import NotificationInbox from "@/components/notification-inbox";
 import EngagementTracker from "@/components/engagement-tracker";
 import DataUsageTracker from "@/components/data-usage-tracker";
+import CampusMessenger from "@/components/campus-messenger";
 import CampusGlobalSearch from "@/components/campus-global-search";
 import { Activity, Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, GraduationCap, LayoutDashboard, LogOut, Plus, Shield, Wallet, X, ArrowUpRight, Clock3, Sparkles, Megaphone, Video, Users, ChartNoAxesCombined, Settings, Globe2, MessageCircle, Menu } from "lucide-react";
 
@@ -31,7 +32,6 @@ const StudyPlanner = dynamic(() => import("@/components/study-planner"), { loadi
 const AlarmSystem = dynamic(() => import("@/components/alarm-system"), { loading: () => null });
 const CampusEventsHub = dynamic(() => import("@/components/campus-events-hub"), { loading: () => null });
 const GlobalCampusNetwork = dynamic(() => import("@/components/global-campus-network"), { loading: () => null });
-const CampusMessenger = dynamic(() => import("@/components/campus-messenger"), { loading: () => null });
 
 const money = (n:number) => new Intl.NumberFormat("en-TZ",{style:"currency",currency:"TZS",maximumFractionDigits:0}).format(n);
 
