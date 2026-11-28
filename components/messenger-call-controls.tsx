@@ -62,7 +62,7 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
       await pc.setRemoteDescription(incoming.offer!);
       const answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
       await sendUpdate({ action: "accept", answer });
-      callIdRef.current = incoming.id; setCall({ ...incoming, status: "ACCEPTED" });
+      callIdRef.current = incoming.id;\n      const queued = pendingLocalCandidates.current.splice(0);\n      for (const candidate of queued) await sendUpdate({ action: "candidate", candidate });\n      setCall({ ...incoming, status: "ACCEPTED" });
     } catch (e) { closeMedia(); setError(e instanceof Error ? e.message : "Could not answer call"); }
     finally { setBusy(false); }
   };
