@@ -103,7 +103,7 @@ export default function Dashboard({user}:{user:User}) {
         <section className="section-title planner-title"><div><span className="eyebrow">CAMPUS UTILITIES</span><h2>Academic tools</h2></div></section>
         <div className="tool-grid"><button className="tool-card" onClick={()=>setActiveSection("study")}><span className="tool-icon"><CalendarDays/></span><b>Study planner</b><small>Organise your study schedule</small><ChevronRight/></button><button className="tool-card" onClick={()=>setActiveSection("study")}><span className="tool-icon teal"><Clock3/></span><b>Class timetable</b><small>Keep track of your sessions</small><ChevronRight/></button><button className="tool-card" onClick={()=>setActiveSection("updates")}><span className="tool-icon amber"><Bell/></span><b>Smart reminders</b><small>Stay on top of important events</small><ChevronRight/></button></div></>}
         {activeSection==="study"&&<StudyPlanner/>}
-        {activeSection==="alarm"&&<AlarmSystem/>}
+        <div style={{display:activeSection==="alarm"?"block":"none"}}><AlarmSystem/></div>
         {activeSection==="discover"&&<CampusDiscoveryHub user={user} notices={notices}/> }
         {activeSection==="social"&&<><SocialFeed user={user}/>{user.role==="CLASS_REP"?<ClassRepPanel/>:<ClassMessages/>}</>}
         {activeSection==="global"&&<GlobalCampusNetwork/>}
