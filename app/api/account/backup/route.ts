@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const connection = await prisma.googleDriveBackupConnection.findUnique({ where: { userId: user.id } });
     if (!connection) return NextResponse.json({ error: "Unganisha Google Drive kwanza." }, { status: 400 });
 
-    const [expenses, studentLife, schedules, notifications, eventRegistrations, ownedEvents, communityMemberships, communityPosts, communityMessages, studentProfile, sentClassMessages, videos, adCampaigns, chatMemberships, classGroup] = await Promise.all([
+    const [expenses, studentLife, schedules, notifications, eventRegistrations, ownedEvents, communityMemberships, communityPosts, communityMessages, studentProfile, sentClassMessages, videos, adCampaigns, chatMemberships, classGroup, socialPosts, socialComments, socialLikes] = await Promise.all([
       prisma.expense.findMany({ where: { userId: user.id }, orderBy: { createdAt: "asc" } }),
       prisma.studentLifeItem.findMany({ where: { userId: user.id }, orderBy: { createdAt: "asc" } }),
       prisma.personalSchedule.findMany({ where: { userId: user.id }, orderBy: { startsAt: "asc" } }),
@@ -60,6 +60,9 @@ export async function POST(request: NextRequest) {
       prisma.adCampaign.findMany({ where: { advertiserId: user.id }, include: { likes: { where: { userId: user.id }, select: { createdAt: true } }, comments: { where: { userId: user.id }, select: { body: true, createdAt: true } } } }),
       prisma.chatParticipant.findMany({ where: { userId: user.id }, include: { conversation: { include: { participants: { select: { userId: true, joinedAt: true } }, messages: { orderBy: { createdAt: "asc" } } } } } }),
       prisma.user.findUnique({ where: { id: user.id }, select: { classGroup: { select: { name: true } } } }),
+      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>("SELECT \\\"id\\\",\\\"content\\\",\\\"mediaUrl\\\",\\\"mediaType\\\",\\\"createdAt\\\",\\\"updatedAt\\\" FROM \\\"SocialPost\\\" WHERE \\\"userId\\\" = $1 ORDER BY \\\"createdAt\\\" ASC", user.id),
+      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>("SELECT \\\"id\\\",\\\"postId\\\",\\\"body\\\",\\\"createdAt\\\" FROM \\\"SocialPostComment\\\" WHERE \\\"userId\\\" = $1 ORDER BY \\\"createdAt\\\" ASC", user.id),
+      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>("SELECT \\\"postId\\\",\\\"createdAt\\\" FROM \\\"SocialPostLike\\\" WHERE \\\"userId\\\" = $1 ORDER BY \\\"createdAt\\\" ASC", user.id),
     ]);
 
     const backup = {
@@ -67,7 +70,7 @@ export async function POST(request: NextRequest) {
       owner: { email: user.email, name: user.name },
       profile: { name: user.name, email: user.email, avatarUrl: user.avatarUrl, university: user.university, faculty: user.faculty, course: user.course, role: user.role, profileCompleted: user.profileCompleted, createdAt: user.createdAt },
       classGroup: classGroup?.classGroup ?? null,
-      data: { expenses, studentLife, personalSchedules: schedules, notifications, eventRegistrations, ownedEvents, communityMemberships, communityPosts, communityMessages, globalStudentProfile: studentProfile, sentClassMessages, campusVideos: videos, adCampaigns, conversations: chatMemberships.map((item) => ({ conversationId: item.conversationId, joinedAt: item.joinedAt, participants: item.conversation.participants, messages: item.conversation.messages })) },
+      data: { expenses, studentLife, personalSchedules: schedules, notifications, eventRegistrations, ownedEvents, communityMemberships, communityPosts, communityMessages, globalStudentProfile: studentProfile, sentClassMessages, campusVideos: videos, adCampaigns, socialPosts, socialComments, socialLikes, conversations: chatMemberships.map((item) => ({ conversationId: item.conversationId, joinedAt: item.joinedAt, participants: item.conversation.participants, messages: item.conversation.messages })) },
       exclusions: ["password hashes", "login sessions", "OAuth tokens", "push notification secrets", "other users' account profiles"],
       mediaNote: "Picha na video zenyewe hazijajumuishwa; backup inahifadhi metadata na media URLs zinazohusiana na akaunti yako.",
     };
