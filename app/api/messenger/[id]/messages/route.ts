@@ -11,11 +11,15 @@ async function getMessages(_request:Request,{params}:Context){
  if(!member)return NextResponse.json({error:"Conversation not found."},{status:404});
  const conversation=await prisma.chatConversation.findUnique({where:{id},include:{participants:{select:{userId:true}}}});
  if(!conversation||conversation.isGroup||conversation.participants.length!==2||!conversation.participants.some(p=>p.userId===user.id))return NextResponse.json({error:"This is not a valid private conversation."},{status:404});
- if(conversation.requestStatus==="PENDING") await prisma.chatConversation.update({where:{id},data:{requestStatus:"ACCEPTED"}});
- const messages=await prisma.chatMessage.findMany({where:{conversationId:id},include:{sender:{select:{id:true,name:true,avatarUrl:true}}},orderBy:{createdAt:"asc"},take:100});
+ if(conversation.requestStatus!=="ACCEPTED")return NextResponse.json({error:conversation.requestStatus==="PENDING"?"Accept the message request before opening this chat.":"This conversation is unavailable."},{status:403});
+ const [latestMessages,total]=await Promise.all([
+  prisma.chatMessage.findMany({where:{conversationId:id},include:{sender:{select:{id:true,name:true,avatarUrl:true}}},orderBy:{createdAt:"desc"},take:100}),
+  prisma.chatMessage.count({where:{conversationId:id}})
+ ]);
+ const messages=latestMessages.reverse();
  await prisma.chatParticipant.update({where:{id:member.id},data:{lastReadAt:new Date()}});
  const peer=await prisma.chatParticipant.findFirst({where:{conversationId:id,userId:{not:user.id}},select:{lastReadAt:true}});
- return NextResponse.json({messages,peerReadAt:peer?.lastReadAt?.toISOString()||null});
+ return NextResponse.json({messages,hasMore:total>messages.length,peerReadAt:peer?.lastReadAt?.toISOString()||null});
 }
 const schema=z.object({body:z.string().trim().min(1).max(4000)});
 async function createMessage(request:Request,{params}:Context){
@@ -25,7 +29,7 @@ async function createMessage(request:Request,{params}:Context){
  if(!member)return NextResponse.json({error:"Conversation not found."},{status:404});
  const conversation=await prisma.chatConversation.findUnique({where:{id},include:{participants:{select:{userId:true}}}});
  if(!conversation||conversation.isGroup||conversation.participants.length!==2||!conversation.participants.some(p=>p.userId===user.id))return NextResponse.json({error:"This is not a valid private conversation."},{status:404});
- if(conversation.requestStatus==="PENDING") await prisma.chatConversation.update({where:{id},data:{requestStatus:"ACCEPTED"}});
+ if(conversation.requestStatus!=="ACCEPTED")return NextResponse.json({error:conversation.requestStatus==="PENDING"?"Wait until the recipient accepts your message request.":"This conversation is unavailable."},{status:403});
  let body:unknown;try{body=await request.json()}catch{return NextResponse.json({error:"Invalid request."},{status:400})}
  const parsed=schema.safeParse(body);if(!parsed.success)return NextResponse.json({error:"Message must contain 1–4000 characters."},{status:400});
  const message=await prisma.chatMessage.create({data:{conversationId:id,senderId:user.id,body:parsed.data.body},include:{sender:{select:{id:true,name:true,avatarUrl:true}}}});
