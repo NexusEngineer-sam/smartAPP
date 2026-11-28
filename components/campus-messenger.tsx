@@ -4,6 +4,12 @@ import {MessageCircle,Search,Send,ArrowLeft,Plus,Users,CheckCheck} from "lucide-
 type Person={id:string;name:string;avatarUrl:string|null;university?:string|null;course?:string|null;online?:boolean;lastSeenAt?:string|null};
 type Message={id:string;body:string;createdAt:string;sender:{id:string;name:string;avatarUrl:string|null}};
 type Conversation={id:string;isGroup:boolean;title:string|null;updatedAt:string;otherUsers:Person[];lastMessage:Message|null};
+
+async function readJsonResponse(response:Response):Promise<any>{
+ const raw=await response.text();
+ if(!raw.trim())throw new Error(`Server returned an empty response (HTTP ${response.status}). Refresh and try again.`);
+ try{return JSON.parse(raw)}catch{throw new Error(`Server returned an invalid response (HTTP ${response.status}). Please refresh and try again.`)}
+}
 function presenceLabel(person?:Person){if(!person)return "Campus conversation";if(person.online)return "Active now";if(!person.lastSeenAt)return "Offline";const mins=Math.max(1,Math.floor((Date.now()-new Date(person.lastSeenAt).getTime())/60000));return mins<60?`Active ${mins}m ago`:`Last active ${new Date(person.lastSeenAt).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}`;}
 export default function CampusMessenger({currentUser}:{currentUser:{id?:string;name:string}}){
  const [conversations,setConversations]=useState<Conversation[]>([]);
@@ -21,27 +27,27 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  const [mobileChat,setMobileChat]=useState(false);
  const activeName=useMemo(()=>selected?.title||selected?.otherUsers.map(x=>x.name).join(", ")||"Conversation",[selected]);
  const load=useCallback(async()=>{
-  try{const r=await fetch("/api/messenger"+(query.trim()?"?q="+encodeURIComponent(query.trim()):""),{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load messages.");setConversations(d.conversations||[]);setIncomingRequests(d.incomingRequests||[]);setOutgoingRequests(d.outgoingRequests||[]);setUsers(d.users||[]);setSelected(previous=>previous?((d.conversations||[]).find((item:Conversation)=>item.id===previous.id)||previous):null);}
+  try{const r=await fetch("/api/messenger"+(query.trim()?"?q="+encodeURIComponent(query.trim()):""),{cache:"no-store"});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not load messages.");setConversations(d.conversations||[]);setIncomingRequests(d.incomingRequests||[]);setOutgoingRequests(d.outgoingRequests||[]);setUsers(d.users||[]);setSelected(previous=>previous?((d.conversations||[]).find((item:Conversation)=>item.id===previous.id)||previous):null);}
   catch(e){setError(e instanceof Error?e.message:"Messenger unavailable.");}finally{setLoading(false);}
  },[query]);
  useEffect(()=>{const t=window.setTimeout(()=>void load(),250);return()=>window.clearTimeout(t)},[load]);
  useEffect(()=>{const t=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},15000);return()=>window.clearInterval(t)},[load]);
  const loadMessages=useCallback(async(id:string)=>{
-  try{const r=await fetch("/api/messenger/"+id+"/messages",{cache:"no-store"});const d=await r.json();if(r.ok){setMessages(d.messages||[]);setPeerReadAt(d.peerReadAt||null);}}
+  try{const r=await fetch("/api/messenger/"+id+"/messages",{cache:"no-store"});const d=await readJsonResponse(r);if(r.ok){setMessages(d.messages||[]);setPeerReadAt(d.peerReadAt||null);}}
   catch{/* transient connection issue */ }
  },[]);
  useEffect(()=>{if(!selected)return;void loadMessages(selected.id);const t=window.setInterval(()=>void loadMessages(selected.id),5000);return()=>window.clearInterval(t)},[selected?.id,loadMessages]);
  async function startChat(person:Person){
-  setError("");try{const r=await fetch("/api/messenger",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({recipientId:person.id})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not send request.");await load();setQuery("");if(d.pending){setError("Message request sent. Chat opens after they accept.");return;}const conversation:Conversation={id:d.conversationId,isGroup:false,title:null,updatedAt:new Date().toISOString(),otherUsers:[person],lastMessage:null};setSelected(conversation);setMessages([]);setMobileChat(true);}
+  setError("");try{const r=await fetch("/api/messenger",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({recipientId:person.id})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not send request.");await load();setQuery("");if(d.pending){setError("Message request sent. Chat opens after they accept.");return;}const conversation:Conversation={id:d.conversationId,isGroup:false,title:null,updatedAt:new Date().toISOString(),otherUsers:[person],lastMessage:null};setSelected(conversation);setMessages([]);setMobileChat(true);}
   catch(e){setError(e instanceof Error?e.message:"Could not send request.");}
  }
  async function respondToRequest(id:string,action:"accept"|"decline"){
-  setError("");try{const r=await fetch("/api/messenger/"+id+"/request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not update request.");await load();if(action==="accept"){const c=(d.conversation||incomingRequests.find(x=>x.id===id));if(c){setSelected(c);setMessages([]);setMobileChat(true);}}}
+  setError("");try{const r=await fetch("/api/messenger/"+id+"/request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not update request.");await load();if(action==="accept"){const c=(d.conversation||incomingRequests.find(x=>x.id===id));if(c){setSelected(c);setMessages([]);setMobileChat(true);}}}
   catch(e){setError(e instanceof Error?e.message:"Could not update request.");}
  }
  async function sendMessage(e:React.FormEvent){
   e.preventDefault();if(!selected||!draft.trim()||sending)return;setSending(true);setError("");
-  try{const r=await fetch("/api/messenger/"+selected.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({body:draft.trim()})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Message not sent.");setMessages(v=>[...v,d.message]);setDraft("");void load();}
+  try{const r=await fetch("/api/messenger/"+selected.id+"/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({body:draft.trim()})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Message not sent.");setMessages(v=>[...v,d.message]);setDraft("");void load();}
   catch(e){setError(e instanceof Error?e.message:"Message not sent.");}finally{setSending(false);}
  }
  return <section className="campus-messenger">
