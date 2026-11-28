@@ -57,10 +57,32 @@ export async function POST(request: Request) {
     await prisma.$executeRaw`INSERT INTO "CampusStoryReply" ("id","storyId","userId","body") VALUES (${id},${parsed.data.storyId},${user.id},${parsed.data.body})`;
     const owner = await prisma.$queryRaw<Array<{userId:string}>>`SELECT "userId" FROM "CampusStory" WHERE "id"=${parsed.data.storyId} LIMIT 1`;
     if (owner.length && owner[0].userId !== user.id) {
-      const title = "Jibu jipya kwenye status yako";
-      const body = user.name + ": " + parsed.data.body.slice(0, 110);
-      await prisma.notification.create({ data: { userId: owner[0].userId, title, body, channel: "IN_APP", status: "QUEUED", dedupeKey: `story-reply:${randomUUID()}` } });
-      try { await sendPushToUser(owner[0].userId, title, body, "/"); } catch { /* in-app notification remains available */ }
+      const ownerId = owner[0].userId;
+      // Deliver this status comment into the owner DM inbox.
+      let conversation = await prisma.chatConversation.findFirst({
+        where: {
+          isGroup: false,
+          AND: [
+            { participants: { some: { userId: user.id } } },
+            { participants: { some: { userId: ownerId } } },
+          ],
+          participants: { every: { userId: { in: [user.id, ownerId] } } },
+        },
+        select: { id: true },
+      });
+      if (!conversation) {
+        conversation = await prisma.chatConversation.create({
+          data: { createdById: user.id, participants: { create: [{ userId: user.id }, { userId: ownerId }] } },
+          select: { id: true },
+        });
+      }
+      const chatBody = "💬 Comment kwenye status yako:\n" + parsed.data.body;
+      await prisma.chatMessage.create({ data: { conversationId: conversation.id, senderId: user.id, body: chatBody } });
+      await prisma.chatConversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } });
+      const title = "Comment mpya kwenye status yako";
+      const notificationBody = user.name + ": " + parsed.data.body.slice(0, 110);
+      await prisma.notification.create({ data: { userId: ownerId, title, body: notificationBody, channel: "IN_APP", status: "QUEUED", dedupeKey: `story-reply:${randomUUID()}` } });
+      try { await sendPushToUser(ownerId, title, notificationBody, "/"); } catch { /* DM and in-app notification remain available */ }
     }
     return NextResponse.json({ reply: { id, body: parsed.data.body, authorName: user.name, authorAvatar: user.avatarUrl, createdAt: new Date().toISOString() } }, { status: 201 });
   } catch {
