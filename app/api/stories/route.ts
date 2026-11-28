@@ -19,6 +19,7 @@ async function ensureStoriesTable() {
     )
   `);
   await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "CampusStory_expiresAt_createdAt_idx" ON "CampusStory" ("expiresAt","createdAt")`);
+  await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "CampusStoryView" ("id" TEXT PRIMARY KEY, "storyId" TEXT NOT NULL REFERENCES "CampusStory"("id") ON DELETE CASCADE, "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE, "viewedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "CampusStoryView_storyId_userId_key" UNIQUE ("storyId","userId"))`);
 }
 
 export async function GET() {
@@ -28,7 +29,7 @@ export async function GET() {
     await ensureStoriesTable();
     const stories = await prisma.$queryRaw<Array<Record<string, unknown>>> `
       SELECT s."id",s."content",s."mediaUrl",s."mediaType",s."createdAt",s."expiresAt",
-        u."id" AS "authorId",u."name" AS "authorName",u."avatarUrl" AS "authorAvatar"
+        u."id" AS "authorId",u."name" AS "authorName",u."avatarUrl" AS "authorAvatar", EXISTS(SELECT 1 FROM "CampusStoryView" v WHERE v."storyId"=s."id" AND v."userId"=${user.id}) AS "hasViewed"
       FROM "CampusStory" s JOIN "User" u ON u."id"=s."userId"
       WHERE s."expiresAt">NOW() AND u."isActive"=true
       ORDER BY s."createdAt" DESC LIMIT 100
@@ -60,5 +61,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ story: { id, content: parsed.data.content, mediaUrl: parsed.data.mediaUrl || null, mediaType: parsed.data.mediaType || null, authorId: user.id, authorName: user.name, authorAvatar: user.avatarUrl, createdAt: new Date().toISOString(), expiresAt } }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Could not publish your status. Try again." }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+  const body = await request.json().catch(() => null) as { storyId?: string } | null;
+  if (!body?.storyId || typeof body.storyId !== "string" || body.storyId.length > 100) {
+    return NextResponse.json({ error: "Status haijapatikana." }, { status: 400 });
+  }
+  try {
+    await ensureStoriesTable();
+    const deleted = await prisma.$executeRaw`
+      DELETE FROM "CampusStory" WHERE "id"=${body.storyId} AND "userId"=${user.id}
+    `;
+    if (!deleted) return NextResponse.json({ error: "Huwezi kufuta status ya mtu mwingine au status haipo." }, { status: 404 });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Status haikufutika. Jaribu tena." }, { status: 500 });
   }
 }
