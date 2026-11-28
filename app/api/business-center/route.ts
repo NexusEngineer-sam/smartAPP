@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import { notifyDataCenterAdmins } from "@/lib/data-center-alerts";
+import { assessSubmissionRisk } from "@/lib/moderation";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -29,9 +30,42 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: "Sign in to submit an advert." }, { status: 401 });
   const parsed = createSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Angalia taarifa za tangazo." }, { status: 400 });
-  const campaign = await prisma.adCampaign.create({ data: { ...parsed.data, mediaUrl: parsed.data.mediaUrl || null, budgetTzs: 0, advertiserId: user.id } });
-  await notifyDataCenterAdmins("New advert submitted", `${campaign.businessName}: ${campaign.title}`, "/");
-  return NextResponse.json({ campaign }, { status: 201 });
+  const moderation = assessSubmissionRisk([
+    parsed.data.businessName, parsed.data.title, parsed.data.description, parsed.data.contact,
+  ]);
+  const needsReview = moderation.outcome === "HUMAN_REVIEW";
+  const campaign = await prisma.adCampaign.create({
+    data: {
+      ...parsed.data,
+      mediaUrl: parsed.data.mediaUrl || null,
+      budgetTzs: 0,
+      advertiserId: user.id,
+      status: needsReview ? "PENDING" : "APPROVED",
+    },
+  });
+  if (needsReview) {
+    await notifyDataCenterAdmins(
+      "Advert requires safety review",
+      `${campaign.businessName}: ${campaign.title} — ${moderation.reasons.join("; ")}`,
+      "/",
+    );
+  }
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      action: needsReview ? "AD_CAMPAIGN_ESCALATED_FOR_REVIEW" : "AD_CAMPAIGN_AUTO_APPROVED",
+      entityType: "AdCampaign",
+      entityId: campaign.id,
+      metadata: { moderationOutcome: moderation.outcome, reasons: moderation.reasons },
+    },
+  });
+  return NextResponse.json({
+    campaign,
+    moderation: { outcome: needsReview ? "HUMAN_REVIEW" : "AUTO_APPROVED" },
+    message: needsReview
+      ? "Advert received and sent for a safety review."
+      : "Advert approved automatically and published.",
+  }, { status: 201 });
 }
 
 export async function PATCH(request: Request) {
