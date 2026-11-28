@@ -795,3 +795,192 @@ body {
 .campus-story-text{flex:1;display:grid;place-items:center;text-align:center;padding:30px;font-size:25px;font-weight:800;white-space:pre-wrap;background:linear-gradient(145deg,#312e81,#0f172a,#134e4a)}
 .campus-story-viewer-card>p{padding:8px 16px;font-size:13px}
 @media(max-width:600px){.campus-stories{padding:14px 12px;border-radius:16px}.campus-stories-heading>span{font-size:9px}.campus-story-compose{padding:16px}.campus-story-viewer-card{height:80vh}}
+
+
+/* =========================================================
+   SAMWEL CAMPUS OS — Facebook-inspired global UI system
+   Familiar social UX, original Campus OS identity.
+   ========================================================= */
+:root{
+  --ink:#1c1e21;
+  --muted:#65676b;
+  --line:#e4e6eb;
+  --paper:#f0f2f5;
+  --purple:#0866ff;
+  --navy:#ffffff;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --display:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --campus-blue:#0866ff;
+  --campus-blue-hover:#1877f2;
+  --campus-surface:#ffffff;
+  --campus-bg:#f0f2f5;
+  --campus-text:#1c1e21;
+  --campus-muted:#65676b;
+  --campus-border:#e4e6eb;
+}
+html,body{background:var(--campus-bg);color:var(--campus-text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+body,button,input,select,textarea{font-family:var(--font)}
+h1,h2,h3,h4,.brand,.side-brand,.welcome-row h1,.section-title h2,.card-heading h3,.hero-card h2{font-family:var(--display);letter-spacing:normal}
+.app-shell{background:var(--campus-bg)}
+.sidebar{background:#fff;color:#1c1e21;border-right:1px solid var(--campus-border);box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.side-brand{color:#0866ff}
+.brand b{color:#0866ff}
+.brand-mark{background:#0866ff;box-shadow:none;border-radius:50%}
+.side-label{color:#65676b;letter-spacing:.5px;font-size:10px}
+.nav-item{color:#65676b;border-radius:9px;font-size:14px;font-weight:600;height:44px}
+.nav-item.active,.nav-item:hover{background:#e7f3ff;color:#0866ff}
+.sidebar-bottom{border-top:1px solid #e4e6eb;padding-top:10px}
+.user-chip{border-radius:10px}
+.user-meta b{font-size:13px;color:#1c1e21}
+.user-meta small{font-size:11px;color:#65676b}
+.avatar{background:#e4e6eb;color:#1c1e21;box-shadow:none}
+.main-area{background:#f0f2f5}
+.topbar{position:sticky;top:0;z-index:30;height:60px;background:#fff;border-bottom:1px solid #e4e6eb;box-shadow:0 1px 2px rgba(0,0,0,.04);padding:0 24px}
+.topbar-right{color:#65676b}
+.campus-pill{background:#e7f3ff;color:#0866ff;border-radius:20px;font-size:11px}
+.campus-pill i{background:#31a24c}
+.page-content{max-width:1320px;padding-top:24px}
+.welcome-row{margin-bottom:18px}
+.welcome-row h1{font-size:26px;font-weight:750;color:#1c1e21}
+.welcome-row h1 span{color:#0866ff}
+.welcome-row p,.admin-intro p{color:#65676b;font-size:13px}
+.eyebrow{color:#0866ff;letter-spacing:.7px}
+.today-pill{background:#fff;border:1px solid #e4e6eb;border-radius:9px;color:#65676b;font-size:12px}
+.surface-card,.metric-card,.admin-table-card,.tool-card,.admin-form-card{background:#fff;border:1px solid #e4e6eb;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.metric-card{box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.metric-icon,.round-action,.round-icon,.transaction-icon,.notice-mark,.tool-icon{background:#e7f3ff;color:#0866ff;border-radius:50%}
+.metric-label,.metric-card>small,.card-heading p,.transaction-name small,.notice small{color:#65676b}
+.section-title h2,.card-heading h3{color:#1c1e21}
+.section-title{margin-top:24px}
+.hero-card{background:linear-gradient(120deg,#0866ff,#1877f2);border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+.primary-btn,.global-community-join,.global-network-create,.global-network-submit,.messenger-compose button{background:#0866ff;box-shadow:none;border-radius:7px}
+.primary-btn:hover,.global-community-join:hover,.global-network-create:hover,.global-network-submit:hover,.messenger-compose button:hover{background:#1877f2}
+.text-action,.switch-auth button{color:#0866ff}
+.secure-tag{background:#e7f3ff;color:#0866ff}
+.tool-card{border-radius:10px}
+.tool-card:hover{background:#f7f8fa;border-color:#cbd8eb}
+.modal-card{border-radius:12px}
+.modal-card input,.modal-card select,.auth-card input{border:1px solid #ccd0d5;border-radius:7px}
+.auth-shell{background:#fff}
+.auth-art{background:linear-gradient(145deg,#075ce5,#1877f2 70%,#3b8cff)}
+.auth-art .eyebrow,.brand b{color:#dbeafe}
+.auth-art .brand-mark{background:#fff;color:#0866ff}
+.auth-card input:focus,.modal-card input:focus,.modal-card select:focus{border-color:#0866ff;box-shadow:0 0 0 2px #0866ff24}
+.primary-btn{background:#0866ff;border-radius:7px}
+.admin-tab.active{background:#e7f3ff;color:#0866ff;border-color:#cfe2ff}
+.status-active{background:#e7f3ff;color:#0866ff}
+.status-inactive{background:#ffebe9;color:#b42318}
+:where(a,button,input,select,textarea):focus-visible{outline:2px solid #0866ff;outline-offset:2px}
+
+/* Discovery filters and shared campus cards */
+.discovery-hub{gap:14px}
+.discovery-hero{background:linear-gradient(115deg,#0866ff,#1877f2);border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+.discovery-kicker{color:#e8f1ff}
+.discovery-hero p{color:#eaf2ff}
+.discovery-filters{gap:6px}
+.discovery-filters button{border:0;background:#fff;color:#65676b;border-radius:7px;padding:11px 15px;font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.discovery-filters button.selected{background:#0866ff;color:#fff;border-color:#0866ff;box-shadow:none}
+.discovery-filters button:hover{border-color:#0866ff;color:#0866ff}
+.discovery-news{border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.discovery-news-icon{background:#e7f3ff;color:#0866ff;border-radius:50%}
+.discovery-count{background:#e7f3ff;color:#0866ff}
+.discovery-all-note{background:#e7f3ff;border-color:#cfe2ff;color:#174ea6}
+
+/* Facebook-like student feed */
+.social-feed{display:flex;flex-direction:column;gap:12px;max-width:820px;margin:0 auto}
+.social-hero{background:#fff;color:#1c1e21;border:1px solid #e4e6eb;border-radius:10px;padding:18px 20px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.social-hero h2{color:#1c1e21;font-size:21px;font-weight:750;margin:5px 0}
+.social-hero p{color:#65676b;font-size:13px}
+.social-kicker{color:#0866ff;font-size:10px;letter-spacing:.4px}
+.social-hero-icon{background:#e7f3ff;color:#0866ff;border-radius:50%}
+.social-composer,.social-post{background:#fff;border:1px solid #e4e6eb;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.social-composer{padding:14px 16px}
+.social-compose-top{gap:10px}
+.social-avatar{background:#e4e6eb;color:#1c1e21}
+.social-whats-on-mind{background:#f0f2f5;color:#65676b;border:0;border-radius:24px;text-align:left;padding:11px 15px;font-size:15px}
+.social-whats-on-mind:hover{background:#e4e6eb}
+.social-compose-shortcuts{border-top:1px solid #e4e6eb;margin-top:12px;padding-top:10px}
+.social-compose-shortcuts button,.social-compose-tools button{color:#65676b;border-radius:7px;font-size:13px}
+.social-compose-shortcuts button:hover,.social-compose-tools button:hover{background:#f0f2f5}
+.social-compose-expanded textarea{border:0;border-bottom:1px solid #e4e6eb;border-radius:0;background:#fff;color:#1c1e21;font-size:15px;min-height:100px}
+.social-compose-bottom button{background:#0866ff;border-radius:7px}
+.social-post{padding:14px 16px}
+.social-post-author{gap:10px}
+.social-post-author b{font-size:14px;color:#1c1e21}
+.social-post-author small{font-size:12px;color:#65676b}
+.social-post-tag{background:#e7f3ff;color:#0866ff;border-radius:5px}
+.social-post-content{color:#1c1e21;font-size:15px;line-height:1.5}
+.social-post-stats{color:#65676b;font-size:13px;border-bottom:1px solid #e4e6eb;padding:10px 0}
+.social-post-actions{gap:4px}
+.social-post-actions button{color:#65676b;border-radius:7px;font-size:14px;font-weight:650}
+.social-post-actions button:hover{background:#f0f2f5}
+.social-post-actions button.liked{color:#0866ff}
+.social-comments{border-top:1px solid #e4e6eb}
+.social-comment{background:#f0f2f5;border-radius:18px;color:#1c1e21}
+.social-comments form input{background:#f0f2f5;border:0;border-radius:22px}
+.social-comments form button{background:#0866ff;color:#fff;border-radius:50%}
+.social-feed-heading h3{color:#1c1e21;font-size:18px}
+.social-feed-heading button{color:#0866ff;background:#e7f3ff;border:0;border-radius:7px;padding:8px 12px}
+.social-empty{background:#fff;border:1px solid #e4e6eb;border-radius:10px;color:#65676b}
+.social-error{background:#ffebe9;color:#b42318;border-radius:8px}
+.social-media-preview,.social-post-media{border-radius:8px;overflow:hidden}
+.social-heart-burst{color:#0866ff}
+.social-doubletap-hint{color:#8a8d91}
+
+/* Stories rail: bright social cards, dark only inside the story viewer */
+.campus-stories{background:#fff;border:1px solid #e4e6eb;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.06);padding:15px}
+.campus-stories-heading h3{color:#1c1e21}
+.campus-stories-heading>span,.campus-story-tile small{color:#65676b}
+.campus-story-ring{border-color:#0866ff}
+.campus-story-ring.own{border-color:#bcc0c4}
+.campus-story-avatar{background:#0866ff}
+.campus-story-ring.own i{background:#0866ff;border-color:#fff}
+.campus-story-tile{color:#1c1e21}
+.campus-story-tile b{font-size:11px}
+.campus-story-compose{background:#fff;color:#1c1e21;border:1px solid #e4e6eb;border-radius:12px}
+.campus-story-compose textarea{background:#f0f2f5;border:1px solid #ccd0d5;color:#1c1e21}
+.campus-story-actions{color:#65676b}
+.campus-story-actions button{background:#e7f3ff;border:0;color:#0866ff}
+.campus-story-publish{background:#0866ff;border-radius:7px}
+.campus-story-viewer-card{background:#080d18;color:#fff}
+
+/* Messenger and global community palette */
+.messenger-hero,.global-network-space-head{background:linear-gradient(115deg,#0866ff,#1877f2);border-radius:10px}
+.messenger-layout,.global-network-space{border-color:#e4e6eb;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.messenger-conversation.active{background:#e7f3ff}
+.messenger-bubble-row.mine .messenger-bubble{background:#0866ff;border-color:#0866ff}
+.messenger-encryption-note{background:#e7f3ff;color:#0866ff}
+.global-community-card,.global-space-post{border-color:#e4e6eb;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.global-community-symbol{background:#e7f3ff;color:#0866ff;border-radius:50%}
+.global-community-join,.global-community-space{background:#0866ff;color:#fff;border-color:#0866ff}
+.global-community-joined{background:#e4e6eb;color:#65676b;border-color:#e4e6eb}
+.global-network-tabs button.active{background:#e7f3ff;color:#0866ff;border-color:#cfe2ff}
+.global-network-space-compose button{background:#0866ff;border-radius:7px}
+.global-match-panel{background:#fff;border:1px solid #e4e6eb;border-radius:10px;color:#1c1e21}
+.global-match-heading p,.global-match-card p,.global-match-card>small{color:#65676b}
+.global-match-card{background:#f0f2f5;border-color:#e4e6eb}
+.global-match-save{background:#0866ff;border-radius:7px}
+
+/* Mobile: clean Facebook-style bottom navigation and compact feed */
+@media(max-width:650px){
+ .topbar{height:56px;padding:0 12px}
+ .mobile-brand{color:#0866ff;font-size:13px}
+ .mobile-bottom-nav{left:0;right:0;bottom:0;padding:5px 3px calc(5px + env(safe-area-inset-bottom));border:0;border-top:1px solid #e4e6eb;border-radius:0;background:rgba(255,255,255,.98);box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+ .mobile-nav-item{border-radius:0;color:#65676b;font-size:10px}
+ .mobile-nav-item.active{background:transparent;color:#0866ff;border-top:3px solid #0866ff}
+ .mobile-nav-item svg{width:21px;height:21px}
+ .page-content{padding:14px 10px calc(82px + env(safe-area-inset-bottom))}
+ .welcome-row{gap:8px}
+ .welcome-row h1{font-size:21px}
+ .social-feed{gap:9px}
+ .social-hero{padding:14px}
+ .social-hero h2{font-size:18px}
+ .social-composer,.social-post{padding:12px}
+ .campus-stories{padding:12px}
+ .discovery-hero{padding:16px}
+ .discovery-filters{margin-right:-10px;padding-right:10px}
+ .discovery-filters button{padding:9px 12px;font-size:12px}
+}
+@media(prefers-reduced-motion:no-preference){
+ .nav-item,.mobile-nav-item,.discovery-filters button,.social-post-actions button,.social-whats-on-mind{transition:background-color .15s ease,color .15s ease,border-color .15s ease}
+}
