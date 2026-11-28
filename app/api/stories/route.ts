@@ -62,3 +62,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not publish your status. Try again." }, { status: 500 });
   }
 }
+
+
+export async function DELETE(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+
+  const body = await request.json().catch(() => null) as { storyId?: unknown } | null;
+  const storyId = typeof body?.storyId === "string" ? body.storyId.trim() : "";
+  if (!storyId || storyId.length > 100) {
+    return NextResponse.json({ error: "Status haijapatikana." }, { status: 400 });
+  }
+
+  try {
+    await ensureStoriesTable();
+    const deleted = await prisma.$executeRaw`
+      DELETE FROM "CampusStory"
+      WHERE "id" = ${storyId} AND "userId" = ${user.id}
+    `;
+    if (deleted === 0) {
+      return NextResponse.json({ error: "Status haipo au si yako." }, { status: 404 });
+    }
+    return NextResponse.json({ ok: true, deleted: true });
+  } catch {
+    return NextResponse.json({ error: "Status haikufutika. Jaribu tena." }, { status: 500 });
+  }
+}
