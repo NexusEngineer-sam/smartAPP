@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, CheckCheck, RefreshCw, X, Sparkles } from "lucide-react";
 
 type CampusNotification = {
@@ -22,6 +22,9 @@ export default function NotificationInbox() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<"ALL" | "IMPORTANT">("ALL");
+  const [toast, setToast] = useState<CampusNotification | null>(null);
+  const hasLoadedOnce = useRef(false);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -31,13 +34,24 @@ export default function NotificationInbox() {
       if (response.status === 401) return;
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Notifications could not be loaded.");
-      setItems(Array.isArray(data.notifications) ? data.notifications : []);
+      const nextItems: CampusNotification[] = Array.isArray(data.notifications) ? data.notifications : [];
+      if (hasLoadedOnce.current) {
+        const knownIds = new Set(items.map(item => item.id));
+        const fresh = nextItems.find(item => !knownIds.has(item.id));
+        if (fresh) {
+          setToast(fresh);
+          if (toastTimer.current) clearTimeout(toastTimer.current);
+          toastTimer.current = setTimeout(() => setToast(null), 7000);
+        }
+      }
+      hasLoadedOnce.current = true;
+      setItems(nextItems);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load notifications.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [items]);
 
   useEffect(() => {
     try {
@@ -52,6 +66,7 @@ export default function NotificationInbox() {
     window.addEventListener("focus", refreshWhenVisible);
     document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
       window.clearInterval(timer);
       window.removeEventListener("focus", refreshWhenVisible);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
@@ -83,6 +98,11 @@ export default function NotificationInbox() {
   }
 
   return <div className="notification-inbox-wrap">
+    {toast && <button type="button" className="notification-live-toast" onClick={() => { setOpen(true); markRead(toast.id); setToast(null); void load(); }}>
+      <span className="notification-live-icon"><Bell size={17}/></span>
+      <span className="notification-live-copy"><b>{toast.title}</b><small>{toast.body}</small><em>Gusa kuona notification</em></span>
+      <span className="notification-live-close" onClick={event => { event.stopPropagation(); setToast(null); }}>×</span>
+    </button>}
     <button type="button" className="notification-inbox-trigger" aria-label={`Notifications, ${unread} unread`} aria-expanded={open} onClick={() => { setOpen(value => !value); if (!open) void load(); }}>
       <Bell size={18} />
       {unread > 0 && <span className="notification-inbox-badge">{unread > 99 ? "99+" : unread}</span>}
@@ -117,6 +137,11 @@ export default function NotificationInbox() {
     </section>}
     <style jsx>{`
       .notification-inbox-wrap{position:relative;display:inline-flex}
+      .notification-live-toast{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:150;width:min(430px,calc(100vw - 24px));display:flex;align-items:flex-start;gap:11px;padding:13px 14px;border:1px solid var(--border,rgba(255,255,255,.16));border-radius:16px;background:var(--card,#171b29);color:var(--foreground,inherit);box-shadow:0 16px 50px rgba(0,0,0,.3);text-align:left;cursor:pointer;animation:notification-pop .22s ease-out}
+      .notification-live-icon{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;background:rgba(90,120,255,.16);color:#7fa3ff}
+      .notification-live-copy{min-width:0;display:grid;gap:4px}.notification-live-copy b{font-size:12px}.notification-live-copy small{font-size:12px;line-height:1.4;opacity:.8;overflow-wrap:anywhere}.notification-live-copy em{font-style:normal;font-size:10px;color:#8caaff}
+      .notification-live-close{margin-left:auto;font-size:20px;line-height:18px;opacity:.65}
+      @keyframes notification-pop{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
       .notification-inbox-trigger{position:relative;width:40px;height:40px;border:1px solid var(--border,rgba(255,255,255,.12));border-radius:13px;background:var(--surface,rgba(255,255,255,.04));color:inherit;display:grid;place-items:center;cursor:pointer}
       .notification-inbox-badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:99px;background:#e34d68;color:white;font:700 10px/18px system-ui;text-align:center;border:2px solid var(--background,#10121a)}
       .notification-inbox-panel{position:fixed;left:50%;right:auto;top:76px;transform:translateX(-50%);width:min(420px,calc(100vw - 24px));max-height:calc(100dvh - 96px);z-index:120;background:var(--card,#151824);border:1px solid var(--border,rgba(255,255,255,.12));border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.35);overflow:hidden;color:var(--foreground,inherit)}
