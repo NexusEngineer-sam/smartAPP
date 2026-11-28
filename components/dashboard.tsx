@@ -1,34 +1,38 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import PushNotifications from "@/components/push-notifications";
 import PwaInstall from "@/components/pwa-install";
 import NotificationInbox from "@/components/notification-inbox";
-import BusinessCenter from "@/components/business-center";
 import EngagementTracker from "@/components/engagement-tracker";
 import DataUsageTracker from "@/components/data-usage-tracker";
-import EngagementAnalytics from "@/components/engagement-analytics";
-import CampusVideoHub from "@/components/campus-video-hub";
-import CampusDiscoveryHub from "@/components/campus-discovery-hub";
-import SocialFeed from "@/components/social-feed";
-import DigitalId from "@/components/digital-id";
-import CampusGuide from "@/components/campus-guide";
-import ClassRepPanel from "@/components/class-rep-panel";
-import ClassMessages from "@/components/class-messages";
-import StudentLifeHub from "@/components/student-life-hub";
-import StudyPlanner from "@/components/study-planner";
-import AlarmSystem from "@/components/alarm-system";
-import CampusEventsHub from "@/components/campus-events-hub";
-import GlobalCampusNetwork from "@/components/global-campus-network";
 import CampusGlobalSearch from "@/components/campus-global-search";
-import CampusMessenger from "@/components/campus-messenger";
 import { Activity, Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, GraduationCap, LayoutDashboard, LogOut, Plus, Shield, Wallet, X, ArrowUpRight, Clock3, Sparkles, Megaphone, Video, Users, ChartNoAxesCombined, Settings, Globe2, MessageCircle, Menu } from "lucide-react";
 
 type User = { id: string; name: string; email: string; role: string; avatarUrl?: string | null };
 type Expense = { id: string; title: string; category: string; amount: number; createdAt: string };
 type Notice = { id: string; title: string; body: string; createdAt: string };
 type ClassEvent = { id:string; title:string; courseCode:string|null; location:string|null; startsAt:string; endsAt:string; reminderMins:number };
+
+
+const lazyOptions = { loading: () => null };
+const BusinessCenter = dynamic(() => import("@/components/business-center"), lazyOptions);
+const EngagementAnalytics = dynamic(() => import("@/components/engagement-analytics"), lazyOptions);
+const CampusVideoHub = dynamic(() => import("@/components/campus-video-hub"), lazyOptions);
+const CampusDiscoveryHub = dynamic(() => import("@/components/campus-discovery-hub"), lazyOptions);
+const SocialFeed = dynamic(() => import("@/components/social-feed"), lazyOptions);
+const DigitalId = dynamic(() => import("@/components/digital-id"), lazyOptions);
+const CampusGuide = dynamic(() => import("@/components/campus-guide"), lazyOptions);
+const ClassRepPanel = dynamic(() => import("@/components/class-rep-panel"), lazyOptions);
+const ClassMessages = dynamic(() => import("@/components/class-messages"), lazyOptions);
+const StudentLifeHub = dynamic(() => import("@/components/student-life-hub"), lazyOptions);
+const StudyPlanner = dynamic(() => import("@/components/study-planner"), lazyOptions);
+const AlarmSystem = dynamic(() => import("@/components/alarm-system"), lazyOptions);
+const CampusEventsHub = dynamic(() => import("@/components/campus-events-hub"), lazyOptions);
+const GlobalCampusNetwork = dynamic(() => import("@/components/global-campus-network"), lazyOptions);
+const CampusMessenger = dynamic(() => import("@/components/campus-messenger"), lazyOptions);
 
 const money = (n:number) => new Intl.NumberFormat("en-TZ",{style:"currency",currency:"TZS",maximumFractionDigits:0}).format(n);
 
@@ -58,13 +62,14 @@ export default function Dashboard({user}:{user:User}) {
     } finally {setLoading(false);}
   }
   useEffect(()=>{
+    if(activeSection!=="home")return;
     void load();
     const refresh=()=>{if(document.visibilityState==="visible")void load(true);};
-    const timer=window.setInterval(()=>void load(true),20000);
+    const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load(true);},60000);
     window.addEventListener("focus",refresh);
     document.addEventListener("visibilitychange",refresh);
     return ()=>{window.clearInterval(timer);window.removeEventListener("focus",refresh);document.removeEventListener("visibilitychange",refresh);};
-  },[]);
+  },[activeSection]);
   const spent=useMemo(()=>expenses.reduce((s,x)=>s+x.amount,0),[expenses]);
   const greeting=new Date().getHours()<12?"Good morning":new Date().getHours()<17?"Good afternoon":"Good evening";
   async function addExpense(e:React.FormEvent){
@@ -104,7 +109,7 @@ export default function Dashboard({user}:{user:User}) {
         <section className="section-title planner-title"><div><span className="eyebrow">CAMPUS UTILITIES</span><h2>Academic tools</h2></div></section>
         <div className="tool-grid"><button className="tool-card" onClick={()=>setActiveSection("study")}><span className="tool-icon"><CalendarDays/></span><b>Study planner</b><small>Organise your study schedule</small><ChevronRight/></button><button className="tool-card" onClick={()=>setActiveSection("study")}><span className="tool-icon teal"><Clock3/></span><b>Class timetable</b><small>Keep track of your sessions</small><ChevronRight/></button><button className="tool-card" onClick={()=>setActiveSection("updates")}><span className="tool-icon amber"><Bell/></span><b>Smart reminders</b><small>Stay on top of important events</small><ChevronRight/></button></div></>}
         {activeSection==="study"&&<StudyPlanner/>}
-        <div style={{display:activeSection==="alarm"?"block":"none"}}><AlarmSystem/></div>
+        {activeSection==="alarm"&&<AlarmSystem/>}
         {activeSection==="discover"&&<CampusDiscoveryHub user={user} notices={notices}/> }
         {activeSection==="social"&&<><SocialFeed user={user}/>{user.role==="CLASS_REP"?<ClassRepPanel/>:<ClassMessages/>}</>}
         {activeSection==="global"&&<GlobalCampusNetwork/>}
