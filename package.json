@@ -16,7 +16,9 @@
     "db:messenger": "prisma db execute --file prisma/messenger.sql --schema prisma/schema.prisma",
     "db:social": "prisma db execute --file prisma/social.sql --schema prisma/schema.prisma",
     "db:legacy:apply": "prisma db execute --file prisma/auth-token-tables.sql --schema prisma/schema.prisma && prisma db execute --file prisma/monetization.sql --schema prisma/schema.prisma && prisma db execute --file prisma/push-subscriptions.sql --schema prisma/schema.prisma && prisma db execute --file prisma/social.sql --schema prisma/schema.prisma && prisma db execute --file prisma/campus-events.sql --schema prisma/schema.prisma && prisma db execute --file prisma/student-profile-onboarding.sql --schema prisma/schema.prisma && prisma db execute --file prisma/personal-schedules.sql --schema prisma/schema.prisma && prisma db execute --file prisma/global-campus-network.sql --schema prisma/schema.prisma && prisma db execute --file prisma/global-campus-interactions.sql --schema prisma/schema.prisma && prisma db execute --file prisma/global-student-matching.sql --schema prisma/schema.prisma && prisma db execute --file prisma/messenger.sql --schema prisma/schema.prisma",
-    "db:google-drive-backup": "prisma db execute --file prisma/google-drive-backup.sql --schema prisma/schema.prisma"
+    "db:google-drive-backup": "prisma db execute --file prisma/google-drive-backup.sql --schema prisma/schema.prisma",
+    "android:add": "cap add android",
+    "android:sync": "cap sync android"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -30,7 +32,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zod": "^3.25.0",
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/local-notifications": "^7.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -40,6 +45,7 @@
     "prisma": "^6.19.0",
     "tsx": "^4.20.0",
     "typescript": "^5.7.0",
-    "@types/web-push": "^3.6.4"
+    "@types/web-push": "^3.6.4",
+    "@capacitor/cli": "^7.0.0"
   }
 }
