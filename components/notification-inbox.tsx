@@ -25,6 +25,8 @@ export default function NotificationInbox() {
   const [toast, setToast] = useState<CampusNotification | null>(null);
   const hasLoadedOnce = useRef(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const itemsRef = useRef(items);
+  useEffect(() => { itemsRef.current = items; }, [items]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -36,7 +38,7 @@ export default function NotificationInbox() {
       if (!response.ok) throw new Error(data.error || "Notifications could not be loaded.");
       const nextItems: CampusNotification[] = Array.isArray(data.notifications) ? data.notifications : [];
       if (hasLoadedOnce.current) {
-        const knownIds = new Set(items.map(item => item.id));
+        const knownIds = new Set(itemsRef.current.map(item => item.id));
         const fresh = nextItems.find(item => !knownIds.has(item.id));
         if (fresh) {
           setToast(fresh);
@@ -51,7 +53,7 @@ export default function NotificationInbox() {
     } finally {
       setLoading(false);
     }
-  }, [items]);
+  }, []);
 
   useEffect(() => {
     try {
@@ -62,7 +64,7 @@ export default function NotificationInbox() {
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible") void load();
     };
-    const timer = window.setInterval(refreshWhenVisible, 15000);
+    const timer = window.setInterval(refreshWhenVisible, 45000);
     window.addEventListener("focus", refreshWhenVisible);
     document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
