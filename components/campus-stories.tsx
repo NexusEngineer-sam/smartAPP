@@ -19,7 +19,7 @@ export default function CampusStories({user}:Props) {
   const initials=user.name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
 
   async function load(){try{const r=await fetch("/api/stories",{cache:"no-store"});const d=await r.json();if(r.ok)setStories(d.stories||[]);}catch{}}
-  useEffect(()=>{void load();const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},10000);return()=>window.clearInterval(timer);},[]);
+  useEffect(()=>{void load();const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},30000);return()=>window.clearInterval(timer);},[]);
   useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview);},[preview]);
 
   const groups=useMemo(()=>{
@@ -46,7 +46,7 @@ export default function CampusStories({user}:Props) {
     <div className="campus-stories-heading"><div><span className="social-kicker">CAMPUS STORIES</span><h3>Status za saa 24</h3></div><span><Clock3 size={13}/> Huisha baada ya saa 24</span></div>
     <div className="campus-stories-rail">
       <button type="button" className="campus-story-tile create" onClick={()=>ownGroup?setViewing(ownGroup.stories[0]):setOpen(true)}>
-        <span className="campus-story-ring own"><span className="campus-story-avatar">{user.avatarUrl?<img src={user.avatarUrl} alt=""/>:initials}</span><i><Plus size={15}/></i></span>
+        <span className="campus-story-ring own"><span className="campus-story-avatar">{user.avatarUrl?<img loading="lazy" decoding="async" src={user.avatarUrl} alt=""/>:initials}</span><i><Plus size={15}/></i></span>
         <b>My Story</b><small>{ownGroup?ownGroup.stories.length+" status · Ongeza":"Ongeza status"}</small>
       </button>
       {groups.filter(g=>g.authorId!==user.id).map(group=>{const latest=group.stories[group.stories.length-1];return <button type="button" className="campus-story-tile" key={group.authorId} onClick={()=>setViewing(group.stories[0])}><span className="campus-story-ring"><span className="campus-story-avatar">{latest.mediaUrl&&latest.mediaType==="image"?<img src={latest.mediaUrl} alt=""/>:group.authorAvatar?<img src={group.authorAvatar} alt=""/>:group.authorName.slice(0,1).toUpperCase()}</span></span><b>{group.authorName.split(" ")[0]}</b><small>{group.stories.length>1?group.stories.length+" status":"Story mpya"}</small></button>;})}
