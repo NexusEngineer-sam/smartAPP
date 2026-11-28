@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, CalendarDays, Clapperboard, Megaphone, Newspaper, Users, Layers3 } from "lucide-react";
+import { Bell, CalendarDays, Clapperboard, Megaphone, Newspaper, Users, Layers3, Sparkles } from "lucide-react";
 import BusinessCenter from "@/components/business-center";
 import CampusEventsHub from "@/components/campus-events-hub";
 import CampusVideoHub from "@/components/campus-video-hub";
 import SocialFeed from "@/components/social-feed";
+import StudentLifeHub from "@/components/student-life-hub";
+import GlobalCampusNetwork from "@/components/global-campus-network";
 
 type User = { id:string; name:string; email:string; role:string; avatarUrl?:string|null };
 type Notice = { id:string; title:string; body:string; createdAt:string };
-type Filter = "all"|"ads"|"news"|"events"|"videos"|"students";
+type Filter = "all"|"ads"|"news"|"events"|"videos"|"students"|"extra";
 
 const filters:{id:Filter;label:string;icon:typeof Layers3}[] = [
   {id:"all",label:"Vyote",icon:Layers3},
@@ -17,7 +19,8 @@ const filters:{id:Filter;label:string;icon:typeof Layers3}[] = [
   {id:"news",label:"Habari za chuo",icon:Newspaper},
   {id:"events",label:"Matukio",icon:CalendarDays},
   {id:"videos",label:"Video",icon:Clapperboard},
-  {id:"students",label:"Posts za wanafunzi",icon:Users},
+  {id:"students",label:"Posts",icon:Users},
+  {id:"extra",label:"Extra",icon:Sparkles},
 ];
 
 export default function CampusDiscoveryHub({user,notices}:{user:User;notices:Notice[]}) {
@@ -39,6 +42,7 @@ export default function CampusDiscoveryHub({user,notices}:{user:User;notices:Not
     {show("events")&&<CampusEventsHub user={user}/>}
     {show("videos")&&<CampusVideoHub/>}
     {show("students")&&<SocialFeed user={user}/>}
+    {show("extra")&&<><GlobalCampusNetwork/><StudentLifeHub user={user}/></>}
     {active==="all"&&<div className="discovery-all-note"><span><Layers3 size={16}/></span><div><b>Unaangalia kila kitu</b><small>Matangazo, habari na maudhui mapya yanaonyeshwa kwa mpangilio wa makundi. Tumia vichujio hapo juu kufungua aina moja tu.</small></div></div>}
   </section>;
 }
