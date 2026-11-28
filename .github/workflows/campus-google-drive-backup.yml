@@ -1,0 +1,30 @@
+name: SAMWEL CAMPUS OS Google Drive backups
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: campus-google-drive-backup-scheduler
+  cancel-in-progress: false
+
+jobs:
+  run-due-backups:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger due student backups
+        env:
+          BACKUP_SECRET: ${{ secrets.CAMPUS_BACKUP_CRON_SECRET }}
+        run: |
+          if [ -z "$BACKUP_SECRET" ]; then
+            echo "::error::Add CAMPUS_BACKUP_CRON_SECRET in repository Actions secrets."
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $BACKUP_SECRET" \
+            "https://smartapp-d4va.onrender.com/api/account/backup/run"
