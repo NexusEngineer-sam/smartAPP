@@ -1010,3 +1010,141 @@ h1,h2,h3,h4,.brand,.side-brand,.welcome-row h1,.section-title h2,.card-heading h
  .discovery-facebook-layout>.social-feed .campus-stories{border-radius:8px}
  .discovery-facebook-layout>.social-feed .social-composer,.discovery-facebook-layout>.social-feed .social-post{border-radius:8px}
 }
+
+
+/* SAMWEL CAMPUS OS — realistic premium dark social interface */
+:root{
+  color-scheme:dark;
+  --ink:#e7e9ee;
+  --muted:#a0a6b2;
+  --line:#30343d;
+  --paper:#111318;
+  --purple:#4b8cff;
+  --navy:#171a21;
+  --campus-blue:#4b8cff;
+  --campus-blue-hover:#6aa0ff;
+  --campus-surface:#1b1f27;
+  --campus-bg:#111318;
+  --campus-text:#e7e9ee;
+  --campus-muted:#a0a6b2;
+  --campus-border:#30343d;
+}
+html,body{background:#111318;color:#e7e9ee}
+.app-shell,.main-area{background:#111318}
+.sidebar{background:#171a21;color:#e7e9ee;border-right:1px solid #30343d;box-shadow:none}
+.side-brand,.brand,.brand b{color:#e7e9ee}
+.brand-mark,.auth-art .brand-mark{background:#2d69c7;color:#fff;box-shadow:none;border-radius:10px}
+.nav-item{color:#a0a6b2;border-radius:8px}
+.nav-item.active,.nav-item:hover{background:#252d3a;color:#79aaff}
+.side-label{color:#858d9a}
+.sidebar-bottom{border-color:#30343d}
+.user-meta b{color:#f1f3f6}
+.user-meta small{color:#a0a6b2}
+.avatar,.social-avatar,.campus-story-avatar{background:#343b47;color:#f4f6fa;box-shadow:none}
+.topbar{background:#171a21;border-color:#30343d;box-shadow:none}
+.topbar-right{color:#c3c8d1}
+.campus-pill{background:#24344d;color:#91baff;border-radius:6px}
+.page-content{color:#e7e9ee}
+.welcome-row h1,.section-title h2,.card-heading h3,.social-feed-heading h3{color:#f1f3f6}
+.welcome-row p,.admin-intro p,.metric-label,.metric-card>small,.card-heading p,.transaction-name small,.notice small{color:#a0a6b2}
+.eyebrow,.text-action,.switch-auth button{color:#78a9ff}
+.today-pill,.surface-card,.metric-card,.admin-table-card,.tool-card,.admin-form-card,
+.social-composer,.social-post,.social-empty,.campus-stories,.discovery-news,
+.global-community-card,.global-space-post,.global-match-panel{
+ background:#1b1f27;color:#e7e9ee;border:1px solid #30343d;
+ border-radius:10px;box-shadow:none
+}
+.hero-card,.discovery-hero,.messenger-hero,.global-network-space-head{
+ background:#202b3b;color:#f1f3f6;border:1px solid #34445c;border-radius:10px;box-shadow:none
+}
+.hero-card h2,.hero-card>p,.hero-top,.hero-stats small{color:#e7edf7}
+.metric-icon,.round-action,.round-icon,.transaction-icon,.notice-mark,.tool-icon,
+.discovery-news-icon,.global-community-symbol{
+ background:#26364c;color:#8eb8ff;border-radius:8px
+}
+.primary-btn,.global-community-join,.global-network-create,.global-network-submit,
+.messenger-compose button,.social-compose-bottom button,.campus-story-publish,
+.global-match-save{
+ background:#3478df;color:#fff;border:0;border-radius:7px;box-shadow:none
+}
+.primary-btn:hover,.global-community-join:hover,.global-network-create:hover,
+.global-network-submit:hover,.messenger-compose button:hover{background:#4789ef}
+.secure-tag{background:#1e344d;color:#8eb8ff}
+.modal-card{background:#1b1f27;color:#e7e9ee;border:1px solid #30343d;border-radius:12px;box-shadow:0 18px 50px #0008}
+.modal-card input,.modal-card select,.auth-card input,.social-comments form input{
+ background:#11151c;color:#e7e9ee;border:1px solid #39414d;border-radius:7px
+}
+.modal-card label,.auth-card label{color:#c2c8d2}
+.auth-shell{background:#111318}
+.auth-art{background:#171f2c;color:#f1f3f6}
+.auth-art .eyebrow{color:#9bbfff}
+.auth-art .brand b{color:#9bbfff}
+.auth-card h2{color:#f1f3f6}
+.muted,.fine-print{color:#a0a6b2}
+.form-error,.social-error{background:#3a2025;color:#ff9ca8}
+.status-active{background:#1e3a32;color:#8de0bd}
+.status-inactive{background:#45262a;color:#ff9ca8}
+.discovery-facebook-layout>.discovery-filters{
+ background:#171a21;border-color:#30343d
+}
+.discovery-facebook-layout>.discovery-filters button{
+ color:#a0a6b2;background:transparent;border-color:transparent;box-shadow:none
+}
+.discovery-facebook-layout>.discovery-filters button.selected{
+ color:#8eb8ff;border-bottom-color:#4b8cff;background:transparent
+}
+.discovery-facebook-layout>.discovery-filters button:hover{background:#222833;color:#c5d9ff}
+.social-hero{display:none}
+.social-feed{gap:10px}
+.social-composer,.social-post{background:#1b1f27;border:1px solid #30343d;border-radius:10px;box-shadow:none}
+.social-whats-on-mind{background:#272c35;color:#c1c7d0;border:0}
+.social-whats-on-mind:hover{background:#303744}
+.social-compose-shortcuts{border-color:#30343d}
+.social-compose-shortcuts button,.social-compose-tools button,.social-post-actions button{color:#aeb6c2}
+.social-compose-shortcuts button:hover,.social-compose-tools button:hover,.social-post-actions button:hover{background:#272c35}
+.social-compose-expanded textarea{background:#1b1f27;color:#f1f3f6;border-color:#30343d}
+.social-post-author b,.social-post-content,.social-comment b{color:#f1f3f6}
+.social-post-author small,.social-post-stats,.social-doubletap-hint{color:#a0a6b2}
+.social-post-tag{background:#24344d;color:#8eb8ff}
+.social-post-stats,.social-comments{border-color:#30343d}
+.social-comment,.social-comments form input{background:#272c35;color:#e7e9ee}
+.social-post-actions button.liked{color:#79aaff}
+.social-post-actions button{border-radius:7px}
+.social-compose-bottom small{color:#a0a6b2}
+.social-feed-heading{border-color:#30343d}
+.social-feed-heading button{background:#24344d;color:#91baff;border:0;border-radius:7px}
+.social-empty{color:#a0a6b2}
+.social-media-preview,.social-post-media{background:#0b0d11;border-radius:8px}
+.social-post-media img,.social-post-media video{display:block;width:100%;max-height:680px;object-fit:contain;background:#0b0d11}
+.campus-stories{background:#1b1f27;border:1px solid #30343d;border-radius:10px;box-shadow:none}
+.campus-stories-heading h3,.campus-story-tile{color:#f1f3f6}
+.campus-stories-heading>span,.campus-story-tile small{color:#a0a6b2}
+.campus-story-ring{border-color:#4b8cff}
+.campus-story-ring.own{border-color:#596273}
+.campus-story-avatar{background:#343b47}
+.campus-story-ring.own i{background:#3478df;border-color:#1b1f27}
+.campus-story-compose{background:#1b1f27;color:#e7e9ee;border:1px solid #30343d;border-radius:12px;box-shadow:none}
+.campus-story-compose textarea{background:#11151c;border:1px solid #39414d;color:#e7e9ee}
+.campus-story-actions{color:#a0a6b2}
+.campus-story-actions button{background:#24344d;border:0;color:#91baff}
+.campus-story-viewer-card{background:#080d18;color:#fff}
+.discovery-filters button{box-shadow:none}
+.tool-card:hover{background:#222833;border-color:#465267}
+.app-footer{color:#858d9a}
+:where(a,button,input,select,textarea):focus-visible{outline:2px solid #6da3ff;outline-offset:2px}
+@media(max-width:650px){
+ .sidebar{display:none}
+ .main-area{margin-left:0}
+ .topbar{background:#171a21;border-color:#30343d}
+ .mobile-brand{color:#8eb8ff}
+ .mobile-bottom-nav{background:rgba(23,26,33,.98);border-top:1px solid #30343d;box-shadow:none}
+ .mobile-nav-item{color:#a0a6b2}
+ .mobile-nav-item.active{background:transparent;color:#8eb8ff;border-top-color:#4b8cff}
+ .discovery-facebook-layout>.discovery-filters{background:#171a21}
+ .discovery-facebook-layout>.social-feed .campus-stories,
+ .discovery-facebook-layout>.social-feed .social-composer,
+ .discovery-facebook-layout>.social-feed .social-post{border-radius:8px}
+}
+@media(prefers-reduced-motion:no-preference){
+ .social-post,.social-composer,.campus-stories,.nav-item,.mobile-nav-item{transition:background-color .16s ease,border-color .16s ease}
+}
