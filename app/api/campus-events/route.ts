@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { assessSubmissionRisk } from "@/lib/moderation";
 
 export const dynamic = "force-dynamic";
 
@@ -41,18 +42,30 @@ export async function POST(request: Request) {
   const parsed = eventSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Check the event details and make sure the end time is after the start time." }, { status: 400 });
   const data = parsed.data;
+  const moderation = assessSubmissionRisk([
+    data.title, data.description, data.category, data.venue, data.organizerName, data.contact,
+  ]);
+  const needsReview = user.role !== "ADMIN" && moderation.outcome === "HUMAN_REVIEW";
   const event = await prisma.campusEvent.create({
     data: {
       ...data, startsAt: new Date(data.startsAt), endsAt: new Date(data.endsAt),
-      organizerId: user.id, status: user.role === "ADMIN" ? "APPROVED" : "PENDING",
-      approvedAt: user.role === "ADMIN" ? new Date() : null,
+      organizerId: user.id, status: needsReview ? "PENDING" : "APPROVED",
+      approvedAt: needsReview ? null : new Date(),
     },
   });
   await prisma.auditLog.create({ data: {
-    actorId: user.id, action: user.role === "ADMIN" ? "CAMPUS_EVENT_PUBLISHED" : "CAMPUS_EVENT_SUBMITTED",
+    actorId: user.id,
+    action: needsReview ? "CAMPUS_EVENT_ESCALATED_FOR_REVIEW" : "CAMPUS_EVENT_AUTO_PUBLISHED",
     entityType: "CampusEvent", entityId: event.id,
+    metadata: { moderationOutcome: moderation.outcome, reasons: moderation.reasons },
   } });
-  return NextResponse.json({ event, message: user.role === "ADMIN" ? "Event published." : "Event sent for admin approval." }, { status: 201 });
+  return NextResponse.json({
+    event,
+    moderation: { outcome: needsReview ? "HUMAN_REVIEW" : "AUTO_APPROVED" },
+    message: needsReview
+      ? "Event received. It has been sent for a safety review because it matched a risk signal."
+      : "Event published. No manual approval was needed.",
+  }, { status: 201 });
 }
 
 export async function PATCH(request: Request) {
