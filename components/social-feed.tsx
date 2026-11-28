@@ -9,6 +9,7 @@ type Burst={id:number;left:number};
 
 export default function SocialFeed({user}:{user:{id?:string;name:string;email:string;role:string;avatarUrl?:string|null}}){
  const [posts,setPosts]=useState<SocialPost[]>([]);
+ const loadingFeed=useRef(false);
  const [content,setContent]=useState("");
  const [busy,setBusy]=useState(false);
  const [loading,setLoading]=useState(true);
@@ -25,11 +26,11 @@ export default function SocialFeed({user}:{user:{id?:string;name:string;email:st
  const burstId=useRef(0);
  const initials=user.name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
 
- async function load(){try{const r=await fetch("/api/social",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load the community feed.");setPosts(d.posts||[]);}catch(e){setError(e instanceof Error?e.message:"Feed unavailable.");}finally{setLoading(false);}}
+ async function load(){if(loadingFeed.current)return;loadingFeed.current=true;try{const r=await fetch("/api/social",{cache:"no-store"});const d=await r.json();if(!r.ok)throw new Error(d.error||"Could not load the community feed.");setPosts(d.posts||[]);}catch(e){setError(e instanceof Error?e.message:"Feed unavailable.");}finally{loadingFeed.current=false;setLoading(false);}}
  useEffect(()=>{
   void load();
   // Synchronize the shared student feed across signed-in app users.
-  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},5000);
+  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void load();},20000);
   const onVisibility=()=>{if(document.visibilityState==="visible")void load();};
   document.addEventListener("visibilitychange",onVisibility);
   return ()=>{window.clearInterval(timer);document.removeEventListener("visibilitychange",onVisibility);};
@@ -39,7 +40,7 @@ export default function SocialFeed({user}:{user:{id?:string;name:string;email:st
   let active=true;
   const refresh=async()=>{try{const r=await fetch("/api/social/comments?postId="+encodeURIComponent(commentPost),{cache:"no-store"});const d=await r.json();if(active&&r.ok)setComments(c=>({...c,[commentPost]:d.comments||[]}));}catch{}};
   void refresh();
-  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh();},5000);
+  const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh();},20000);
   return ()=>{active=false;window.clearInterval(timer);};
  },[commentPost]);
  useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview);},[preview]);
@@ -52,7 +53,7 @@ export default function SocialFeed({user}:{user:{id?:string;name:string;email:st
  async function sendComment(id:string){const body=(drafts[id]||"").trim();if(!body)return;try{const r=await fetch("/api/social/comments",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({postId:id,body})});const d=await r.json();if(!r.ok)throw new Error(d.error||"Comment failed.");setComments(c=>({...c,[id]:[...(c[id]||[]),d.comment]}));setPosts(p=>p.map(x=>x.id===id?{...x,comments:x.comments+1}:x));setDrafts(v=>({...v,[id]:""}));}catch(e){setError(e instanceof Error?e.message:"Comment failed.");}}
  return <section className="social-feed">
   <CampusStories user={user}/>\n  <section className={`social-composer social-composer-compact ${composerOpen?"is-open":""}`}>
-   <div className="social-compose-top"><span className="social-avatar">{user.avatarUrl?<img src={user.avatarUrl} alt=""/>:initials}</span><button type="button" className="social-whats-on-mind" onClick={()=>setComposerOpen(true)}>What's on your mind, {user.name.split(" ")[0]}?</button></div>
+   <div className="social-compose-top"><span className="social-avatar">{user.avatarUrl?<img loading="lazy" decoding="async" src={user.avatarUrl} alt=""/>:initials}</span><button type="button" className="social-whats-on-mind" onClick={()=>setComposerOpen(true)}>What's on your mind, {user.name.split(" ")[0]}?</button></div>
    {composerOpen&&<form onSubmit={publish} className="social-compose-expanded">
     <textarea autoFocus value={content} onChange={e=>setContent(e.target.value)} maxLength={1200} placeholder="Share something with your campus community…" aria-label="Write a post"/>
     {preview&&<div className="social-media-preview">{file?.type.startsWith("video/")?<video src={preview} controls playsInline/>:<img src={preview} alt="Selected upload preview"/>}<span>{file?.name}</span></div>}\n    <div className="social-compose-tools"><span><button type="button" onClick={()=>{if(fileRef.current){fileRef.current.accept="image/*";fileRef.current.click();}}}><ImagePlus size={16}/> Photo</button><button type="button" onClick={()=>{if(fileRef.current){fileRef.current.accept="video/*";fileRef.current.click();}}}><Video size={16}/> Video</button><button type="button" onClick={()=>setContent(v=>v+" 😊")}><Smile size={16}/> Feeling</button><input ref={fileRef} className="social-file-input" type="file" accept="image/*,video/*" onChange={e=>selectFile(e.target.files?.[0]||null)}/></span><button type="button" className="social-compose-close" aria-label="Close composer" onClick={()=>{setComposerOpen(false);setContent("");selectFile(null);}}><X size={16}/></button></div>
