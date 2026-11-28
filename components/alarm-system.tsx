@@ -7,6 +7,41 @@ const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const STORE="campus-os-alarms-v1";
 const pad=(n:number)=>String(n).padStart(2,"0");
 function nextOccurrence(alarm:Alarm,now:Date){const [h,m]=alarm.time.split(":").map(Number);for(let offset=0;offset<8;offset++){const d=new Date(now);d.setDate(now.getDate()+offset);d.setHours(h,m,0,0);if(d.getTime()<=now.getTime())continue;if(alarm.days.length&&!alarm.days.includes(d.getDay()))continue;return d;}return null;}
+
+const nativeAlarmId=(value:string)=>{let hash=2166136261;for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);}return (hash>>>0)%2000000000+1;};
+async function syncNativeAlarms(alarms:Alarm[]){
+ try{
+  const {Capacitor}=await import("@capacitor/core");
+  if(!Capacitor.isNativePlatform())return {native:false as const};
+  const {LocalNotifications}=await import("@capacitor/local-notifications");
+  let permission=await LocalNotifications.checkPermissions();
+  if(permission.display!=="granted")permission=await LocalNotifications.requestPermissions();
+  if(permission.display!=="granted")return {native:true as const,message:"Ruhusu NEXUS kutuma notifications ili alarm za Android zifanye kazi."};
+  await LocalNotifications.createChannel({id:"nexus-alarm",name:"NEXUS Alarms",description:"Scheduled NEXUS alarm alerts",importance:5,vibration:true,visibility:1});
+  const pending=await LocalNotifications.getPending();
+  const owned=pending.notifications.filter((item:any)=>item.extra?.kind==="nexus-alarm");
+  if(owned.length)await LocalNotifications.cancel({notifications:owned.map((item:any)=>({id:item.id}))});
+  const weekdays=["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+  const scheduled:any[]=[];
+  for(const alarm of alarms){
+   if(!alarm.enabled)continue;
+   const base={title:"NEXUS Alarm",body:alarm.label||"Alarm time",channelId:"nexus-alarm",sound:"default",smallIcon:"ic_stat_icon",extra:{kind:"nexus-alarm",alarmId:alarm.id},schedule:{allowWhileIdle:true,isExactNotification:true,isExactMandatory:true}};
+   if(alarm.days.length){
+    for(const day of alarm.days){
+     const [hour,minute]=alarm.time.split(":").map(Number);
+     scheduled.push({...base,id:nativeAlarmId(alarm.id+":"+day),schedule:{...base.schedule,on:{weekday:weekdays[day],hour,minute}}});
+    }
+   }else{
+    const next=nextOccurrence(alarm,new Date());
+    if(next)scheduled.push({...base,id:nativeAlarmId(alarm.id+":once"),schedule:{...base.schedule,at:next}});
+   }
+  }
+  if(scheduled.length)await LocalNotifications.schedule({notifications:scheduled});
+  return {native:true as const,message:"Alarm za Android zimehifadhiwa kwenye mfumo wa simu."};
+ }catch(error){
+  return {native:true as const,message:"Android alarm haikuweza kusawazishwa. Hakikisha ruhusa ya Notifications na Alarms & reminders imeruhusiwa."};
+ }
+}
 type AlarmAudioContext=AudioContext&{__alarmTimer?:number;__vibeTimer?:number};
 export default function AlarmSystem(){
  const [alarms,setAlarms]=useState<Alarm[]>([]);
@@ -24,6 +59,7 @@ export default function AlarmSystem(){
  const firedRef=useRef<string>("");
  useEffect(()=>{try{const raw=localStorage.getItem(STORE);if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed))setAlarms(parsed);}}catch{}setReady(true);},[]);
  useEffect(()=>{if(ready)try{localStorage.setItem(STORE,JSON.stringify(alarms));}catch{}},[alarms,ready]);
+ useEffect(()=>{if(!ready)return;let active=true;void syncNativeAlarms(alarms).then(result=>{if(active&&result.native&&result.message)setNotice(result.message);});return()=>{active=false;};},[alarms,ready]);
  const stopSound=useCallback(()=>{const ctx=audioRef.current;if(ctx){if(ctx.__alarmTimer)window.clearInterval(ctx.__alarmTimer);if(ctx.__vibeTimer)window.clearInterval(ctx.__vibeTimer);void ctx.close().catch(()=>{});audioRef.current=null;}if(typeof navigator!=="undefined"&&"vibrate"in navigator)navigator.vibrate(0);},[]);
  const startSound=useCallback(async()=>{
   try{
@@ -90,7 +126,7 @@ export default function AlarmSystem(){
   </div>
   <div className="alarm-panel alarm-list-panel"><div className="alarm-panel-heading"><div><span className="alarm-kicker">YOUR SCHEDULE</span><h3>Alarms <span className="alarm-count">{alarms.length}</span></h3></div><span className="alarm-heading-icon"><Clock3 size={18}/></span></div>
    {alarms.length===0?<div className="alarm-empty"><AlarmClock size={30}/><b>No alarms yet</b><span>Create your first alarm to get started.</span></div>:<div className="alarm-list">{upcoming.map(({alarm,next})=><article className={alarm.enabled?"alarm-item":"alarm-item disabled"} key={alarm.id}><div className="alarm-item-main"><strong>{alarm.time}</strong><span>{alarm.label}</span><small>{alarm.days.length?[...alarm.days].sort((a,b)=>a-b).map(d=>DAYS[d]).join(" · "):"One time"}{next&&alarm.enabled?" · Next "+next.toLocaleDateString("en",{weekday:"short",day:"numeric",month:"short"}):""}</small></div><div className="alarm-item-actions"><button type="button" title="Edit alarm" onClick={()=>edit(alarm)}><Pencil size={15}/></button><button type="button" title="Delete alarm" onClick={()=>setAlarms(old=>old.filter(a=>a.id!==alarm.id))}><Trash2 size={15}/></button><button type="button" className={alarm.enabled?"alarm-toggle on":"alarm-toggle"} aria-label="Toggle alarm" onClick={()=>setAlarms(old=>old.map(a=>a.id===alarm.id?{...a,enabled:!a.enabled}:a))}><span/></button></div></article>)}</div>}
-   <div className="alarm-footnote"><Repeat size={14}/> Sauti na vibration hurudia hadi ubonyeze Dismiss. Alarm za browser zinahitaji NEXUS ibaki wazi; Android native alarm inahitajika kwa uhakika app ikiwa imefungwa.</div>
+   <div className="alarm-footnote"><Repeat size={14}/> Kwenye Android APK yenye Capacitor, alarm huhifadhiwa kwenye mfumo wa simu na inaweza kutoa arifa hata NEXUS ikifungwa. PWA/browser pekee haiwezi kuhakikisha alarm app ikiwa imefungwa.</div>
   </div></div>
   {ringing&&<div className="alarm-ringing-backdrop"><div className="alarm-ringing-card"><div className="alarm-ringing-pulse"><AlarmClock size={34}/></div><span className="alarm-kicker">ALARM IS RINGING</span><strong>{ringing.time}</strong><h3>{ringing.label}</h3><p>Ni muda uliopanga. Umeamka?</p><div><button type="button" onClick={snooze}>Snooze 5 min</button><button type="button" onClick={dismiss}>Dismiss</button></div></div></div>}
  </section>;
