@@ -42,7 +42,7 @@ export default function Dashboard({user}:{user:User}) {
   const [category,setCategory]=useState("Food");
   const [error,setError]=useState("");
   const [saving,setSaving]=useState(false);
-  const [activeSection,setActiveSection]=useState("discover");
+  const [activeSection,setActiveSection]=useState("social");
   const [moreOpen,setMoreOpen]=useState(false);
 
   async function load(silent=false) {
