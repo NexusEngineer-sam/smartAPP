@@ -8,7 +8,8 @@ export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
   const body = await request.json().catch(() => null);
-  const resourceType = body?.resourceType === "video" ? "video" : body?.resourceType === "image" ? "image" : null;\n  const folder = body?.folder === "campus-stories" ? "campus-stories" : "campus-posts";
+  const resourceType = body?.resourceType === "video" ? "video" : body?.resourceType === "image" ? "image" : null;
+  const folder = body?.folder === "campus-stories" ? "campus-stories" : "campus-posts";
   if (!resourceType) return NextResponse.json({ error: "Choose an image or video." }, { status: 400 });
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
