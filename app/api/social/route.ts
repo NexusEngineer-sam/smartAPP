@@ -10,16 +10,33 @@ export const runtime = "nodejs";
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-  const posts = await prisma.$queryRaw<Array<Record<string, unknown>>> `
-    SELECT p."id", p."content", p."createdAt", p."mediaUrl", p."mediaType",
-      u."id" AS "authorId", u."name" AS "authorName", u."avatarUrl" AS "authorAvatar",
-      (SELECT COUNT(*)::int FROM "SocialPostLike" l WHERE l."postId"=p."id") AS "likes",
-      EXISTS(SELECT 1 FROM "SocialPostLike" mine WHERE mine."postId"=p."id" AND mine."userId"=${user.id}) AS "likedByMe",
-      (SELECT COUNT(*)::int FROM "SocialPostComment" c WHERE c."postId"=p."id") AS "comments"
-    FROM "SocialPost" p JOIN "User" u ON u."id"=p."userId"
-    WHERE u."isActive"=true
-    ORDER BY p."createdAt" DESC LIMIT 50
-  `;
+  let posts: Array<Record<string, unknown>>;
+  try {
+    posts = await prisma.$queryRaw<Array<Record<string, unknown>>> `
+      SELECT p."id", p."content", p."createdAt", p."mediaUrl", p."mediaType",
+        u."id" AS "authorId", u."name" AS "authorName", u."avatarUrl" AS "authorAvatar",
+        (SELECT COUNT(*)::int FROM "SocialPostLike" l WHERE l."postId"=p."id") AS "likes",
+        EXISTS(SELECT 1 FROM "SocialPostLike" mine WHERE mine."postId"=p."id" AND mine."userId"=${user.id}) AS "likedByMe",
+        (SELECT COUNT(*)::int FROM "SocialPostComment" c WHERE c."postId"=p."id") AS "comments",
+        EXISTS(SELECT 1 FROM "SocialPostSave" s WHERE s."postId"=p."id" AND s."userId"=${user.id}) AS "savedByMe"
+      FROM "SocialPost" p JOIN "User" u ON u."id"=p."userId"
+      WHERE u."isActive"=true
+      ORDER BY p."createdAt" DESC LIMIT 50
+    `;
+  } catch {
+    // Keep the core feed available while older deployments apply the saved-posts SQL migration.
+    posts = await prisma.$queryRaw<Array<Record<string, unknown>>> `
+      SELECT p."id", p."content", p."createdAt", p."mediaUrl", p."mediaType",
+        u."id" AS "authorId", u."name" AS "authorName", u."avatarUrl" AS "authorAvatar",
+        (SELECT COUNT(*)::int FROM "SocialPostLike" l WHERE l."postId"=p."id") AS "likes",
+        EXISTS(SELECT 1 FROM "SocialPostLike" mine WHERE mine."postId"=p."id" AND mine."userId"=${user.id}) AS "likedByMe",
+        (SELECT COUNT(*)::int FROM "SocialPostComment" c WHERE c."postId"=p."id") AS "comments",
+        false AS "savedByMe"
+      FROM "SocialPost" p JOIN "User" u ON u."id"=p."userId"
+      WHERE u."isActive"=true
+      ORDER BY p."createdAt" DESC LIMIT 50
+    `;
+  }
   return NextResponse.json({ posts });
 }
 
