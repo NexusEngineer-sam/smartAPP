@@ -18,14 +18,18 @@ export async function GET(request:Request) {
  const people=[...new Set([...conversations.flatMap(c=>c.participants.filter(p=>p.userId!==user.id).map(p=>p.userId)),...users.map(p=>p.id)])];
  const cutoff=new Date(Date.now()-75_000);
  const activity=people.length?await prisma.engagementSession.findMany({
-  where:{userId:{in:people},endedAt:null,lastSeenAt:{gte:cutoff}},
-  select:{userId:true,lastSeenAt:true},orderBy:{lastSeenAt:"desc"},take:500
+  where:{userId:{in:people}},
+  select:{userId:true,lastSeenAt:true,endedAt:true},orderBy:{lastSeenAt:"desc"},take:500
  }):[];
- const presence=new Map<string,string>();
- for(const item of activity)if(!presence.has(item.userId))presence.set(item.userId,item.lastSeenAt.toISOString());
- const withPresence=(person:{id:string;name:string;avatarUrl:string|null;university?:string|null;course?:string|null})=>({
-  ...person,online:presence.has(person.id),lastSeenAt:presence.get(person.id)||null
+ const presence=new Map<string,{lastSeenAt:string;online:boolean}>();
+ for(const item of activity)if(!presence.has(item.userId))presence.set(item.userId,{
+  lastSeenAt:item.lastSeenAt.toISOString(),
+  online:!item.endedAt&&item.lastSeenAt.getTime()>=cutoff.getTime()
  });
+ const withPresence=(person:{id:string;name:string;avatarUrl:string|null;university?:string|null;course?:string|null})=>{
+  const state=presence.get(person.id);
+  return {...person,online:state?.online||false,lastSeenAt:state?.lastSeenAt||null};
+ };
  return NextResponse.json({
   conversations:conversations.map(c=>({...c,otherUsers:c.participants.filter(p=>p.userId!==user.id).map(p=>withPresence(p.user)),lastMessage:c.messages[0]||null})),
   users:users.map(withPresence)
