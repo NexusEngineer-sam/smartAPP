@@ -12,10 +12,14 @@ async function getMessages(_request:Request,{params}:Context){
  const conversation=await prisma.chatConversation.findUnique({where:{id},include:{participants:{select:{userId:true}}}});
  if(!conversation||conversation.isGroup||conversation.participants.length!==2||!conversation.participants.some(p=>p.userId===user.id))return NextResponse.json({error:"This is not a valid private conversation."},{status:404});
  if(conversation.requestStatus!=="ACCEPTED")return NextResponse.json({error:"This message request has not been accepted yet."},{status:403});
- const messages=await prisma.chatMessage.findMany({where:{conversationId:id},include:{sender:{select:{id:true,name:true,avatarUrl:true}}},orderBy:{createdAt:"asc"},take:100});
+ const [latestMessages,total]=await Promise.all([
+  prisma.chatMessage.findMany({where:{conversationId:id},include:{sender:{select:{id:true,name:true,avatarUrl:true}}},orderBy:{createdAt:"desc"},take:100}),
+  prisma.chatMessage.count({where:{conversationId:id}})
+ ]);
+ const messages=latestMessages.reverse();
  await prisma.chatParticipant.update({where:{id:member.id},data:{lastReadAt:new Date()}});
  const peer=await prisma.chatParticipant.findFirst({where:{conversationId:id,userId:{not:user.id}},select:{lastReadAt:true}});
- return NextResponse.json({messages,peerReadAt:peer?.lastReadAt?.toISOString()||null});
+ return NextResponse.json({messages,hasMore:total>messages.length,peerReadAt:peer?.lastReadAt?.toISOString()||null});
 }
 const schema=z.object({body:z.string().trim().min(1).max(4000)});
 async function createMessage(request:Request,{params}:Context){

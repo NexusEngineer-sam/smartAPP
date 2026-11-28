@@ -25,6 +25,7 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  const [loading,setLoading]=useState(true);
  const [sending,setSending]=useState(false);
  const [error,setError]=useState("");
+ const [notice,setNotice]=useState("");
  const [mobileChat,setMobileChat]=useState(false);
  const activeName=useMemo(()=>selected?.title||selected?.otherUsers.map(x=>x.name).join(", ")||"Conversation",[selected]);
  const load=useCallback(async()=>{
@@ -39,11 +40,11 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  },[]);
  useEffect(()=>{if(!selected)return;void loadMessages(selected.id);const t=window.setInterval(()=>void loadMessages(selected.id),5000);return()=>window.clearInterval(t)},[selected?.id,loadMessages]);
  async function startChat(person:Person){
-  setError("");try{const r=await fetch("/api/messenger",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({recipientId:person.id})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not send request.");await load();setQuery("");if(d.pending){setError("Message request sent. Chat opens after they accept.");return;}const conversation:Conversation={id:d.conversationId,isGroup:false,title:null,updatedAt:new Date().toISOString(),otherUsers:[person],lastMessage:null};setSelected(conversation);setMessages([]);setMobileChat(true);}
+  setError("");setNotice("");try{const r=await fetch("/api/messenger",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({recipientId:person.id})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not send request.");await load();setQuery("");if(d.pending){setSelected(null);setMobileChat(false);setNotice(d.direction==="incoming"?"This student has already sent you a request. Accept it under Message Requests.":"Message request sent. You can chat after the student accepts.");return;}const conversation:Conversation={id:d.conversationId,isGroup:false,title:null,updatedAt:new Date().toISOString(),otherUsers:[person],lastMessage:null};setSelected(conversation);setMessages([]);setMobileChat(true);}
   catch(e){setError(e instanceof Error?e.message:"Could not send request.");}
  }
  async function respondToRequest(id:string,action:"accept"|"decline"){
-  setError("");try{const r=await fetch("/api/messenger/"+id+"/request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not update request.");await load();if(action==="accept"){const c=(d.conversation||incomingRequests.find(x=>x.id===id));if(c){setSelected(c);setMessages([]);setMobileChat(true);}}}
+  setError("");setNotice("");try{const r=await fetch("/api/messenger/"+id+"/request",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})});const d=await readJsonResponse(r);if(!r.ok)throw new Error(d.error||"Could not update request.");await load();if(action==="accept"){const c=incomingRequests.find(x=>x.id===id);if(c){setSelected(c);setMessages([]);setMobileChat(true);}setNotice("Request accepted. You can now exchange messages.");}else setNotice("Message request declined.");}
   catch(e){setError(e instanceof Error?e.message:"Could not update request.");}
  }
  async function sendMessage(e:React.FormEvent){
@@ -53,7 +54,7 @@ export default function CampusMessenger({currentUser}:{currentUser:{id?:string;n
  }
  return <section className="campus-messenger">
   <header className="messenger-hero"><span><MessageCircle size={25}/></span><div><small>CONNECTED CAMPUS COMMUNITY</small><h2>Campus Messenger</h2><p>Private conversations with students across your campus network.</p></div><b>PRIVATE</b></header>
-  {error&&<p className="messenger-error">{error}</p>}
+  {error&&<p className="messenger-error">{error}</p>}{notice&&<p className="messenger-notice" role="status">{notice}</p>}
   <div className="messenger-layout">
    <aside className={mobileChat?"messenger-sidebar hide-mobile":"messenger-sidebar"}>
     <div className="messenger-search"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Find students or chats…"/></div>
