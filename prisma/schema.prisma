@@ -488,6 +488,7 @@ model GlobalStudentProfile {
 model ChatConversation {
   id        String   @id @default(cuid())
   isGroup   Boolean  @default(false)
+  requestStatus String @default("ACCEPTED") @db.VarChar(16)
   title     String?  @db.VarChar(100)
   createdById String
   createdAt DateTime @default(now())
