@@ -51,6 +51,8 @@ model User {
   campusVideos CampusVideo[]
   campusEvents CampusEvent[]
   eventRegistrations EventRegistration[]
+  globalCommunityMemberships GlobalCommunityMembership[]
+  createdGlobalCommunities GlobalCommunity[]
   @@index([classGroupId])
 }
 
@@ -405,4 +407,34 @@ model EventRegistration {
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([eventId, userId])
   @@index([userId, createdAt])
+}
+
+
+model GlobalCommunity {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(100)
+  slug        String   @unique @db.VarChar(120)
+  country     String   @db.VarChar(80)
+  university  String?  @db.VarChar(140)
+  category    String   @default("General") @db.VarChar(40)
+  description String   @db.VarChar(500)
+  language    String   @default("English") @db.VarChar(40)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  members     GlobalCommunityMembership[]
+  @@index([country, category])
+}
+
+model GlobalCommunityMembership {
+  id          String   @id @default(cuid())
+  communityId String
+  userId      String
+  role        String   @default("MEMBER") @db.VarChar(20)
+  createdAt   DateTime @default(now())
+  community   GlobalCommunity @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([communityId, userId])
+  @@index([userId])
 }
