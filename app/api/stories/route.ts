@@ -62,3 +62,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not publish your status. Try again." }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+  const body = z.object({ storyId: z.string().min(1).max(100) }).safeParse(await request.json().catch(() => null));
+  if (!body.success) return NextResponse.json({ error: "Invalid story." }, { status: 400 });
+  try {
+    await ensureStoriesTable();
+    const deleted = await prisma.$executeRaw`DELETE FROM "CampusStory" WHERE "id"=${body.data.storyId} AND "userId"=${user.id}`;
+    if (!deleted) return NextResponse.json({ error: "Status haipatikani au si yako." }, { status: 404 });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Could not delete this status." }, { status: 500 });
+  }
+}
