@@ -40,7 +40,7 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
     pcRef.current = pc;
     stream.getTracks().forEach(track => pc.addTrack(track, stream));
     pc.ontrack = event => { const incoming = event.streams[0]; setRemoteStream(incoming); if (remoteVideo.current) remoteVideo.current.srcObject = incoming; };
-    pc.onicecandidate = event => { if (event.candidate) void sendUpdate({ action: "candidate", candidate: event.candidate.toJSON() }).catch(e => setError(e.message)); };
+    pc.onicecandidate = event => { if (event.candidate) { const candidate = event.candidate.toJSON(); if (!callIdRef.current) pendingLocalCandidates.current.push(candidate); else void sendUpdate({ action: "candidate", candidate }).catch(e => setError(e.message)); } };
     return pc;
   }, [sendUpdate]);
   const start = async (kind: "AUDIO" | "VIDEO") => {
@@ -58,7 +58,7 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
   const accept = async (incoming: CallRow) => {
     setBusy(true); setError("");
     try {
-      const pc = await makePeer(incoming.kind);
+      callIdRef.current = incoming.id;\n      const pc = await makePeer(incoming.kind);
       await pc.setRemoteDescription(incoming.offer!);
       const answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
       await sendUpdate({ action: "accept", answer });
@@ -98,7 +98,7 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
       } catch { /* retry on next poll */ }
     };
     void poll();
-    const timer = window.setInterval(() => { if (document.visibilityState === "visible") void poll(); }, 1200);
+    const timer = window.setInterval(() => { if (document.visibilityState === "visible") void poll(); }, 2500);
     return () => { alive = false; window.clearInterval(timer); closeMedia(); };
   }, [conversationId, currentUserId, closeMedia]);
   useEffect(() => { if (remoteVideo.current && remoteStream) remoteVideo.current.srcObject = remoteStream; if (remoteAudio.current && remoteStream) remoteAudio.current.srcObject = remoteStream; }, [remoteStream]);
