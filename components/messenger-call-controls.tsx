@@ -20,11 +20,13 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
   const remoteCandidateCount = useRef(0);
   const localVideo = useRef<HTMLVideoElement>(null);
   const remoteVideo = useRef<HTMLVideoElement>(null);
+  const remoteAudio = useRef<HTMLAudioElement>(null);
+  const pendingLocalCandidates = useRef<RTCIceCandidateInit[]>([]);
   const active = call && ["RINGING", "ACCEPTED"].includes(call.status);
   const closeMedia = useCallback(() => {
     pcRef.current?.close(); pcRef.current = null;
     localRef.current?.getTracks().forEach(t => t.stop()); localRef.current = null;
-    setRemoteStream(null); remoteCandidateCount.current = 0;
+    setRemoteStream(null); remoteCandidateCount.current = 0; pendingLocalCandidates.current = [];
   }, []);
   const sendUpdate = useCallback(async (body: object) => {
     const r = await fetch(`/api/messenger/${conversationId}/calls`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -99,13 +101,13 @@ export default function MessengerCallControls({ conversationId, currentUserId }:
     const timer = window.setInterval(() => { if (document.visibilityState === "visible") void poll(); }, 1200);
     return () => { alive = false; window.clearInterval(timer); closeMedia(); };
   }, [conversationId, currentUserId, closeMedia]);
-  useEffect(() => { if (remoteVideo.current && remoteStream) remoteVideo.current.srcObject = remoteStream; }, [remoteStream]);
+  useEffect(() => { if (remoteVideo.current && remoteStream) remoteVideo.current.srcObject = remoteStream; if (remoteAudio.current && remoteStream) remoteAudio.current.srcObject = remoteStream; }, [remoteStream]);
   const incoming = !!call && call.calleeId === currentUserId && call.status === "RINGING";
   return <div className="nexus-call-controls">
     {!active && <><button type="button" title="Voice call" disabled={busy} onClick={() => void start("AUDIO")}><Phone size={17}/></button><button type="button" title="Video call" disabled={busy} onClick={() => void start("VIDEO")}><Video size={18}/></button></>}
     {active && <div className="nexus-call-panel">
       <strong>{incoming ? "Incoming call" : call.status === "RINGING" ? "Calling…" : "Call connected"}</strong>
-      {call.kind === "VIDEO" && <div className="nexus-call-videos"><video ref={remoteVideo} autoPlay playsInline/><video ref={localVideo} autoPlay muted playsInline/></div>}
+      <audio ref={remoteAudio} autoPlay/>\n      {call.kind === "VIDEO" && <div className="nexus-call-videos"><video ref={remoteVideo} autoPlay playsInline/><video ref={localVideo} autoPlay muted playsInline/></div>}
       {incoming ? <><button type="button" disabled={busy} onClick={() => void accept(call)}><Phone size={17}/> Answer</button><button type="button" onClick={() => void finish("reject")}><PhoneOff size={17}/> Decline</button></> :
         <><button type="button" onClick={() => { localRef.current?.getAudioTracks().forEach(t => t.enabled = muted); setMuted(!muted); }}>{muted ? <MicOff size={17}/> : <Mic size={17}/>}</button>{call.kind === "VIDEO" && <button type="button" onClick={() => { localRef.current?.getVideoTracks().forEach(t => t.enabled = cameraOff); setCameraOff(!cameraOff); }}><Video size={17}/></button>}<button type="button" onClick={() => void finish()}><PhoneOff size={17}/> End</button></>}
     </div>}
