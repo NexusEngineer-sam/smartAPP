@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { sendPushToUser } from "@/lib/push";
 
 export const runtime = "nodejs";
 
@@ -54,6 +55,13 @@ export async function POST(request: Request) {
     if (!story.length) return NextResponse.json({ error: "Status imeisha muda au haipo." }, { status: 404 });
     const id = randomUUID();
     await prisma.$executeRaw`INSERT INTO "CampusStoryReply" ("id","storyId","userId","body") VALUES (${id},${parsed.data.storyId},${user.id},${parsed.data.body})`;
+    const owner = await prisma.$queryRaw<Array<{userId:string}>>`SELECT "userId" FROM "CampusStory" WHERE "id"=${parsed.data.storyId} LIMIT 1`;
+    if (owner.length && owner[0].userId !== user.id) {
+      const title = "Jibu jipya kwenye status yako";
+      const body = user.name + ": " + parsed.data.body.slice(0, 110);
+      await prisma.notification.create({ data: { userId: owner[0].userId, title, body, channel: "IN_APP", status: "QUEUED", dedupeKey: `story-reply:${randomUUID()}` } });
+      try { await sendPushToUser(owner[0].userId, title, body, "/"); } catch { /* in-app notification remains available */ }
+    }
     return NextResponse.json({ reply: { id, body: parsed.data.body, authorName: user.name, authorAvatar: user.avatarUrl, createdAt: new Date().toISOString() } }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Reply haijahifadhiwa. Jaribu tena." }, { status: 500 });
