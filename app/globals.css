@@ -2001,3 +2001,34 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-seri
 .pwa-install-help li b{color:#1c1e21}
 .pwa-install-help .primary-btn{width:100%;display:flex;justify-content:center;align-items:center;padding:12px}
 @media(max-width:600px){.pwa-install-trigger{padding:8px}.pwa-install-trigger span{display:inline}}
+
+
+/* NEXUS More Spaces — structured monochrome navigation */
+.more-sheet-backdrop{align-items:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}
+.more-sheet{width:min(100%,760px);max-height:min(88dvh,820px);padding:18px 22px 22px;background:#fff;color:#080808;border:1px solid #111;border-radius:20px;box-shadow:0 24px 90px rgba(0,0,0,.38)}
+.more-sheet-handle{background:#111}
+.more-sheet-heading{padding:2px 2px 15px;margin-bottom:4px;border-bottom:1px solid #111}
+.more-sheet-heading .eyebrow{color:#555}
+.more-sheet-heading h2{font-size:24px;color:#080808}
+.more-sheet-heading .icon-btn{color:#080808;border:1px solid #111;border-radius:50%;width:36px;height:36px}
+.more-sheet-heading .icon-btn:hover{background:#111;color:#fff}
+.more-group{padding-top:17px}
+.more-group>h3{margin:0 0 10px;color:#555;font-size:10px;font-weight:800;letter-spacing:1.35px;text-transform:uppercase}
+.more-sheet-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;border:0}
+.more-sheet-item{min-height:68px;grid-template-columns:38px minmax(0,1fr) 15px;grid-template-rows:auto auto;column-gap:11px;padding:10px;border:1px solid #e5e5e5;border-radius:12px;background:#fff;color:#080808;transition:background .16s,border-color .16s,transform .16s}
+.more-sheet-item:hover{background:#f5f5f5;border-color:#111;transform:translateY(-1px)}
+.more-sheet-item>span{width:36px;height:36px;background:#111;color:#fff;border-radius:10px}
+.more-sheet-item>b{font-size:12px;color:#080808}
+.more-sheet-item>small{font-size:10px;color:#666}
+.more-sheet-item>svg{color:#111}
+.more-sheet-item.chosen,.more-sheet-item:active{background:#ededed;border-color:#111}
+.more-logout{height:44px;margin-top:19px;border:1px solid #111;border-radius:11px;background:#111;color:#fff;font-size:11px}
+.more-logout:hover{background:#333}
+@media(max-width:650px){
+ .more-sheet-backdrop{align-items:flex-end;padding:0}
+ .more-sheet{width:100%;max-height:90dvh;padding:12px 15px calc(18px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0}
+ .more-sheet-heading h2{font-size:21px}
+ .more-sheet-grid{grid-template-columns:1fr;gap:7px}
+ .more-sheet-item{min-height:62px}
+}
+@media(prefers-reduced-motion:reduce){.more-sheet-item{transition:none}}
