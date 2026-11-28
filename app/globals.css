@@ -2068,3 +2068,31 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-seri
  .more-sheet-item{padding:10px!important;grid-template-columns:31px minmax(0,1fr) 12px!important}
 }
 @media(max-width:360px){.more-sheet-grid{grid-template-columns:1fr}}
+
+
+/* NEXUS More Spaces: white canvas, black typography and black icons */
+.more-sheet,
+.more-sheet *{color-scheme:light}
+.more-sheet{background:#fff!important;color:#111!important}
+.more-sheet-heading h2,
+.more-space-group-heading b,
+.more-sheet-item b,
+.more-sheet-item>svg,
+.more-sheet-item>span svg,
+.more-account-item>span svg,
+.more-logout svg{color:#000!important}
+.more-sheet-item,
+.more-account-item{background:#fff!important;color:#111!important}
+.more-sheet-item>span,
+.more-account-item>span{background:#fff!important;color:#000!important;border:1px solid #e5e5e5!important}
+.more-sheet-item>small,
+.more-space-group-heading span{color:#666!important}
+.more-sheet-item>svg{color:#000!important}
+.more-sheet-item:hover,
+.more-sheet-item.chosen{background:#f5f5f5!important;color:#000!important}
+.more-sheet-item.chosen>span{background:#fff!important;color:#000!important}
+.more-logout{background:#fff!important;color:#000!important;border:1px solid #111!important}
+.more-logout:hover{background:#f2f2f2!important}
+.topbar-more-trigger,
+.topbar-more-trigger svg{background:#fff!important;color:#000!important}
+.topbar-more-trigger{border:1px solid #ddd!important}
