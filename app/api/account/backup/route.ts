@@ -60,9 +60,9 @@ export async function POST(request: NextRequest) {
       prisma.adCampaign.findMany({ where: { advertiserId: user.id }, include: { likes: { where: { userId: user.id }, select: { createdAt: true } }, comments: { where: { userId: user.id }, select: { body: true, createdAt: true } } } }),
       prisma.chatParticipant.findMany({ where: { userId: user.id }, include: { conversation: { include: { participants: { select: { userId: true, joinedAt: true } }, messages: { orderBy: { createdAt: "asc" } } } } } }),
       prisma.user.findUnique({ where: { id: user.id }, select: { classGroup: { select: { name: true } } } }),
-      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>("SELECT \\\"id\\\",\\\"content\\\",\\\"mediaUrl\\\",\\\"mediaType\\\",\\\"createdAt\\\",\\\"updatedAt\\\" FROM \\\"SocialPost\\\" WHERE \\\"userId\\\" = $1 ORDER BY \\\"createdAt\\\" ASC", user.id),
-      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>("SELECT \\\"id\\\",\\\"postId\\\",\\\"body\\\",\\\"createdAt\\\" FROM \\\"SocialPostComment\\\" WHERE \\\"userId\\\" = $1 ORDER BY \\\"createdAt\\\" ASC", user.id),
-      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>("SELECT \\\"postId\\\",\\\"createdAt\\\" FROM \\\"SocialPostLike\\\" WHERE \\\"userId\\\" = $1 ORDER BY \\\"createdAt\\\" ASC", user.id),
+      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>('SELECT "id","content","mediaUrl","mediaType","createdAt","updatedAt" FROM "SocialPost" WHERE "userId" = $1 ORDER BY "createdAt" ASC', user.id),
+      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>('SELECT "id","postId","body","createdAt" FROM "SocialPostComment" WHERE "userId" = $1 ORDER BY "createdAt" ASC', user.id),
+      prisma.$queryRawUnsafe<Array<Record<string, unknown>>>('SELECT "postId","createdAt" FROM "SocialPostLike" WHERE "userId" = $1 ORDER BY "createdAt" ASC', user.id),
     ]);
 
     const backup = {
